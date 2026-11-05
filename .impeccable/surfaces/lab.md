@@ -1,0 +1,2 @@
+# Comparison lab
+Mode: Operate. Primary action: launch two runs from the same initial world. Evidence: actual seat counts, passenger bookings and persisted events. First viewport shows the task, configuration, paired worlds and explainable initial state. Signature interaction: synchronized logical-tick replay with exact action receipts. Code-first; no approved comp. All design detail delegated by user. Boundary: frontend only; never invent benchmark outcomes or change scoring rules for aesthetics.

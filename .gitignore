@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+.DS_Store
+node_modules/
+frontend/dist/
+artifacts/*
+!artifacts/.gitkeep
+.bifrost/
+
+*.tsbuildinfo
+.ruff_cache/
