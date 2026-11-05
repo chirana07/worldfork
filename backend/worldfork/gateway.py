@@ -17,7 +17,7 @@ class Gateway:
         self.base_url = os.getenv(
             "WORLDFORK_GATEWAY", "http://127.0.0.1:8080/v1"
         ).rstrip("/")
-        self.model = model or os.getenv("WORLDFORK_MODEL", "ollama/llama3.1:latest")
+        self.model = model or os.getenv("WORLDFORK_MODEL", "ollama/qwen3.5:4b")
         self.temperature, self.seed = temperature, seed
         self.attempts = []
         self.max_attempts = 64

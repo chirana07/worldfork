@@ -2,21 +2,28 @@
 
 import argparse
 import asyncio
+import hashlib
 import json
+import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
 
 import httpx
 
 
-async def benchmark(full=False, model="ollama/llama3.1:latest"):
+def pilot_configs(full=False, model="ollama/qwen3.5:4b"):
     configs = []
-    for framework in ["python", "langgraph"]:
-        for strategy in ["case_by_case", "coordinated"]:
-            for seed in [11, 29, 47]:
-                configs.append(
-                    {"framework": framework, "strategy": strategy, "seed": seed}
-                )
+    cells = [
+        ("python", "case_by_case"),
+        ("python", "coordinated"),
+        ("langgraph", "case_by_case"),
+        ("langgraph", "coordinated"),
+    ]
+    # Reverse and rotate orders. Three repeats cannot perfectly balance four cells.
+    orders = [cells, list(reversed(cells)), [cells[i] for i in [1, 3, 0, 2]]]
+    for seed, order in zip([11, 29, 47], orders, strict=True):
+        for framework, strategy in order:
+            configs.append({"framework": framework, "strategy": strategy, "seed": seed})
     for fault in ["model_unavailable", "tool_timeout", "misleading_observation"]:
         for strategy in ["case_by_case", "coordinated"] if full else ["coordinated"]:
             for seed in [11, 29, 47]:
@@ -30,12 +37,30 @@ async def benchmark(full=False, model="ollama/llama3.1:latest"):
                 )
     for config in configs:
         config["model"] = model
-    # Interleave designs across seeds instead of running all of one design first.
-    clean = configs[:12]
-    clean.sort(
-        key=lambda c: ([11, 29, 47].index(c["seed"]), c["framework"], c["strategy"])
-    )
-    configs = clean + configs[12:]
+    return configs
+
+
+def build_provenance():
+    return {
+        "git_revision": subprocess.run(
+            ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True
+        ).stdout.strip(),
+        "tracked_changes_at_start": bool(
+            subprocess.run(
+                ["git", "status", "--porcelain", "--untracked-files=no"],
+                capture_output=True,
+                text=True,
+                check=True,
+            ).stdout.strip()
+        ),
+        "dependency_lock_sha256": hashlib.sha256(
+            Path("uv.lock").read_bytes()
+        ).hexdigest(),
+    }
+
+
+async def benchmark(full=False, model="ollama/qwen3.5:4b"):
+    configs = pilot_configs(full, model)
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     path = Path(f"artifacts/benchmark-{stamp}.json")
     manifest = {
@@ -43,8 +68,13 @@ async def benchmark(full=False, model="ollama/llama3.1:latest"):
         "kind": "pilot",
         "matrix": "full30" if full else "minimum21",
         "created_at": stamp,
+        "planned_configs": configs,
+        "order_policy": "clean cells reversed/rotated across seeds; incomplete counterbalancing with three repeats",
         "runs": [],
+        **(await asyncio.to_thread(build_provenance)),
     }
+    if manifest["tracked_changes_at_start"]:
+        raise SystemExit("Commit tracked changes before starting the frozen pilot")
     path.parent.mkdir(exist_ok=True)
     async with httpx.AsyncClient(
         base_url="http://127.0.0.1:8000", timeout=10
@@ -73,7 +103,19 @@ async def benchmark(full=False, model="ollama/llama3.1:latest"):
                             flush=True,
                         )
                         entry = next(r for r in manifest["runs"] if r["id"] == rid)
-                        entry.update(status=run["status"], result=result)
+                        export = await client.get("/api/runs/" + rid + "/export")
+                        export.raise_for_status()
+                        trace_path = (
+                            path.parent / (path.stem + "-traces") / (rid + ".json")
+                        )
+                        trace_path.parent.mkdir(exist_ok=True)
+                        trace_path.write_text(export.text)
+                        entry.update(
+                            status=run["status"],
+                            result=result,
+                            config=run["config"],
+                            trace=str(trace_path),
+                        )
                         path.write_text(json.dumps(manifest, indent=2))
                 if pending:
                     await asyncio.sleep(3)
@@ -119,7 +161,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "manifest", nargs="?", help="Existing benchmark JSON for report"
     )
-    parser.add_argument("--model", default="ollama/llama3.1:latest")
+    parser.add_argument("--model", default="ollama/qwen3.5:4b")
     parser.add_argument(
         "--full",
         action="store_true",

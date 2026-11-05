@@ -121,13 +121,14 @@ const config = (
   scenario_id: string,
   fault: string,
   passenger_mode: string,
+  model: string,
 ): Config => ({
   strategy,
   framework,
   scenario_id,
   fault,
   passenger_mode,
-  model: "ollama/llama3.1:latest",
+  model,
   seed: 11,
   temperature: 0.2,
   max_steps: 48,
@@ -319,6 +320,8 @@ export default function App() {
     [frameworkB, setFrameworkB] = useState("python"),
     [fault, setFault] = useState("none"),
     [passengers, setPassengers] = useState("scripted");
+  const [model, setModel] = useState("ollama/qwen3.5:4b"),
+    [models, setModels] = useState<string[]>([]);
   const [runA, setRunA] = useState<Run | null>(null),
     [runB, setRunB] = useState<Run | null>(null),
     [eventsA, setEventsA] = useState<Event[]>([]),
@@ -342,12 +345,16 @@ export default function App() {
       api<Scenario[]>("/scenarios"),
       api<Record<string, string>>("/health"),
       api<Run[]>("/runs"),
+      api<string[]>("/models"),
     ])
-      .then(([s, h, r]) => {
+      .then(([s, h, r, installed]) => {
         if (mounted) {
           setScenarios(s);
           setHealth(h);
           setArchive(r);
+          setModels(installed);
+          if (installed.length && !installed.includes(model))
+            setModel(installed[0]);
         }
       })
       .catch(
@@ -484,8 +491,22 @@ export default function App() {
       const c = await api<{ run_ids: { a: string; b: string }[] }>(
         "/comparisons",
         {
-          a: config("case_by_case", frameworkA, scenarioId, fault, passengers),
-          b: config("coordinated", frameworkB, scenarioId, fault, passengers),
+          a: config(
+            "case_by_case",
+            frameworkA,
+            scenarioId,
+            fault,
+            passengers,
+            model,
+          ),
+          b: config(
+            "coordinated",
+            frameworkB,
+            scenarioId,
+            fault,
+            passengers,
+            model,
+          ),
           repeats: 1,
         },
       );
@@ -746,6 +767,20 @@ export default function App() {
               </div>
               <div className="config-bottom">
                 <label className="passenger-mode">
+                  Shared model
+                  <select
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    disabled={active(runA) || active(runB)}
+                  >
+                    {models.map((name) => (
+                      <option key={name} value={name}>
+                        {name.replace("ollama/", "")}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="passenger-mode">
                   Population
                   <select
                     value={passengers}
@@ -761,7 +796,13 @@ export default function App() {
                 </span>
                 <button
                   className="primary"
-                  disabled={busy || active(runA) || active(runB) || !scenario}
+                  disabled={
+                    busy ||
+                    active(runA) ||
+                    active(runB) ||
+                    !scenario ||
+                    !models.length
+                  }
                   onClick={launch}
                 >
                   {busy
@@ -914,7 +955,8 @@ export default function App() {
             </section>
             <p className="footnote">
               Synthetic outcomes, not predictions of real passenger behavior.
-              Initial booking is included in totals. Model: Llama 3.1 8B through
+              Initial booking is included in totals. Model:{" "}
+              {(runA?.config.model || model).replace("ollama/", "")} through
               Bifrost · local API charge: 0; hardware and electricity
               unmeasured.
             </p>

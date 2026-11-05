@@ -6,7 +6,7 @@ A shared-world laboratory for customer-support agents. Six fictional passenger p
 
 ## Local setup
 
-Prerequisites: macOS/Linux, uv, Python3.12, Node, Ollama with `llama3.1:latest` installed. The tested gateway is Bifrost transport v2.4.0, installed via npm launcher1.6.3. Docker is optional.
+Prerequisites: macOS/Linux, uv, Python3.12, Node, Ollama with `qwen3.5:4b` installed (`ollama pull qwen3.5:4b`). Llama3.1 and Gemma2 are optional local choices. The tested gateway is Bifrost transport v2.4.0, installed via npm launcher1.6.3. Docker is optional.
 
 ```sh
 uv sync --python 3.12
@@ -30,7 +30,7 @@ npm ci --prefix frontend
 npm run dev --prefix frontend
 ```
 
-Open http://127.0.0.1:5173. The interface includes initial-world comparisons, a complete decision ledger, passenger/receipt inspection, cancellation, an archive and recorded playback. An end-of-run summary is labeled separately from a historical replay snapshot.
+Open http://127.0.0.1:5173. The interface includes initial-world comparisons, a complete decision ledger, passenger/receipt inspection, cancellation, an archive and recorded playback. The shared-model selector lists installed supported local models; refresh after installing another model. An end-of-run summary is labeled separately from a historical replay snapshot.
 
 The smoke command must return an actual Bifrost→Ollama completion with usage metadata. It is not a simulated inference call.
 
@@ -44,7 +44,7 @@ The environment enforces hard constraints, and scores outcomes from bookings and
 
 Framework (`python` or `langgraph`) and strategy (`case_by_case` or `coordinated`) are independent settings. Both adapters use the same gateway client and decision component. A LangGraph run invokes a compiled StateGraph; it is not a label on the Python loop.
 
-The local reference agents select from a schema-constrained action menu derived only from public observations. It omits repeated answered questions and identical rejected offers. Proposal vouchers are discretized to0/40 credits for both designs. A common transaction policy requires resolving a live consented offer before other work. These are harness controls, not claimed model intelligence. The environment's typed tool API supports the full0–40 range. Generic third-party agent wrapping remains to be demonstrated before claiming universal integration.
+The local reference agents select from a schema-constrained action menu derived only from public observations. It omits repeated answered questions and identical rejected offers. Proposal vouchers are discretized to0/40 credits for both designs. A common transaction policy requires resolving a live consented offer before other work. These are harness controls, not claimed model intelligence. The environment's typed tool API supports the full0–40 range. A generic message-based bridge and a real prebuilt ReAct integration smoke are included; see [adapter guide](docs/adapter-guide.md). Universal compatibility is not claimed.
 
 ## API
 
@@ -61,12 +61,12 @@ This example compares two packaged designs and is not evidence that a framework 
 ## Evaluation
 
 ```sh
-uv run python -m worldfork.cli benchmark
+uv run python -m worldfork.cli benchmark --model ollama/qwen3.5:4b
 # Full target:30 episodes rather than21 minimum
 uv run python -m worldfork.cli benchmark --full
 ```
 
-These commands queue sequential inference through the API worker and retain a manifest under `artifacts/`. They can take substantial time; measure actual pilot latency before running them. No matrix has been completed or published yet.
+Commit tracked changes before a frozen pilot. These commands queue sequential inference through the API worker and retain a manifest, full per-run exports, model/source identities and resource summaries under `artifacts/`. They can take substantial time; measure actual pilot latency before running them. No matrix has been completed or published yet.
 
 Three fault classes are explicit synthetic interventions: one unavailable model attempt, one pre-execution tool timeout, or one misleading inventory observation. Capacity enforcement always uses ground truth. Faults and exposure are logged; they are not represented as natural provider incidents.
 
@@ -76,4 +76,4 @@ Report raw resolved people/parties, terminal statuses, oracle allocation upper b
 
 Ollama provides local inference; Bifrost is the actual gateway; LangGraph supplies one orchestration integration. Passenger speech/consent may use local inference when configured. World rules, transactions, scoring, limits and persistence are deterministic application code. Codex assists implementation. No real airline, passengers, transactions or personal records are used.
 
-The project targets the hackathon's agent-benchmarking statement. It does not predict real behavior or stock prices. Tavily is not currently integrated; eligibility wording needs confirmation before final submission. Core implementation is being created during the hackathon. Dependencies and organizer resources are distinct from original code; resource PDFs should not be automatically redistributed in a public repository without checking rights.
+The project targets the hackathon's agent-benchmarking statement. It does not predict real behavior or stock prices. Tavily is not integrated. The live official FAQ checked November 5 explicitly permits Bifrost-only projects; see [submission requirements](docs/eligibility.md). Core implementation is being created during the hackathon. Dependencies and organizer resources are distinct from original code; resource PDFs should not be automatically redistributed in a public repository without checking rights.

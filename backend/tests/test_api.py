@@ -40,3 +40,32 @@ def test_budget_and_unknown_options_validated(client):
         client.post("/api/runs", json={"framework": "fake-framework"}).status_code
         == 422
     )
+
+
+def test_model_choices_exclude_cloud_and_missing_models(client, monkeypatch):
+    import httpx
+
+    class LocalModels:
+        def __init__(self, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            pass
+
+        async def get(self, url):
+            return httpx.Response(
+                200,
+                request=httpx.Request("GET", url),
+                json={
+                    "models": [
+                        {"name": "llama3.1:latest"},
+                        {"name": "gpt-oss:120b-cloud"},
+                    ]
+                },
+            )
+
+    monkeypatch.setattr("worldfork.api.httpx.AsyncClient", LocalModels)
+    assert client.get("/api/models").json() == ["ollama/llama3.1:latest"]

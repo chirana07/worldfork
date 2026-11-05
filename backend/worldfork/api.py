@@ -77,6 +77,20 @@ async def scenarios():
     ]
 
 
+@app.get("/api/models")
+async def models():
+    """Only advertise installed local models supported by the run contract."""
+    allowed = RunConfig.model_fields["model"].annotation.__args__
+    try:
+        async with httpx.AsyncClient(timeout=3) as client:
+            response = await client.get("http://127.0.0.1:11434/api/tags")
+            response.raise_for_status()
+            installed = {item["name"] for item in response.json()["models"]}
+    except (httpx.HTTPError, ValueError, KeyError):
+        raise HTTPException(503, "Cannot inspect local Ollama models") from None
+    return [name for name in allowed if name.removeprefix("ollama/") in installed]
+
+
 @app.post("/api/runs", status_code=202)
 async def create_run(config: RunConfig):
     if len(runner.tasks) >= 30:

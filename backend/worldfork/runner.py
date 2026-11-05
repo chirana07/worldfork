@@ -27,7 +27,7 @@ class RunConfig(BaseModel):
     passenger_mode: Literal["scripted", "llm"] = "scripted"
     model: Literal[
         "ollama/llama3.1:latest", "ollama/gemma2:2b", "ollama/qwen3.5:4b"
-    ] = "ollama/llama3.1:latest"
+    ] = "ollama/qwen3.5:4b"
     fault: Literal[
         "none", "model_unavailable", "tool_timeout", "misleading_observation"
     ] = "none"

@@ -1,6 +1,6 @@
 # WorldFork implementation specification
 
-Status: selected for implementation by the user on November 5, 2026. This is the authoritative plan; earlier idea files are background. Build days: November 6–7, Sri Lanka time; work can begin now. Prototype deadline recorded by organizer: November 15; exact cutoff still requires checking. Target submission November 14. No assumption that post-deadline code changes are permitted.
+Status: selected for implementation by the user on November 5, 2026. This is the authoritative plan; earlier idea files are background. Build days: November 6–7, Sri Lanka time; work can begin now. The live event schedule checked November 5 displays prototype submission closing November 15 at 11:59 PM; the displayed timezone is not explicit. Target submission November 14. No assumption that post-deadline code changes are permitted.
 
 ## 1. Product and acceptance
 
@@ -31,7 +31,7 @@ Repeatability: three independent repetitions per published cell; disclose small 
 Failure testing: model unavailable, tool timeout and misleading tool observation.
 Inspection: compare outcomes and drill into chronological observations/actions/results.
 Bifrost: real gateway for every live model call. Collect our own tool/agent traces because gateway logs alone cannot describe world actions.
-Technology ambiguity: local PDF footer says integrate Bifrost + Tavily; user reports single-track submissions are allowed. Implement Bifrost first. Reserve a bounded Tavily scenario-evidence importer if both are required or credits are available; do not claim statement 05/06 compliance from a decorative search call. Confirm current form requirements before submission.
+Technology requirement resolved November 5: the live official FAQ explicitly permits Bifrost-only, Tavily-only or combined projects. WorldFork targets the Bifrost benchmarking challenge. Tavily integration is outside P0. Preserve the FAQ evidence and recheck final submission form fields before entry.
 
 ## 3. Scope tiers
 
@@ -254,7 +254,7 @@ Ask user only for actual blockers: Tavily credentials if required, unavailable a
 - Shared-state bug mistaken for intelligence result: independent invariant tests and raw ledger inspection first.
 - Framework independence superficial: real graph invocation plus documented adapter wrapping and generic tools; do not claim unsupported integrations.
 - Tiny sample overclaimed: raw counts, all terminal outcomes and pilot label.
-- Technology eligibility ambiguous: reserve bounded Tavily importer; user confirms current submission requirement before final entry.
+- Official FAQ allows Bifrost-only projects. Registration and required Discord membership still need user confirmation; recheck final submission form fields before entry.
 - Feature creep: P0 gates before P1; keep the film honest and the world small.
 
 ## 21. Technical references verified during planning

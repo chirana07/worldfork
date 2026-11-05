@@ -10,7 +10,7 @@ Freeze the harness revision, model digest, prompt/schema/configuration and scena
 
 Clean:2 frameworks ×2 strategies ×3 repetitions (seeds11/29/47). Minimum faults: plain Python/coordinated ×3 faults ×3 repeats. Target faults additionally include case-by-case. Total minimum21, target30. All defaults use scripted passenger contracts; LLM passenger runs form a separate experiment.
 
-Same model, temperature, scenario, constraints and budgets in every comparable cell. The API comparison alternates A/B order between repetitions. The CLI pilot should also counterbalance implementation order before a final efficiency comparison, because prompt caching/warmth can otherwise affect latency.
+Same model, temperature, scenario, constraints and budgets in every comparable cell. The API comparison alternates A/B order between repetitions. The CLI reverses and rotates clean-cell order across seeds and records the exact planned order. Three repeats cannot perfectly counterbalance four cells; prompt caching/warmth can still affect latency. Do not infer a framework efficiency advantage from this small pilot. Each terminal episode is exported with its full trace, scenario, source hashes and model manifest beside the pilot summary.
 
 ## Outcomes
 

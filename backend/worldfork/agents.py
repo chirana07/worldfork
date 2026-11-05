@@ -98,6 +98,7 @@ class PythonAgent:
             }
         system = (
             self.policy
+            + "\nOBJECTIVE: Maximize the number of PEOPLE with confirmed, consented bookings that meet their requirements across ALL parties. Then minimize compensation and unnecessary changes. An already satisfied party needs no further action unless a voluntary move can help another party. Spend only the compensation necessary for acceptance. Do not reverse a useful move without a concrete reason."
             + "\nSTRATEGY: "
             + STRATEGIES[self.strategy]
             + '\nSelect one next action from the numbered menu. Return only JSON {"action_id":integer}. Discover unknown constraints, then book feasible alternatives. Avoid unnecessary questions after you have enough information. Commit accepted offers before they expire. The menu removes already answered questions and exact previously proposed offers, but does not tell you which choices succeed. Finish only if useful work is exhausted.'
