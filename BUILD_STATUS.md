@@ -21,6 +21,7 @@ Three runs interrupted by the laptop closure were repeated under the frozen harn
 | Repository, environment and architecture | Complete for the local benchmark. [Architecture](docs/architecture.md) |
 | Data, agent orchestration and application | Complete for the two synthetic scenario variants, reference integrations and replay. [Evaluation protocol](docs/evaluation.md) |
 | Testing, pilot and operational performance | Complete for the recorded pilot and local container workload. [Performance report](docs/performance.md) |
-| Reproducible deployment and CI | Production replay image built and verified locally, including restart and browser tests. GitHub workflow is prepared for a remote run after publication. [Deployment guide](docs/deployment.md) |
+| Reproducible deployment and CI | Production replay image built and verified locally, including restart and browser tests. [GitHub Actions](https://github.com/chirana07/worldfork/actions/workflows/verify.yml) · [Deployment guide](docs/deployment.md) |
 | Public hosting | Deferred at the user's request. |
-| Public repository and final submission | Pending. [Eligibility notes](docs/eligibility.md) |
+| Public repository | [WorldFork on GitHub](https://github.com/chirana07/worldfork) |
+| Final submission | Pending. [Eligibility notes](docs/eligibility.md) |

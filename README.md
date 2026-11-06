@@ -1,21 +1,37 @@
 # WorldFork
 
+[![Verify WorldFork](https://github.com/chirana07/worldfork/actions/workflows/verify.yml/badge.svg)](https://github.com/chirana07/worldfork/actions/workflows/verify.yml)
+
 A shared-world laboratory for customer-support agents. Six fictional passenger parties need alternatives after a cancellation; their decisions compete for actual capacity in a local simulator. Compare support strategies through plain Python and LangGraph adapters using the same model, tools, goals and budgets.
 
 WorldFork runs live comparisons through Bifrost and includes a read-only replay of the recorded pilot. See [build status](BUILD_STATUS.md) and the [implementation specification](WORLD_FORK_IMPLEMENTATION_PLAN.md).
 
-## Review recorded evidence
+## Quick start with recorded evidence
 
-The replay server opens the real frozen comparison from bundled traces. It verifies and imports the evidence into a temporary database. This mode needs neither Ollama nor Bifrost and accepts no run-creation requests.
+Start here to review the project. You need Git, `uv`, and Node.js with npm. The replay server verifies the bundled traces, imports them into a temporary database, and opens a recorded comparison. Replay runs without Ollama, Bifrost, or model downloads.
 
 ```sh
+git clone https://github.com/chirana07/worldfork.git
+cd worldfork
 uv sync --frozen --python 3.12
 npm ci --prefix frontend
 npm run build --prefix frontend
 uv run python scripts/replay_server.py
 ```
 
-Open http://127.0.0.1:8001. Use the replay slider, decision inspector and archive to review the recorded runs. The source archive includes the JSON exports, measured report and deterministic replay verifier. See [evidence guide](evidence/README.md) and [archived observation provenance](docs/trace-provenance.md).
+Open [recorded replay](http://127.0.0.1:8001). The repository includes the JSON exports, measured report and deterministic replay verifier. See [evidence guide](evidence/README.md) and [archived observation provenance](docs/trace-provenance.md).
+
+1. Compare the two worlds' passenger counts, route capacity and gaps from the oracle. The opening comparison uses the same model, scenario, seed and LangGraph integration with different strategies.
+2. Scrub the timeline and open a decision in the ledger. Check what the agent observed, which action it chose, and how the tool receipt changed the world.
+3. Open **Run archive** to inspect all 30 pilot runs, including cases with injected faults. Use **Export trace** to download a run's configuration, decisions and snapshots.
+
+Run these in a second terminal to check the service and audit the evidence independently.
+
+```sh
+uv run python scripts/check_replay_deployment.py http://127.0.0.1:8001
+uv run python scripts/verify_evidence.py evidence/pilot-manifest.json
+uv run pytest -q
+```
 
 For a reproducible read-only service, see the [container deployment and verification guide](docs/deployment.md) and [performance report](docs/performance.md).
 
@@ -47,7 +63,7 @@ npm run dev --prefix frontend
 
 Open http://127.0.0.1:5173. The interface includes initial-world comparisons, a complete decision ledger, passenger/receipt inspection, cancellation, an archive and recorded playback. The shared-model selector lists installed supported local models; refresh after installing another model. An end-of-run summary is labeled separately from a historical replay snapshot. Saved run links restore an inspection or comparison after refreshing.
 
-The smoke command must return an actual Bifrost→Ollama completion with usage metadata. It is not a simulated inference call.
+Keep the model, integration and scenario fixed to compare the two default strategies. Choose a fault preset if you want both worlds to face the same configured intervention. Click **Fork & run experiment** and watch the ledger as the worlds execute in sequence. The smoke command checks an actual Bifrost-to-Ollama completion with usage metadata.
 
 ## World rules
 
