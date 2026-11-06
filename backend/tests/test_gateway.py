@@ -3,6 +3,24 @@ import pytest
 from worldfork.gateway import BudgetExhausted, Gateway
 
 
+async def test_fenced_json_is_unwrapped_but_raw_reply_is_preserved():
+    raw = '```json\n{"action_id": 0}\n```'
+    g = Gateway()
+    await g.client.aclose()
+    g.client = httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda _: httpx.Response(
+                200, json={"choices": [{"message": {"content": raw}}]}
+            )
+        )
+    )
+    try:
+        assert await g.generate([]) == '{"action_id": 0}'
+        assert g.attempts[0]["raw_response"] == raw
+    finally:
+        await g.close()
+
+
 async def test_injected_unavailable_attempt_never_sends_and_is_counted():
     g = Gateway()
     try:

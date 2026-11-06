@@ -630,9 +630,10 @@ export default function App() {
     setScenarioId(r.config.scenario_id);
     setRunA(r);
     setRunB(null);
-    setEventsA([]);
+    if (r.id !== runA?.id) setEventsA([]);
     setEventsB([]);
     setCursor(null);
+    setPlaying(false);
     setView("lab");
   }
   const timeline = [
@@ -800,6 +801,8 @@ export default function App() {
                       setEventsA([]);
                       setEventsB([]);
                       setSelected(null);
+                      setCursor(null);
+                      setPlaying(false);
                     }}
                   >
                     {scenarios.map((s) => (

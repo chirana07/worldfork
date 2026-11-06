@@ -7,9 +7,12 @@ from collections import Counter
 from pathlib import Path
 
 from worldfork.engine import Action, World, digest, score
+from worldfork.gateway import unwrap_json_reply
 
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_ENGINE = "7b9aed1bc23dc5a8d8f1fa31d60b80ce12c979cb1334996b40f733c2e8ec91ca"
+LEGACY_GATEWAY = "4b897ddf1de418afa24eab6a96c2abbe1471995869c4721072e10ab14219ca16"
+JSON_FENCE_GATEWAY = "9f18aab1139c49cff198f47c3a63c1b819c0fb980ab9ae152e10dccd0fec817c"
 
 
 def require(condition, message):
@@ -53,6 +56,13 @@ def verify_export(payload):
                 ),
                 "Engine changed beyond the observation-copy correction",
             )
+        elif name == "gateway" and expected == LEGACY_GATEWAY:
+            old = (ROOT / "evidence/frozen-source/gateway.py").read_text()
+            require(digest(old) == expected, "Frozen gateway snapshot differs")
+            require(
+                digest(current) in {expected, JSON_FENCE_GATEWAY},
+                "Gateway changed beyond the JSON-fence correction",
+            )
         else:
             require(digest(current) == expected, "Frozen source differs: " + name)
     timeout_ticks = {
@@ -95,7 +105,10 @@ def verify_export(payload):
                 observed == expected_observation,
                 f"Public observation differs at tick {world.tick}",
             )
-            selected = json.loads(event["attempts"][-1]["raw_response"])["action_id"]
+            raw = event["attempts"][-1]["raw_response"]
+            if run["config"]["source_hashes"]["gateway"] != LEGACY_GATEWAY:
+                raw = unwrap_json_reply(raw)
+            selected = json.loads(raw)["action_id"]
             candidate = next(
                 (a for a in event["candidate_actions"] if a["id"] == selected), None
             )

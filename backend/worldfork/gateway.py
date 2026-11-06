@@ -8,6 +8,13 @@ import uuid
 import httpx
 
 
+def unwrap_json_reply(raw: str) -> str:
+    lines = raw.strip().splitlines()
+    if len(lines) >= 3 and lines[0] in {"```json", "```"} and lines[-1] == "```":
+        return "\n".join(lines[1:-1])
+    return raw
+
+
 class BudgetExhausted(RuntimeError):
     pass
 
@@ -127,7 +134,7 @@ class Gateway:
                 response_id=data.get("id"),
                 raw_response=data["choices"][0]["message"].get("content"),
             )
-            return data["choices"][0]["message"]["content"]
+            return unwrap_json_reply(data["choices"][0]["message"]["content"])
         except asyncio.CancelledError:
             attempt.update(
                 status="cancelled", error="Request cancelled; provider usage unknown"
