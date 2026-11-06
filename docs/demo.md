@@ -10,6 +10,6 @@ Do not record the final pitch until the frozen pilot has run and the working pro
 
 Creative treatment: departure-board typography, audible/visual scene transitions only at real events, side-by-side elapsed logical time, and a persistent recorded-playback label. Condense inference waits, disclose that the playback is condensed, and retain the full traces.
 
-Final deck outline: problem; shared-world mechanism; architecture and information boundaries; working experiment; measured pilot; limitations and potential. Deck/video artifacts have not yet been generated.
+The seven-slide PowerPoint and 2:52 narrated 1080p video are in the review bundle. The video includes English captions, and a silent copy is available for live narration. The source archive includes the verified traces and read-only replay launcher.
 
 Submission checklist: public-ready source, clean setup, tests, model prerequisites, AI-use/library disclosures, project/problem description, tools/AI roles, working demo, deck/video if required, confirmed submission cutoff and technology eligibility. Public repository creation and actual submission require the user's explicit instruction.

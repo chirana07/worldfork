@@ -215,7 +215,7 @@ class World:
     def observation(self):
         return {
             "tick": self.tick,
-            "cases": self.cases(),
+            "cases": copy.deepcopy(self.cases()),
             "options": self.option_view(),
             "credits": {"available": self.budget_available(), "spent": self.spent},
             "active_offers": copy.deepcopy(self.active()),

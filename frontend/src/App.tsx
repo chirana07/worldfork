@@ -59,6 +59,11 @@ type Config = {
   seed: number;
   max_steps?: number;
   temperature?: number;
+  max_tokens?: number;
+  wall_seconds?: number;
+  scenario_hash?: string;
+  source_hashes?: Record<string, string>;
+  model_manifest?: { digest: string | null };
 };
 type Run = {
   id: string;
@@ -91,6 +96,17 @@ const strategyLabel = (s: string) =>
   s === "coordinated" ? "Shared-constraint planning" : "Case-by-case service";
 const active = (r?: Run | null) =>
   !!r && ["running", "queued"].includes(r.status);
+function saveRunLink(a?: Run | null, b?: Run | null) {
+  const url = new URL(window.location.href);
+  for (const [key, run] of [
+    ["a", a],
+    ["b", b],
+  ] as const) {
+    if (run) url.searchParams.set(key, run.id);
+    else url.searchParams.delete(key);
+  }
+  window.history.replaceState(null, "", url);
+}
 const fmt = (n?: number | null) => (n == null ? "Unknown" : n.toLocaleString());
 async function api<T>(path: string, body?: unknown): Promise<T> {
   const r = await fetch(
@@ -345,9 +361,9 @@ export default function App() {
       api<Scenario[]>("/scenarios"),
       api<Record<string, string>>("/health"),
       api<Run[]>("/runs"),
-      api<string[]>("/models"),
+      api<string[]>("/models").catch(() => [] as string[]),
     ])
-      .then(([s, h, r, installed]) => {
+      .then(async ([s, h, r, installed]) => {
         if (mounted) {
           setScenarios(s);
           setHealth(h);
@@ -355,6 +371,64 @@ export default function App() {
           setModels(installed);
           if (installed.length && !installed.includes(model))
             setModel(installed[0]);
+          const query = new URLSearchParams(window.location.search);
+          const aId = query.get("a"),
+            bId = query.get("b");
+          if (aId) {
+            try {
+              const [a, b] = await Promise.all([
+                api<Run>("/runs/" + encodeURIComponent(aId)),
+                bId
+                  ? api<Run>("/runs/" + encodeURIComponent(bId))
+                  : Promise.resolve(null),
+              ]);
+              const shared = (run: Run) => {
+                const c = run.config;
+                return JSON.stringify([
+                  c.scenario_id,
+                  c.model,
+                  c.passenger_mode,
+                  c.fault,
+                  c.seed,
+                  c.temperature,
+                  c.max_steps,
+                  c.max_tokens,
+                  c.wall_seconds,
+                  c.scenario_hash,
+                  c.source_hashes,
+                ]);
+              };
+              if (b && shared(a) !== shared(b))
+                throw new Error(
+                  "The linked runs do not share the same experiment conditions.",
+                );
+              if (
+                b &&
+                a.config.model_manifest?.digest &&
+                b.config.model_manifest?.digest &&
+                a.config.model_manifest.digest !==
+                  b.config.model_manifest.digest
+              )
+                throw new Error(
+                  "The linked runs used different model weights.",
+                );
+              if (!mounted) return;
+              setRunA(a);
+              setRunB(b);
+              setSingleRun(!b);
+              setScenarioId(a.config.scenario_id);
+              setModel(a.config.model);
+              setPassengers(a.config.passenger_mode);
+              setFault(a.config.fault);
+              setFrameworkA(a.config.framework);
+              if (b) setFrameworkB(b.config.framework);
+            } catch (e) {
+              if (mounted)
+                setError(
+                  `Cannot restore the saved run link. ${(e as Error).message}`,
+                );
+            }
+          }
         }
       })
       .catch(
@@ -517,6 +591,7 @@ export default function App() {
       ]);
       setRunA(a);
       setRunB(b);
+      saveRunLink(a, b);
       setEventsA([]);
       setEventsB([]);
     } catch (e) {
@@ -550,6 +625,7 @@ export default function App() {
       return;
     }
     setSingleRun(true);
+    saveRunLink(r);
     setSelected(null);
     setScenarioId(r.config.scenario_id);
     setRunA(r);
@@ -620,14 +696,16 @@ export default function App() {
         <div className="sidebar-bottom">
           <div className="connection">
             <span
-              className={`dot ${health.gateway === "ok" ? "connected" : ""}`}
+              className={`dot ${health.gateway === "ok" || health.mode === "replay" ? "connected" : ""}`}
             />
             <span>
-              Local gateway
+              {health.mode === "replay" ? "Recorded replay" : "Local gateway"}
               <small>
-                {health.gateway === "ok"
-                  ? "Bifrost is responding"
-                  : "Connection not established"}
+                {health.mode === "replay"
+                  ? "Verified traces loaded"
+                  : health.gateway === "ok"
+                    ? "Bifrost is responding"
+                    : "Connection not established"}
               </small>
             </span>
           </div>
@@ -658,7 +736,9 @@ export default function App() {
           <div className="run-banner">
             <Radio size={16} />
             <span>
-              Experiment active · A: {runA?.status} · B: {runB?.status}
+              {singleRun
+                ? `Run active · ${runA?.status}`
+                : `Experiment active · A: ${runA?.status} · B: ${runB?.status}`}
             </span>
             <button onClick={() => setView("lab")}>Return to lab</button>
             <button
@@ -714,6 +794,7 @@ export default function App() {
                     value={scenarioId}
                     onChange={(e) => {
                       setScenarioId(e.target.value);
+                      saveRunLink();
                       setRunA(null);
                       setRunB(null);
                       setEventsA([]);
@@ -771,8 +852,15 @@ export default function App() {
                   <select
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    disabled={active(runA) || active(runB)}
+                    disabled={active(runA) || active(runB) || !models.length}
                   >
+                    {!models.length && (
+                      <option value={model}>
+                        {health.mode === "replay"
+                          ? "Replay only"
+                          : "No local model available"}
+                      </option>
+                    )}
                     {models.map((name) => (
                       <option key={name} value={name}>
                         {name.replace("ollama/", "")}
@@ -792,7 +880,11 @@ export default function App() {
                 </label>
                 <span className="budget-note">
                   <Clock3 size={14} />
-                  48 decisions per world · runs execute sequentially
+                  {health.mode === "replay"
+                    ? "Replay only · use the live launcher for new runs"
+                    : models.length
+                      ? "48 decisions per world · runs execute sequentially"
+                      : "Recorded runs are available · start Ollama for new runs"}
                 </span>
                 <button
                   className="primary"
@@ -1121,7 +1213,18 @@ export default function App() {
                 )}
               </pre>
               <details>
-                <summary>Exact agent observation</summary>
+                <summary>Stored agent observation</summary>
+                {selected.event?.action?.tool === "ask_question" &&
+                  selected.event.result?.ok &&
+                  (selected.side === "B" ? runB : runA)?.config.source_hashes
+                    ?.engine ===
+                    "7b9aed1bc23dc5a8d8f1fa31d60b80ce12c979cb1334996b40f733c2e8ec91ca" && (
+                    <p className="inspector-note">
+                      Archived disclosure: the saved view may include the answer
+                      from this tool result. The model request was sent before
+                      the answer.
+                    </p>
+                  )}
                 <pre>
                   {JSON.stringify(selected.event?.observation, null, 2)}
                 </pre>

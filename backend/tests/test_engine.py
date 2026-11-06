@@ -13,6 +13,16 @@ def book(w, pid, oid, voucher=0):
     return act(w, "commit_offer", offer_id=result["offer"]["id"])
 
 
+def test_observation_keeps_pre_disclosure_facts():
+    world = World()
+    before = world.observation()
+    result = act(world, "ask_question", party_id="P1", topic="deadline")
+    old_case = next(c for c in before["cases"] if c["id"] == "P1")
+    new_case = next(c for c in world.observation()["cases"] if c["id"] == "P1")
+    assert old_case["known"] == {}
+    assert new_case["known"] == {"deadline": result["answer"]}
+
+
 def test_feasible_witness_and_oracle():
     w = World()
     assert oracle(w.fixture)["max_satisfied_people"] == 7

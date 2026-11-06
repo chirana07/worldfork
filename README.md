@@ -2,14 +2,27 @@
 
 A shared-world laboratory for customer-support agents. Six fictional passenger parties need alternatives after a cancellation; their decisions compete for actual capacity in a local simulator. Compare support strategies through plain Python and LangGraph adapters using the same model, tools, goals and budgets.
 
-**Build status:** the first local experiment lab is working, including comparison/replay, real model calls and both reference integrations. Agent calibration, the frozen repeated benchmark and final submission materials remain in progress. No published benchmark result or winning strategy is claimed. See [BUILD_STATUS.md](BUILD_STATUS.md) and the full [implementation specification](WORLD_FORK_IMPLEMENTATION_PLAN.md).
+WorldFork runs live comparisons through Bifrost and includes a read-only replay of the recorded pilot. See [build status](BUILD_STATUS.md) and the [implementation specification](WORLD_FORK_IMPLEMENTATION_PLAN.md).
 
-## Local setup
+## Review recorded evidence
+
+The replay server opens the real frozen comparison from bundled traces. It verifies and imports the evidence into a temporary database. This mode needs neither Ollama nor Bifrost and accepts no run-creation requests.
+
+```sh
+uv sync --frozen --python 3.12
+npm ci --prefix frontend
+npm run build --prefix frontend
+uv run python scripts/replay_server.py
+```
+
+Open http://127.0.0.1:8001. Use the replay slider, decision inspector and archive to review the recorded runs. The source archive includes the JSON exports, measured report and deterministic replay verifier. See [evidence guide](evidence/README.md) and [archived observation provenance](docs/trace-provenance.md).
+
+## Run live experiments
 
 Prerequisites: macOS/Linux, uv, Python3.12, Node, Ollama with `qwen3.5:4b` installed (`ollama pull qwen3.5:4b`). Llama3.1 and Gemma2 are optional local choices. The tested gateway is Bifrost transport v2.4.0, installed via npm launcher1.6.3. Docker is optional.
 
 ```sh
-uv sync --python 3.12
+uv sync --frozen --python 3.12
 uv run python scripts/backend.py
 ```
 
@@ -30,7 +43,7 @@ npm ci --prefix frontend
 npm run dev --prefix frontend
 ```
 
-Open http://127.0.0.1:5173. The interface includes initial-world comparisons, a complete decision ledger, passenger/receipt inspection, cancellation, an archive and recorded playback. The shared-model selector lists installed supported local models; refresh after installing another model. An end-of-run summary is labeled separately from a historical replay snapshot.
+Open http://127.0.0.1:5173. The interface includes initial-world comparisons, a complete decision ledger, passenger/receipt inspection, cancellation, an archive and recorded playback. The shared-model selector lists installed supported local models; refresh after installing another model. An end-of-run summary is labeled separately from a historical replay snapshot. Saved run links restore an inspection or comparison after refreshing.
 
 The smoke command must return an actual Bifrost→Ollama completion with usage metadata. It is not a simulated inference call.
 
@@ -60,13 +73,15 @@ This example compares two packaged designs and is not evidence that a framework 
 
 ## Evaluation
 
+The frozen pilot scored 30 episodes through Qwen3.5:4b and Bifrost. In clean runs, case-by-case met all seven requirements in 6 of 6 episodes and coordinated did so in 1 of 6. All 18 configured fault exposures were delivered. The full report includes per-seed outcomes, resource usage and terminal states. [Pilot report](evidence/pilot-summary.md)
+
 ```sh
 uv run python -m worldfork.cli benchmark --model ollama/qwen3.5:4b
 # Full target:30 episodes rather than21 minimum
 uv run python -m worldfork.cli benchmark --full
 ```
 
-Commit tracked changes before a frozen pilot. These commands queue sequential inference through the API worker and retain a manifest, full per-run exports, model/source identities and resource summaries under `artifacts/`. They can take substantial time; measure actual pilot latency before running them. No matrix has been completed or published yet.
+Commit tracked changes before a frozen pilot. These commands queue sequential inference through the API worker and retain a manifest, full per-run exports, model and source identities, and resource summaries under `artifacts/`.
 
 Three fault classes are explicit synthetic interventions: one unavailable model attempt, one pre-execution tool timeout, or one misleading inventory observation. Capacity enforcement always uses ground truth. Faults and exposure are logged; they are not represented as natural provider incidents.
 
@@ -76,4 +91,4 @@ Report raw resolved people/parties, terminal statuses, oracle allocation upper b
 
 Ollama provides local inference; Bifrost is the actual gateway; LangGraph supplies one orchestration integration. Passenger speech/consent may use local inference when configured. World rules, transactions, scoring, limits and persistence are deterministic application code. Codex assists implementation. No real airline, passengers, transactions or personal records are used.
 
-The project targets the hackathon's agent-benchmarking statement. It does not predict real behavior or stock prices. Tavily is not integrated. The live official FAQ checked November 5 explicitly permits Bifrost-only projects; see [submission requirements](docs/eligibility.md). Core implementation is being created during the hackathon. Dependencies and organizer resources are distinct from original code; resource PDFs should not be automatically redistributed in a public repository without checking rights.
+The project targets the hackathon's agent-benchmarking statement. Tavily is not integrated. The live official FAQ checked November 5 permits Bifrost-only projects; see [submission requirements](docs/eligibility.md). The original core was created during the hackathon. See [related work](docs/related-work.md) and [third-party notices](THIRD_PARTY_NOTICES.md). Organizer PDFs and copied announcements are local reference materials and are excluded from the source archive.

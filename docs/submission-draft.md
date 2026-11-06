@@ -1,6 +1,6 @@
 # WorldFork — test agents where consequences are shared
 
-Draft submission copy. Final pilot figures, repository URL, video URL and final form review are still required before submission.
+Submission copy for review. Add the public repository and video links when preparing the entry.
 
 ## Short description
 
@@ -32,13 +32,15 @@ Ollama supplies local language-model decisions. Bifrost is the inference gateway
 
 The reference agents use a public action menu and a common transaction-resolution rule. These controls are disclosed as part of the harness. They are not model capability claims. World state, consent guards and outcome scoring are application code.
 
-## Evidence to attach
+## Measured pilot
 
-Attach the frozen pilot report and full traces, the tested model digest and source revision, an actual recorded comparison, a delivered fault trace, setup instructions and the passing verification output. Keep development calibration separate from the frozen pilot. Describe the three-repeat matrix as a pilot, with raw counts and ranges.
+The frozen pilot scored 30 scripted episodes with Qwen3.5:4b through Bifrost. Across the clean Python and LangGraph cells, case-by-case met all seven passenger requirements in 6 of 6 episodes and coordinated did so in 1 of 6. All 18 configured synthetic faults were delivered. Across those fault episodes, case-by-case completed 6 of 9 and coordinated completed 2 of 9. Every scored episode passed the deterministic replay audit. The report contains the per-seed outcomes, resource measurements and terminal states. [Pilot report](../evidence/pilot-summary.md)
+
+The review bundle includes the full traces, source revision and model digest, an editable pitch deck, a narrated demonstration, and a read-only replay launcher. The walkthrough identifies its development comparison separately from the scored pilot.
 
 ## Limits and next steps
 
-The current scenarios were used during development. Synthetic passengers are not validated human behavior, and results do not establish real-airline reliability. The two reference integrations work; a separately runnable generic third-party agent wrapper remains an integration gate. More untouched scenarios, broader agent integrations and stronger models would test how far the mechanism generalizes.
+The current scenarios were used during development. Synthetic passengers are not validated human behavior, and results do not establish real-airline reliability. The two reference integrations work. A separately runnable generic ReAct agent has also completed a real four-decision integration smoke through the message bridge; it is not part of the reference pilot and does not establish universal compatibility. More untouched scenarios, broader agent integrations and stronger models would test how far the mechanism generalizes.
 
 No real passengers, financial trades or travel transactions are involved. Tavily is not integrated. The live official FAQ checked November 5 allows Bifrost-only projects. The user confirmed registration and required Discord membership on November 5. Recheck final form fields before entering this draft.
 

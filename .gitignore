@@ -9,6 +9,7 @@ frontend/dist/
 artifacts/*
 !artifacts/.gitkeep
 .bifrost/
+deliverables/
 
 *.tsbuildinfo
 .ruff_cache/

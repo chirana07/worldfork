@@ -1,0 +1,632 @@
+{
+  "schema_version": 1,
+  "run": {
+    "id": "569e253c-6ae4-409f-9546-d94453237948",
+    "created_at": "2026-11-05T17:00:22.242828+00:00",
+    "status": "cancelled",
+    "config": {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "misleading_observation",
+      "seed": 47,
+      "temperature": 0.2,
+      "max_steps": 48,
+      "max_tokens": 120000,
+      "wall_seconds": 900,
+      "scenario_hash": "55be91c6a6c291fb17d1bf31d43e45a11f8b557606f99738692d1945737826f5",
+      "schema_version": 1,
+      "source_hashes": {
+        "engine": "7b9aed1bc23dc5a8d8f1fa31d60b80ce12c979cb1334996b40f733c2e8ec91ca",
+        "agents": "e59c42c8a131a82606587645f325568149f47e697ac739269b8fc52523f66b3a",
+        "gateway": "4b897ddf1de418afa24eab6a96c2abbe1471995869c4721072e10ab14219ca16",
+        "runner": "2cdf596d46e787481d3305d1b3cd8045b3fa3175a21e69729b468c6f4923fc05"
+      }
+    },
+    "snapshot": {
+      "tick": 0,
+      "cases": [
+        {
+          "id": "P3",
+          "name": "Leo",
+          "people": 1,
+          "request": "I'd prefer the early flight, but I can discuss an alternative.",
+          "known": {},
+          "booking": null
+        },
+        {
+          "id": "P4",
+          "name": "Sam",
+          "people": 1,
+          "request": "I cannot pay anything extra. Please help me find an option.",
+          "known": {},
+          "booking": null
+        },
+        {
+          "id": "P1",
+          "name": "Mira",
+          "people": 1,
+          "request": "I need a replacement flight. Please ask about my arrival deadline.",
+          "known": {},
+          "booking": null
+        },
+        {
+          "id": "P2",
+          "name": "Arun & Nila",
+          "people": 2,
+          "request": "We are a party of two and must travel on the same flight.",
+          "known": {},
+          "booking": null
+        },
+        {
+          "id": "P5",
+          "name": "Jules",
+          "people": 1,
+          "request": "I already have an early-flight booking. I'm open to discussing a change.",
+          "known": {},
+          "booking": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          }
+        },
+        {
+          "id": "P6",
+          "name": "Dani",
+          "people": 1,
+          "request": "I haven't decided how to travel. Please help me compare options.",
+          "known": {},
+          "booking": null
+        }
+      ],
+      "options": [
+        {
+          "id": "E",
+          "label": "Early flight",
+          "arrival": "12:00",
+          "mode": "flight",
+          "capacity": 3,
+          "available": 2
+        },
+        {
+          "id": "L",
+          "label": "Late flight",
+          "arrival": "18:00",
+          "mode": "flight",
+          "capacity": 3,
+          "available": 3
+        },
+        {
+          "id": "R",
+          "label": "Rail transfer",
+          "arrival": "16:00",
+          "mode": "rail",
+          "capacity": 2,
+          "available": 2
+        }
+      ],
+      "bookings": {
+        "P5": {
+          "option_id": "E",
+          "voucher": 0,
+          "version": 1,
+          "consent": "initial"
+        }
+      },
+      "offers": {},
+      "budget": {
+        "total": 80,
+        "spent": 0,
+        "reserved": 0,
+        "available": 80
+      },
+      "invalid_attempts": 0,
+      "finished": false
+    },
+    "result": {
+      "satisfied_people": 1,
+      "total_people": 7,
+      "satisfied_parties": 1,
+      "total_parties": 6,
+      "initially_satisfied_people": 1,
+      "newly_satisfied_people": 0,
+      "oracle_max": 7,
+      "oracle_gap": 6,
+      "compensation_spent": 0,
+      "invalid_attempts": 0,
+      "committed_policy_violations": 0,
+      "outcomes": [
+        {
+          "party_id": "P1",
+          "name": "Mira",
+          "people": 1,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        },
+        {
+          "party_id": "P2",
+          "name": "Arun & Nila",
+          "people": 2,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        },
+        {
+          "party_id": "P3",
+          "name": "Leo",
+          "people": 1,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        },
+        {
+          "party_id": "P4",
+          "name": "Sam",
+          "people": 1,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        },
+        {
+          "party_id": "P5",
+          "name": "Jules",
+          "people": 1,
+          "satisfied": true,
+          "booking": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          },
+          "initially_satisfied": true
+        },
+        {
+          "party_id": "P6",
+          "name": "Dani",
+          "people": 1,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        }
+      ],
+      "terminal": "cancelled",
+      "steps": 0,
+      "tool_calls": 0,
+      "model_calls": 0,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "usage_coverage": null,
+      "elapsed_ms": 5,
+      "api_cost": 0,
+      "cost_basis": "local_ollama; hardware/electricity unmeasured",
+      "fault_configured": "misleading_observation",
+      "fault_delivered": false,
+      "attempts": []
+    }
+  },
+  "scenario": {
+    "schema_version": 1,
+    "id": "harbor-v1",
+    "label": "Harbor \u00b7 the last connections",
+    "options": {
+      "E": {
+        "label": "Early flight",
+        "arrival": "12:00",
+        "minutes": 720,
+        "mode": "flight",
+        "capacity": 3
+      },
+      "L": {
+        "label": "Late flight",
+        "arrival": "18:00",
+        "minutes": 1080,
+        "mode": "flight",
+        "capacity": 3
+      },
+      "R": {
+        "label": "Rail transfer",
+        "arrival": "16:00",
+        "minutes": 960,
+        "mode": "rail",
+        "capacity": 2
+      }
+    },
+    "parties": {
+      "P1": {
+        "name": "Mira",
+        "people": 1,
+        "deadline": 780,
+        "modes": [
+          "flight"
+        ],
+        "terms": {
+          "E": 0
+        },
+        "message": "I need a replacement flight. Please ask about my arrival deadline."
+      },
+      "P2": {
+        "name": "Arun & Nila",
+        "people": 2,
+        "deadline": 1020,
+        "modes": [
+          "flight"
+        ],
+        "terms": {
+          "E": 0
+        },
+        "message": "We are a party of two and must travel on the same flight."
+      },
+      "P3": {
+        "name": "Leo",
+        "people": 1,
+        "deadline": 1200,
+        "modes": [
+          "flight"
+        ],
+        "terms": {
+          "E": 0,
+          "L": 40
+        },
+        "message": "I'd prefer the early flight, but I can discuss an alternative."
+      },
+      "P4": {
+        "name": "Sam",
+        "people": 1,
+        "deadline": 1020,
+        "modes": [
+          "flight",
+          "rail"
+        ],
+        "terms": {
+          "E": 0,
+          "R": 0
+        },
+        "message": "I cannot pay anything extra. Please help me find an option."
+      },
+      "P5": {
+        "name": "Jules",
+        "people": 1,
+        "deadline": 1200,
+        "modes": [
+          "flight"
+        ],
+        "terms": {
+          "E": 0,
+          "L": 40
+        },
+        "message": "I already have an early-flight booking. I'm open to discussing a change."
+      },
+      "P6": {
+        "name": "Dani",
+        "people": 1,
+        "deadline": 1140,
+        "modes": [
+          "flight",
+          "rail"
+        ],
+        "terms": {
+          "E": 0,
+          "L": 0,
+          "R": 0
+        },
+        "message": "I haven't decided how to travel. Please help me compare options."
+      }
+    },
+    "order": [
+      "P3",
+      "P4",
+      "P1",
+      "P2",
+      "P5",
+      "P6"
+    ],
+    "budget": 80,
+    "policy": "Fictional Harbor Airport. Six parties, seven people; all travel is free replacement travel. Respect party sizes and voluntary consent. Never split a party. Compensation pool is 80 credits, maximum 40 per offer. Credits are fictional, not money or legal entitlements. Ask about hidden deadlines, modes and compensation. Only commit_offer confirms a booking; accepted offers hold seats and credits for three logical ticks. Old bookings remain until a replacement is committed. Capacity and credits cannot be invented. Rejected operations have no effect. list_cases returns known facts only. Finish only when appropriate; an unresolved party may still have options. You may contact any party, including an already-booked party, to negotiate a voluntary change. Each decision advances one logical tick. Tools expose actual state except explicitly untrusted observations; booking receipts are authoritative."
+  },
+  "events": [
+    {
+      "type": "started",
+      "tick": 0,
+      "framework": "python",
+      "strategy": "coordinated",
+      "seq": 1,
+      "run_id": "569e253c-6ae4-409f-9546-d94453237948",
+      "timestamp_utc": "2026-11-05T22:06:47.983652+00:00",
+      "snapshot": {
+        "tick": 0,
+        "cases": [
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need a replacement flight. Please ask about my arrival deadline.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          },
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {},
+            "booking": null
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 2
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 2,
+            "available": 2
+          }
+        ],
+        "bookings": {
+          "P5": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          }
+        },
+        "offers": {},
+        "budget": {
+          "total": 80,
+          "spent": 0,
+          "reserved": 0,
+          "available": 80
+        },
+        "invalid_attempts": 0,
+        "finished": false
+      }
+    },
+    {
+      "type": "finished",
+      "tick": 0,
+      "result": {
+        "satisfied_people": 1,
+        "total_people": 7,
+        "satisfied_parties": 1,
+        "total_parties": 6,
+        "initially_satisfied_people": 1,
+        "newly_satisfied_people": 0,
+        "oracle_max": 7,
+        "oracle_gap": 6,
+        "compensation_spent": 0,
+        "invalid_attempts": 0,
+        "committed_policy_violations": 0,
+        "outcomes": [
+          {
+            "party_id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          },
+          {
+            "party_id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          },
+          {
+            "party_id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          },
+          {
+            "party_id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          },
+          {
+            "party_id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "satisfied": true,
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            },
+            "initially_satisfied": true
+          },
+          {
+            "party_id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          }
+        ],
+        "terminal": "cancelled",
+        "steps": 0,
+        "tool_calls": 0,
+        "model_calls": 0,
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "usage_coverage": null,
+        "elapsed_ms": 5,
+        "api_cost": 0,
+        "cost_basis": "local_ollama; hardware/electricity unmeasured",
+        "fault_configured": "misleading_observation",
+        "fault_delivered": false,
+        "attempts": []
+      },
+      "seq": 2,
+      "run_id": "569e253c-6ae4-409f-9546-d94453237948",
+      "timestamp_utc": "2026-11-05T22:06:47.986943+00:00",
+      "snapshot": {
+        "tick": 0,
+        "cases": [
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need a replacement flight. Please ask about my arrival deadline.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          },
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {},
+            "booking": null
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 2
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 2,
+            "available": 2
+          }
+        ],
+        "bookings": {
+          "P5": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          }
+        },
+        "offers": {},
+        "budget": {
+          "total": 80,
+          "spent": 0,
+          "reserved": 0,
+          "available": 80
+        },
+        "invalid_attempts": 0,
+        "finished": false
+      }
+    }
+  ],
+  "notice": "Fictional data; includes evaluator-only private goals. Do not feed into a live agent."
+}

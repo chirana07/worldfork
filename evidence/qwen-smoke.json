@@ -1,0 +1,37 @@
+{
+  "raw": "{\"action_id\":2}",
+  "attempts": [
+    {
+      "id": "f0e8cc23-2492-4607-892c-5cc7e410505c",
+      "role": "support",
+      "configured_model": "ollama/qwen3.5:4b",
+      "status": "ok",
+      "input_tokens": 34,
+      "output_tokens": 6,
+      "usage_source": "bifrost_response",
+      "injected": false,
+      "temperature": 0.2,
+      "seed": 1,
+      "max_output_tokens": 192,
+      "reasoning_effort": "none",
+      "actual_model": "qwen3.5:4b",
+      "response_id": "chatcmpl-882",
+      "raw_response": "{\"action_id\":2}",
+      "elapsed_ms": 5572.39
+    }
+  ],
+  "model_manifest": {
+    "name": "qwen3.5:4b",
+    "digest": "7f3251fa6878a78a606bcb3c074283306e5ad2ea411a7774a9dd98a4bc7f2d13",
+    "details": {
+      "parent_model": "",
+      "format": "safetensors",
+      "family": "",
+      "families": null,
+      "parameter_size": "",
+      "quantization_level": "nvfp4",
+      "runner": "mlx"
+    },
+    "source": "local_ollama_tags"
+  }
+}
