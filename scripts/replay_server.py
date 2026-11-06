@@ -9,6 +9,7 @@ from urllib.parse import urlencode
 
 import uvicorn
 from fastapi import Request
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from import_evidence import import_evidence
@@ -16,7 +17,7 @@ from import_evidence import import_evidence
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def serve(manifest, port):
+def serve(manifest, port, host="127.0.0.1"):
     dist = ROOT / "frontend/dist"
     if not (dist / "index.html").exists():
         raise SystemExit(
@@ -38,6 +39,8 @@ def serve(manifest, port):
             and e["config"]["fault"] == "none"
         ]
         query = urlencode({"a": pair[0], "b": pair[1]})
+
+        app.add_middleware(GZipMiddleware, minimum_size=1024, compresslevel=1)
 
         @app.middleware("http")
         async def replay_only(request: Request, call_next):
@@ -63,8 +66,8 @@ def serve(manifest, port):
             return await call_next(request)
 
         app.mount("/", StaticFiles(directory=dist, html=True), name="replay-interface")
-        print(f"Verified recordings ready at http://127.0.0.1:{port}", flush=True)
-        uvicorn.run(app, host="127.0.0.1", port=port)
+        print(f"Verified recordings ready at http://{host}:{port}", flush=True)
+        uvicorn.run(app, host=host, port=port)
 
 
 if __name__ == "__main__":
@@ -73,5 +76,6 @@ if __name__ == "__main__":
         "--manifest", type=Path, default=ROOT / "evidence/pilot-manifest.json"
     )
     parser.add_argument("--port", type=int, default=8001)
+    parser.add_argument("--host", default="127.0.0.1")
     args = parser.parse_args()
-    serve(args.manifest, args.port)
+    serve(args.manifest, args.port, args.host)

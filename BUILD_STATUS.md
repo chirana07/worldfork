@@ -14,4 +14,13 @@ Three runs interrupted by the laptop closure were repeated under the frozen harn
 4. The read-only replay server serves the production frontend and all 30 pilot episodes. The mobile browser check passed after fixing a bug that cleared the decision ledger when reopening the same archived run.
 5. The test suite passes 36 tests. The frontend production build, Python lint checks and deterministic pilot replay audit pass.
 
-The public repository and final submission remain for user review. The project targets the Bifrost benchmarking challenge. [Eligibility notes](docs/eligibility.md)
+## Lifecycle tracker
+
+| Phase | Status |
+| --- | --- |
+| Repository, environment and architecture | Complete for the local benchmark. [Architecture](docs/architecture.md) |
+| Data, agent orchestration and application | Complete for the two synthetic scenario variants, reference integrations and replay. [Evaluation protocol](docs/evaluation.md) |
+| Testing, pilot and operational performance | Complete for the recorded pilot and local container workload. [Performance report](docs/performance.md) |
+| Reproducible deployment and CI | Production replay image built and verified locally, including restart and browser tests. GitHub workflow is prepared for a remote run after publication. [Deployment guide](docs/deployment.md) |
+| Public hosting | Deferred at the user's request. |
+| Public repository and final submission | Pending. [Eligibility notes](docs/eligibility.md) |

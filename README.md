@@ -17,6 +17,8 @@ uv run python scripts/replay_server.py
 
 Open http://127.0.0.1:8001. Use the replay slider, decision inspector and archive to review the recorded runs. The source archive includes the JSON exports, measured report and deterministic replay verifier. See [evidence guide](evidence/README.md) and [archived observation provenance](docs/trace-provenance.md).
 
+For a reproducible read-only service, see the [container deployment and verification guide](docs/deployment.md) and [performance report](docs/performance.md).
+
 ## Run live experiments
 
 Prerequisites: macOS/Linux, uv, Python3.12, Node, Ollama with `qwen3.5:4b` installed (`ollama pull qwen3.5:4b`). Llama3.1 and Gemma2 are optional local choices. The tested gateway is Bifrost transport v2.4.0, installed via npm launcher1.6.3. Docker is optional.

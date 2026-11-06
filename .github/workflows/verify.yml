@@ -1,0 +1,29 @@
+name: Verify WorldFork
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Test the simulator and verify pilot evidence
+        run: docker build --target checks .
+      - name: Build the replay image
+        run: docker build -t worldfork-replay:ci .
+      - name: Check the deployed service
+        run: |
+          docker run -d --name worldfork-ci --read-only --tmpfs /tmp \
+            --cap-drop ALL --security-opt no-new-privileges \
+            -p 127.0.0.1:8001:8001 worldfork-replay:ci
+          for attempt in {1..40}; do
+            if curl -fsS http://127.0.0.1:8001/api/health; then break; fi
+            sleep 1
+          done
+          python3 scripts/check_replay_deployment.py http://127.0.0.1:8001
+      - name: Show deployment logs
+        if: failure()
+        run: docker logs worldfork-ci
