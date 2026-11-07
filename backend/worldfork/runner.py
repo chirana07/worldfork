@@ -11,21 +11,22 @@ import httpx
 from pydantic import BaseModel, ConfigDict, Field
 
 from .agents import ADAPTERS
-from .engine import World, digest, scenario, score
+from .engine import World, digest, score
 from .gateway import BudgetExhausted, Gateway
+from .scenarios import ScenarioId, load_scenario
 from .team import TEAM_ADAPTERS, TeamAgent
 
 logger = logging.getLogger(__name__)
 
 SOURCE_HASHES = {
     name: digest(Path(__file__).with_name(name + ".py").read_text())
-    for name in ["engine", "agents", "gateway", "runner", "team"]
+    for name in ["engine", "agents", "gateway", "runner", "team", "scenarios"]
 }
 
 
 class RunConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    scenario_id: Literal["harbor-v1", "harbor-scarce-v1"] = "harbor-v1"
+    scenario_id: ScenarioId = "harbor-v1"
     framework: Literal["python", "langgraph"] = "python"
     strategy: Literal["case_by_case", "coordinated", "team"] = "coordinated"
     passenger_mode: Literal["scripted", "llm"] = "scripted"
@@ -50,7 +51,7 @@ class Runner:
 
     def create(self, config: RunConfig):
         rid = str(uuid.uuid4())
-        fixture = scenario(config.scenario_id == "harbor-scarce-v1")
+        fixture = load_scenario(config.scenario_id)
         self.store.create(
             rid,
             {
@@ -77,7 +78,7 @@ class Runner:
 
     async def run(self, rid, config):
         async with self.lock:
-            world = World(scenario(config.scenario_id == "harbor-scarce-v1"))
+            world = World(load_scenario(config.scenario_id))
             gateway = Gateway(config.model, config.temperature, config.seed)
             gateway.token_limit = config.max_tokens
             adapters = TEAM_ADAPTERS if config.strategy == "team" else ADAPTERS

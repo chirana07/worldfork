@@ -96,7 +96,13 @@ type Event = {
   observation?: unknown;
   candidate_actions?: { id: number; tool: string }[] | null;
   attempts?: unknown[];
-  coordination?: { proposals: TeamProposal[]; action_id: number; plan: string };
+  coordination?: {
+    proposals: TeamProposal[];
+    action_id: number;
+    plan: string;
+    consultation_reason?: string;
+    prior_advice?: { role: string; tick: number; plan: string }[];
+  };
 };
 type Scenario = {
   id: string;
@@ -1515,6 +1521,31 @@ export default function App() {
                 <>
                   <h3>Orchestrator plan</h3>
                   <p>{selected.event.coordination.plan}</p>
+                  {selected.event.coordination.consultation_reason && (
+                    <p>
+                      {{
+                        initial: "Both specialists were consulted to begin the plan.",
+                        booking_changed: "Both specialists were consulted after a booking changed availability.",
+                        action_failed: "Both specialists were consulted after an unsuccessful action.",
+                        resolve_offer: "The orchestrator is resolving an accepted offer using its latest receipt.",
+                        reuse_advice: "The orchestrator is reassessing earlier advice against the current world.",
+                      }[selected.event.coordination.consultation_reason]}
+                    </p>
+                  )}
+                  {selected.event.coordination.prior_advice?.length ? (
+                    <>
+                      <h3>Earlier specialist advice</h3>
+                      <ul>
+                        {selected.event.coordination.prior_advice.map((advice) => (
+                          <li key={advice.role}>
+                            {advice.role === "inventory_specialist" ? "Inventory specialist" : "Traveler specialist"}
+                            {" · tick "}{advice.tick}
+                            <p>{advice.plan}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null}
                   {selected.event.coordination.proposals.length > 0 && (
                     <>
                       <h3>Specialist proposals</h3>

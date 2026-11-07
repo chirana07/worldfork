@@ -10,8 +10,9 @@ from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from .engine import World, scenario
+from .engine import World
 from .runner import RunConfig, Runner
+from .scenarios import ScenarioId, load_scenario
 from .store import Store
 
 store = Store(os.getenv("WORLDFORK_DB", "artifacts/worldfork.sqlite"))
@@ -80,10 +81,12 @@ async def scenarios():
             "initial": World(s).snapshot(),
             "people": 7,
             "parties": 6,
-            "kind": "development" if not scarce else "control variant; not held-out",
+            "kind": "release evaluation fixture"
+            if sid == "harbor-transfer-v1"
+            else "development",
         }
-        for scarce in [False, True]
-        for s in [scenario(scarce)]
+        for sid in ScenarioId.__args__
+        for s in [load_scenario(sid)]
     ]
 
 
@@ -218,7 +221,7 @@ async def export(rid: str):
     payload = {
         "schema_version": 1,
         "run": run,
-        "scenario": scenario(run["config"]["scenario_id"] == "harbor-scarce-v1"),
+        "scenario": load_scenario(run["config"]["scenario_id"]),
         "events": store.events(rid),
         "notice": "Fictional data; includes evaluator-only private goals. Do not feed into a live agent.",
     }

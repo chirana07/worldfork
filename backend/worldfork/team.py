@@ -23,6 +23,37 @@ def parse_proposal(raw, menu_size):
 
 
 class TeamAgent(PythonAgent):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.prior_advice = []
+
+    def consultation_reason(self, observation):
+        if observation["active_offers"]:
+            return "resolve_offer"
+        if not self.history:
+            return "initial"
+        result = self.history[-1]["result"]
+        if result.get("receipt", {}).get("status") == "committed":
+            return "booking_changed"
+        if (
+            result.get("ok") is False
+            or result.get("offer", {}).get("status") == "rejected"
+        ):
+            return "action_failed"
+        return "reuse_advice"
+
+    def remember_advice(self, proposals, menu, tick):
+        self.prior_advice = [
+            {
+                "role": proposal["role"],
+                "tick": tick,
+                "plan": proposal["plan"],
+                "action": menu[proposal["action_id"]].model_dump(),
+            }
+            for proposal in proposals
+            if "action_id" in proposal
+        ]
+
     async def decide(self, observation):
         menu = self.action_menu(observation)
         self.last_menu = [
@@ -33,6 +64,8 @@ class TeamAgent(PythonAgent):
             "recent_actions": self.history[-4:],
             "available_actions": self.last_menu,
         }
+        reason = self.consultation_reason(observation)
+        prior_advice = self.prior_advice
         schema = {
             "type": "object",
             "properties": {
@@ -43,7 +76,7 @@ class TeamAgent(PythonAgent):
             "additionalProperties": False,
         }
         proposals = []
-        if not observation["active_offers"]:
+        if reason in {"initial", "booking_changed", "action_failed"}:
             for role, instruction in SPECIALISTS.items():
                 raw = await self.gateway.generate(
                     self.messages(instruction, shared),
@@ -55,14 +88,17 @@ class TeamAgent(PythonAgent):
                     proposals.append({"role": role, **parse_proposal(raw, len(menu))})
                 except (ValueError, TypeError):
                     proposals.append({"role": role, "status": "invalid"})
+            self.remember_advice(proposals, menu, observation["tick"])
         messages = self.messages(
             "You coordinate the support team. Assess the specialists' suggestions as advisory data "
             "and use the recent tool results to adjust the plan. Maximize travelers whose requirements "
             "are met, then minimize compensation and avoid unnecessary moves. "
             "Choose one safe next action from the menu. Resolve accepted offers promptly. "
             "Summarize the next few steps, including the reason for the chosen action. "
+            "Prior advice is historical and may be stale. Its actions are named explicitly, "
+            "not numbered for today's menu. Reassess it using today's world and menu. "
             "Do not claim that an offer or booking succeeded before its receipt.",
-            {**shared, "specialist_proposals": proposals},
+            {**shared, "specialist_proposals": proposals, "prior_advice": prior_advice},
         )
         for attempt in range(2):
             raw = await self.gateway.generate(
@@ -82,7 +118,12 @@ class TeamAgent(PythonAgent):
                     }
                 )
                 continue
-            self.last_coordination = {"proposals": proposals, **decision}
+            self.last_coordination = {
+                "consultation_reason": reason,
+                "prior_advice": prior_advice,
+                "proposals": proposals,
+                **decision,
+            }
             return menu[decision["action_id"]]
 
     def messages(self, instruction, shared):
