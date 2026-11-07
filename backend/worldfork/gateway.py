@@ -15,6 +15,11 @@ def unwrap_json_reply(raw: str) -> str:
     return raw
 
 
+def token_count(usage, name):
+    value = usage.get(name) if isinstance(usage, dict) else None
+    return value if type(value) is int and value >= 0 else None
+
+
 class BudgetExhausted(RuntimeError):
     pass
 
@@ -48,7 +53,7 @@ class Gateway:
                 "details": item.get("details") if item else None,
                 "source": "local_ollama_tags",
             }
-        except (httpx.HTTPError, ValueError, KeyError):
+        except (httpx.HTTPError, ValueError, KeyError, TypeError, AttributeError):
             return {"name": self.model, "digest": None, "source": "unavailable"}
 
     async def generate(
@@ -124,13 +129,17 @@ class Gateway:
             )
             response.raise_for_status()
             data = response.json()
-            usage = data.get("usage", {})
+            usage = data.get("usage")
+            input_tokens = token_count(usage, "prompt_tokens")
+            output_tokens = token_count(usage, "completion_tokens")
             attempt.update(
                 status="ok",
                 actual_model=data.get("model"),
-                input_tokens=usage.get("prompt_tokens"),
-                output_tokens=usage.get("completion_tokens"),
-                usage_source="bifrost_response" if usage else None,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                usage_source="bifrost_response"
+                if input_tokens is not None or output_tokens is not None
+                else None,
                 response_id=data.get("id"),
                 raw_response=data["choices"][0]["message"].get("content"),
             )
@@ -140,6 +149,17 @@ class Gateway:
                 status="cancelled", error="Request cancelled; provider usage unknown"
             )
             raise
+        except httpx.HTTPStatusError as exc:
+            message = f"Gateway returned HTTP {exc.response.status_code}"
+            attempt.update(status="error", error=message)
+            raise RuntimeError(message) from None
+        except httpx.RequestError as exc:
+            if injected_failure:
+                attempt.update(status="error", error="Injected model-unavailable fault")
+                raise
+            message = f"Gateway request failed ({type(exc).__name__})"
+            attempt.update(status="error", error=message)
+            raise RuntimeError(message) from None
         except Exception as exc:
             attempt.update(status="error", error=str(exc)[:500])
             raise

@@ -24,3 +24,35 @@ def test_pilot_matrix_keeps_all_cells_and_varies_clean_order():
     }
     assert all(c["model"] == "ollama/qwen3.5:4b" for c in configs)
     assert len(pilot_configs(full=True)) == 30
+
+
+async def test_partial_enqueue_failure_cancels_all_acknowledged_runs(
+    monkeypatch, tmp_path
+):
+    import httpx
+    import pytest
+    from worldfork import cli
+
+    cancelled = []
+    accepted = iter(["one", "two", None])
+
+    async def handle(request):
+        if request.url.path == "/api/runs":
+            rid = next(accepted)
+            return httpx.Response(202, json={"id": rid}) if rid else httpx.Response(429)
+        cancelled.append(request.url.path)
+        return httpx.Response(503 if "one" in request.url.path else 200)
+
+    client = httpx.AsyncClient(
+        base_url="http://127.0.0.1:8000", transport=httpx.MockTransport(handle)
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli.httpx, "AsyncClient", lambda **kwargs: client)
+    monkeypatch.setattr(
+        cli, "build_provenance", lambda: {"tracked_changes_at_start": False}
+    )
+    with pytest.raises(httpx.HTTPStatusError) as raised:
+        await cli.benchmark()
+    assert raised.value.response.status_code == 429
+    assert sorted(cancelled) == ["/api/runs/one/cancel", "/api/runs/two/cancel"]
+    assert len(list((tmp_path / "artifacts").glob("benchmark-*.json"))) == 1

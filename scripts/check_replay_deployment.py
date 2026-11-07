@@ -17,9 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def request(base, path, *, encoding="identity", method="GET"):
-    req = Request(
-        base + path, headers={"Accept-Encoding": encoding}, method=method
-    )
+    req = Request(base + path, headers={"Accept-Encoding": encoding}, method=method)
     started = perf_counter()
     try:
         response = urlopen(req, timeout=15)
@@ -56,8 +54,16 @@ def check(base):
     }
     assert read_json(request(base, "/api/models")) == []
     archive = read_json(request(base, "/api/runs"))
+    summaries = read_json(request(base, "/api/runs?summary=true"))
     manifest = json.loads((ROOT / "evidence/pilot-manifest.json").read_text())
     assert {r["id"] for r in archive} == {r["id"] for r in manifest["runs"]}
+    assert [r["id"] for r in summaries] == [r["id"] for r in archive]
+    for summary, full in zip(summaries, archive, strict=True):
+        assert "snapshot" not in summary
+        assert summary["result"] == {
+            field: full["result"][field]
+            for field in ("satisfied_people", "total_people")
+        }
     page = request(base, "/")
     assert page[0] == 200 and b'id="root"' in page[2]
     query = parse_qs(urlsplit(page[4]).query)
@@ -66,20 +72,27 @@ def check(base):
         trace = next(r["trace"] for r in manifest["runs"] if r["id"] == run_id)
         original = json.loads((ROOT / trace).read_text())
         assert read_json(request(base, f"/api/runs/{run_id}")) == original["run"]
-        assert read_json(request(base, f"/api/runs/{run_id}/events")) == original["events"]
+        assert (
+            read_json(request(base, f"/api/runs/{run_id}/events")) == original["events"]
+        )
         export = f"/api/runs/{run_id}/export"
         assert read_json(request(base, export)) == original
         assert read_json(request(base, export, encoding="gzip")) == original
     rid = query["a"][0]
-    for path in ("/api/runs", "/api/comparisons", f"/api/runs/{rid}/cancel", f"/api/runs/{rid}/fork"):
+    for path in (
+        "/api/runs",
+        "/api/comparisons",
+        f"/api/runs/{rid}/cancel",
+        f"/api/runs/{rid}/fork",
+    ):
         assert request(base, path, method="POST")[0] == 405
     assert request(base, "/api/runs/unknown")[0] == 404
     return rid
 
 
-def benchmark(base, rid, count, concurrency):
+def benchmark(base, rid, count, concurrency, *, archive_summary=False):
     routes = {
-        "archive": "/api/runs",
+        "archive": "/api/runs?summary=true" if archive_summary else "/api/runs",
         "run": f"/api/runs/{rid}",
         "events": f"/api/runs/{rid}/events",
         "export": f"/api/runs/{rid}/export",
@@ -87,7 +100,13 @@ def benchmark(base, rid, count, concurrency):
 
     def sample(name):
         status, headers, body, elapsed, _ = request(base, routes[name], encoding="gzip")
-        return name, status, headers.get("Content-Encoding", "identity"), len(body), elapsed
+        return (
+            name,
+            status,
+            headers.get("Content-Encoding", "identity"),
+            len(body),
+            elapsed,
+        )
 
     for name in routes:
         sample(name)
@@ -123,11 +142,22 @@ if __name__ == "__main__":
     parser.add_argument("url")
     parser.add_argument("--samples-per-route", type=int, default=0)
     parser.add_argument("--concurrency", type=int, default=1)
+    parser.add_argument("--archive-summary", action="store_true")
     args = parser.parse_args()
     if args.samples_per_route < 0 or args.concurrency < 1:
-        parser.error("Sample count must be nonnegative and concurrency must be positive")
+        parser.error(
+            "Sample count must be nonnegative and concurrency must be positive"
+        )
     base_url = args.url.rstrip("/")
     initial_run = check(base_url)
-    print("Replay health, 30 run identities, default comparison, exports and read-only boundary passed")
+    print(
+        "Replay health, 30 run identities, default comparison, exports and read-only boundary passed"
+    )
     if args.samples_per_route:
-        benchmark(base_url, initial_run, args.samples_per_route, args.concurrency)
+        benchmark(
+            base_url,
+            initial_run,
+            args.samples_per_route,
+            args.concurrency,
+            archive_summary=args.archive_summary,
+        )

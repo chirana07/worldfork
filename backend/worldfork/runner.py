@@ -1,6 +1,7 @@
 import asyncio
 import copy
 import json
+import logging
 import time
 import uuid
 from pathlib import Path
@@ -12,6 +13,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from .agents import ADAPTERS
 from .engine import World, digest, scenario, score
 from .gateway import BudgetExhausted, Gateway
+
+logger = logging.getLogger(__name__)
 
 SOURCE_HASHES = {
     name: digest(Path(__file__).with_name(name + ".py").read_text())
@@ -43,7 +46,6 @@ class Runner:
         self.store = store
         self.lock = asyncio.Lock()
         self.tasks = {}
-        self.cancelled = set()
 
     def create(self, config: RunConfig):
         rid = str(uuid.uuid4())
@@ -59,14 +61,21 @@ class Runner:
             World(fixture).snapshot(),
         )
         self.tasks[rid] = asyncio.create_task(self.run(rid, config))
-        self.tasks[rid].add_done_callback(lambda _: self.tasks.pop(rid, None))
+        self.tasks[rid].add_done_callback(lambda task: self.finish_task(rid, task))
         return rid
+
+    def finish_task(self, rid, task):
+        self.tasks.pop(rid, None)
+        error = None if task.cancelled() else task.exception()
+        if error is not None:
+            logger.error("Run %s terminated unexpectedly", rid, exc_info=error)
+        if task.cancelled() or error is not None:
+            run = self.store.get(rid)
+            if run and run["status"] in {"queued", "running"}:
+                self.store.update(rid, status="interrupted")
 
     async def run(self, rid, config):
         async with self.lock:
-            if rid in self.cancelled:
-                self.store.update(rid, status="cancelled")
-                return
             world = World(scenario(config.scenario_id == "harbor-scarce-v1"))
             gateway = Gateway(config.model, config.temperature, config.seed)
             gateway.token_limit = config.max_tokens
@@ -95,9 +104,6 @@ class Runner:
                             rid, {"model_manifest": await gateway.describe_model()}
                         )
                     for _ in range(config.max_steps):
-                        if rid in self.cancelled:
-                            terminal = "cancelled"
-                            break
                         usage = sum(
                             (a.get("input_tokens") or 0) + (a.get("output_tokens") or 0)
                             for a in gateway.attempts
@@ -279,7 +285,12 @@ class Runner:
                     world.snapshot(),
                 )
             finally:
-                await gateway.close()
+                try:
+                    await gateway.close()
+                except asyncio.CancelledError:
+                    terminal = "cancelled"
+                except Exception:
+                    logger.warning("Could not close gateway for %s", rid, exc_info=True)
                 attempts = gateway.attempts
                 result = {
                     **score(world),
@@ -312,13 +323,12 @@ class Runner:
                     rid,
                     {"type": "finished", "tick": world.tick, "result": result},
                     world.snapshot(),
+                    terminal=terminal,
                 )
-                self.store.update(rid, status=terminal, result=result)
-                self.cancelled.discard(rid)
 
     def cancel(self, rid):
-        self.cancelled.add(rid)
         task = self.tasks.get(rid)
-        if task:
+        if task and not task.done() and not task.cancelling():
+            if self.store.get(rid)["status"] == "queued":
+                self.store.update(rid, status="cancelled")
             task.cancel()
-        self.store.update(rid, status="cancelled")

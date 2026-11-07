@@ -11,8 +11,11 @@ def client(monkeypatch, tmp_path):
     s = Store(tmp_path / "api.sqlite")
     monkeypatch.setattr("worldfork.api.store", s)
     monkeypatch.setattr("worldfork.api.runner", Runner(s))
-    with TestClient(app) as c:
-        yield c
+    try:
+        with TestClient(app, base_url="http://localhost") as c:
+            yield c
+    finally:
+        s.db.close()
 
 
 def test_scenario_public_state_and_missing_run(client):
@@ -69,3 +72,72 @@ def test_model_choices_exclude_cloud_and_missing_models(client, monkeypatch):
 
     monkeypatch.setattr("worldfork.api.httpx.AsyncClient", LocalModels)
     assert client.get("/api/models").json() == ["ollama/llama3.1:latest"]
+
+
+def test_live_browser_boundary_blocks_foreign_host_and_cancel(client, monkeypatch):
+    from worldfork.api import runner, store
+
+    store.create("queued", {}, {})
+    cancelled = []
+    monkeypatch.setattr(runner, "cancel", cancelled.append)
+    path = "/api/runs/queued/cancel"
+    assert (
+        client.get("/api/runs", headers={"Host": "untrusted.example"}).status_code
+        == 400
+    )
+    for origin in ["https://untrusted.example", "null"]:
+        assert client.post(path, headers={"Origin": origin}).status_code == 403
+    assert cancelled == []
+    assert (
+        client.post(path, headers={"Origin": "http://localhost:5173"}).status_code
+        == 200
+    )
+    assert client.post(path).status_code == 200
+    assert cancelled == ["queued", "queued"]
+
+
+def test_queue_limit_applies_to_forks_and_seed_validation_precedes_enqueue(client):
+    from worldfork.api import runner, store
+
+    store.create("parent", {"scenario_id": "harbor-v1"}, {})
+    assert (
+        client.post(
+            "/api/comparisons",
+            json={"a": {"seed": 1000000}, "b": {"seed": 1000000}, "repeats": 2},
+        ).status_code
+        == 422
+    )
+    runner.tasks.update(dict.fromkeys(range(30)))
+    try:
+        assert client.post("/api/runs/parent/fork", json={}).status_code == 429
+        assert client.post("/api/runs", json={}).status_code == 429
+        assert (
+            client.post("/api/comparisons", json={"a": {}, "b": {}}).status_code == 429
+        )
+    finally:
+        runner.tasks.clear()
+    assert len(client.get("/api/runs").json()) == 1
+
+
+def test_archive_summary_preserves_full_run_contract_and_validates_event_offset(client):
+    from worldfork.api import store
+
+    store.create("run", {"strategy": "coordinated"}, {"tick": 1})
+    store.update(
+        "run",
+        status="stopped",
+        result={
+            "satisfied_people": 3,
+            "total_people": 7,
+            "attempts": [{"raw_response": "{}"}],
+        },
+    )
+    full = client.get("/api/runs").json()[0]
+    summary = client.get("/api/runs?summary=true").json()[0]
+    assert full == client.get("/api/runs/run").json()
+    assert full["snapshot"] == {"tick": 1}
+    assert full["result"]["attempts"] == [{"raw_response": "{}"}]
+    assert "snapshot" not in summary
+    assert summary["result"] == {"satisfied_people": 3, "total_people": 7}
+    for offset in [-1, 9223372036854775808]:
+        assert client.get(f"/api/runs/run/events?after_seq={offset}").status_code == 422

@@ -74,6 +74,7 @@ type Run = {
   snapshot: Snapshot;
   result: Record<string, any> | null;
 };
+type RunSummary = Omit<Run, "snapshot">;
 type Event = {
   seq: number;
   tick: number;
@@ -82,6 +83,10 @@ type Event = {
   result?: Record<string, any>;
   error?: string;
   fault?: string;
+  visibility?: string;
+  message?: string;
+  truth?: unknown;
+  shown?: unknown;
   snapshot: Snapshot;
   observation?: unknown;
   candidate_actions?: unknown;
@@ -346,7 +351,8 @@ export default function App() {
     [eventsA, setEventsA] = useState<Event[]>([]),
     [eventsB, setEventsB] = useState<Event[]>([]);
   const [health, setHealth] = useState<Record<string, string>>({}),
-    [archive, setArchive] = useState<Run[]>([]),
+    [archive, setArchive] = useState<RunSummary[]>([]),
+    [archiveState, setArchiveState] = useState("loading"),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const [selected, setSelected] = useState<{
@@ -360,19 +366,32 @@ export default function App() {
   const maxTick = Math.max(runA?.snapshot.tick || 0, runB?.snapshot.tick || 0);
   const replay = health.mode === "replay";
   const experimentActive = active(runA) || active(runB);
+  const archiveRequest = useRef(0);
+  async function loadArchive() {
+    const request = ++archiveRequest.current;
+    setArchiveState("loading");
+    try {
+      const rows = await api<RunSummary[]>("/runs?summary=true");
+      if (request === archiveRequest.current) {
+        setArchive(rows);
+        setArchiveState("ready");
+      }
+    } catch {
+      if (request === archiveRequest.current) setArchiveState("error");
+    }
+  }
   useEffect(() => {
     let mounted = true;
+    void loadArchive();
     Promise.all([
       api<Scenario[]>("/scenarios"),
       api<Record<string, string>>("/health"),
-      api<Run[]>("/runs"),
       api<string[]>("/models").catch(() => [] as string[]),
     ])
-      .then(async ([s, h, r, installed]) => {
+      .then(async ([s, h, installed]) => {
         if (mounted) {
           setScenarios(s);
           setHealth(h);
-          setArchive(r);
           setModels(installed);
           if (installed.length && !installed.includes(model))
             setModel(installed[0]);
@@ -422,7 +441,7 @@ export default function App() {
               setRunB(b);
               setSingleRun(!b);
               setScenarioId(a.config.scenario_id);
-              setModel(a.config.model);
+              if (installed.includes(a.config.model)) setModel(a.config.model);
               setPassengers(a.config.passenger_mode);
               setFault(a.config.fault);
               setFrameworkA(a.config.framework);
@@ -445,6 +464,7 @@ export default function App() {
       );
     return () => {
       mounted = false;
+      archiveRequest.current++;
     };
   }, []);
   useEffect(() => {
@@ -560,12 +580,8 @@ export default function App() {
     };
   }, [inspectorOpen]);
   async function launch() {
-    setSingleRun(false);
     setBusy(true);
     setError("");
-    setCursor(null);
-    setPlaying(false);
-    setSelected(null);
     try {
       const c = await api<{ run_ids: { a: string; b: string }[] }>(
         "/comparisons",
@@ -594,6 +610,10 @@ export default function App() {
         api<Run>("/runs/" + pair.a),
         api<Run>("/runs/" + pair.b),
       ]);
+      setSingleRun(false);
+      setCursor(null);
+      setPlaying(false);
+      setSelected(null);
       setRunA(a);
       setRunB(b);
       saveRunLink(a, b);
@@ -614,25 +634,37 @@ export default function App() {
       }
     }
   }
-  async function openArchive() {
+  function openArchive() {
     setView("archive");
-    try {
-      setArchive(await api<Run[]>("/runs"));
-    } catch (e) {
-      setError((e as Error).message);
-    }
+    void loadArchive();
   }
-  function inspectRun(r: Run) {
+  async function inspectRun(id: string) {
+    if (busy) return;
     if (active(runA) || active(runB)) {
       setError(
         "Finish or cancel the active experiment before inspecting another run.",
       );
       return;
     }
+    setBusy(true);
+    setError("");
+    let r: Run;
+    try {
+      r = await api<Run>("/runs/" + encodeURIComponent(id));
+    } catch (e) {
+      setError(`Could not open the archived run. ${(e as Error).message}`);
+      return;
+    } finally {
+      setBusy(false);
+    }
     setSingleRun(true);
     saveRunLink(r);
     setSelected(null);
     setScenarioId(r.config.scenario_id);
+    if (models.includes(r.config.model)) setModel(r.config.model);
+    setFrameworkA(r.config.framework);
+    setFault(r.config.fault);
+    setPassengers(r.config.passenger_mode);
     setRunA(r);
     setRunB(null);
     if (r.id !== runA?.id) setEventsA([]);
@@ -640,6 +672,10 @@ export default function App() {
     setCursor(null);
     setPlaying(false);
     setView("lab");
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+      document.getElementById("workspace")?.focus({ preventScroll: true });
+    });
   }
   const timeline = [
     ...eventsA.map((event) => ({ side: "A", event })),
@@ -653,6 +689,18 @@ export default function App() {
     );
   const visibleTimeline =
     cursor === null ? timeline : timeline.filter((x) => x.event.tick <= cursor);
+  const firstBooking = timeline.find(
+    ({ event }) =>
+      event.action?.tool === "commit_offer" &&
+      event.result?.receipt?.status === "committed",
+  );
+  const receipt = firstBooking?.event.result?.receipt;
+  const bookedParty = firstBooking?.event.snapshot.cases.find(
+    (party) => party.id === receipt?.party_id,
+  );
+  const bookedRoute = firstBooking?.event.snapshot.options.find(
+    (option) => option.id === receipt?.option_id,
+  );
   const visibleArchive = archive.map((r) =>
     r.id === runA?.id ? runA : r.id === runB?.id ? runB : r,
   );
@@ -726,7 +774,11 @@ export default function App() {
           <span className="local-label">LOCAL RESEARCH PROTOTYPE</span>
         </div>
       </aside>
-      <main id="workspace" inert={inspectorOpen ? true : undefined}>
+      <main
+        id="workspace"
+        tabIndex={-1}
+        inert={inspectorOpen ? true : undefined}
+      >
         <header className="topbar">
           <span>
             WorldFork <ChevronRight size={13} />
@@ -774,20 +826,14 @@ export default function App() {
             <div className={`page-heading${replay ? " replay-heading" : ""}`}>
               <div>
                 <h1>
-                  Same world.
-                  <br />
-                  <span>Different decisions.</span>
+                  {singleRun
+                    ? "How did this AI rebook travelers?"
+                    : "Which AI approach rebooks more travelers?"}
                 </h1>
                 <p>
-                  {replay ? (
-                    "Replay an airport disruption and see how each agent’s choices changed the options for seven travelers."
-                  ) : (
-                    <>
-                      Put two support agents in the same airport disruption.
-                      <br className="desktop-break" /> Watch their choices
-                      change everyone else’s options.
-                    </>
-                  )}
+                  {singleRun
+                    ? "Follow one AI agent as it helps travelers find a new route after a flight cancellation."
+                    : "Two AI agents face the same flight cancellation in separate simulations. One helps parties in order. The other plans across all travelers. Every booking changes what’s available to the next party."}
                 </p>
               </div>
               <div className="scenario-note">
@@ -800,6 +846,8 @@ export default function App() {
             {replay ? (
               <section
                 className="replay-overview"
+                id="recorded-experiment"
+                tabIndex={-1}
                 aria-labelledby="replay-overview-title"
               >
                 <div className="replay-overview-header">
@@ -812,6 +860,26 @@ export default function App() {
                     </p>
                   </div>
                   <div className="replay-actions">
+                    {maxTick > 0 &&
+                      !eventsA.length &&
+                      !eventsB.length &&
+                      !error && (
+                        <button className="replay-start" disabled>
+                          Loading booking example…
+                        </button>
+                      )}
+                    {firstBooking && bookedParty && bookedRoute && (
+                      <a
+                        className="replay-start"
+                        href="#playback-controls"
+                        onClick={() => {
+                          setPlaying(false);
+                          setCursor(firstBooking.event.tick);
+                        }}
+                      >
+                        <Play size={16} /> See the first booking
+                      </a>
+                    )}
                     {runA && (
                       <a href="#decision-ledger">
                         <ListOrdered size={16} /> Decision ledger
@@ -821,7 +889,7 @@ export default function App() {
                       <a href={window.location.pathname}>Opening comparison</a>
                     )}
                     <button onClick={openArchive}>
-                      <History size={16} /> Browse {archive.length} runs
+                      <History size={16} /> Browse {archive.length || ""} runs
                     </button>
                   </div>
                 </div>
@@ -858,7 +926,7 @@ export default function App() {
                               </strong>
                               <small>
                                 {run.result
-                                  ? "needs met at finish"
+                                  ? "travelers helped"
                                   : "No scored result"}
                               </small>
                             </div>
@@ -873,105 +941,11 @@ export default function App() {
                 className="configuration"
                 aria-label="Experiment configuration"
               >
-                <div className="config-fields">
-                  <label>
-                    Scenario
-                    <select
-                      disabled={busy || experimentActive}
-                      value={scenarioId}
-                      onChange={(e) => {
-                        setScenarioId(e.target.value);
-                        saveRunLink();
-                        setRunA(null);
-                        setRunB(null);
-                        setSingleRun(false);
-                        setEventsA([]);
-                        setEventsB([]);
-                        setSelected(null);
-                        setCursor(null);
-                        setPlaying(false);
-                      }}
-                    >
-                      {scenarios.map((s) => (
-                        <option value={s.id} key={s.id}>
-                          {s.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    World A integration
-                    <select
-                      value={frameworkA}
-                      disabled={busy || experimentActive}
-                      onChange={(e) => setFrameworkA(e.target.value)}
-                    >
-                      <option value="python">Plain Python</option>
-                      <option value="langgraph">LangGraph</option>
-                    </select>
-                  </label>
-                  <label>
-                    World B integration
-                    <select
-                      value={frameworkB}
-                      disabled={busy || experimentActive}
-                      onChange={(e) => setFrameworkB(e.target.value)}
-                    >
-                      <option value="python">Plain Python</option>
-                      <option value="langgraph">LangGraph</option>
-                    </select>
-                  </label>
-                  <label>
-                    Controlled fault
-                    <select
-                      value={fault}
-                      disabled={busy || experimentActive}
-                      onChange={(e) => setFault(e.target.value)}
-                    >
-                      <option value="none">None</option>
-                      <option value="model_unavailable">
-                        Model unavailable
-                      </option>
-                      <option value="tool_timeout">Tool timeout</option>
-                      <option value="misleading_observation">
-                        Misleading inventory
-                      </option>
-                    </select>
-                  </label>
-                </div>
-                <div className="config-bottom">
-                  <label className="passenger-mode">
-                    Shared model
-                    <select
-                      value={model}
-                      onChange={(e) => setModel(e.target.value)}
-                      disabled={busy || experimentActive || !models.length}
-                    >
-                      {!models.length && (
-                        <option value={model}>No local model available</option>
-                      )}
-                      {models.map((name) => (
-                        <option key={name} value={name}>
-                          {name.replace("ollama/", "")}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className="passenger-mode">
-                    Population
-                    <select
-                      value={passengers}
-                      disabled={busy || experimentActive}
-                      onChange={(e) => setPassengers(e.target.value)}
-                    >
-                      <option value="scripted">Scripted · reproducible</option>
-                      <option value="llm">LLM · constrained consent</option>
-                    </select>
-                  </label>
+                <div className="config-launch">
                   <span className="budget-note">
                     <Clock3 size={14} />
                     {models.length
-                      ? "48 decisions per world · runs execute sequentially"
+                      ? "Each agent gets up to 48 decisions. The runs take turns."
                       : "Recorded runs are available · start Ollama for new runs"}
                   </span>
                   <button
@@ -989,16 +963,119 @@ export default function App() {
                       ? "Creating worlds…"
                       : active(runA) || active(runB)
                         ? "Experiment in progress"
-                        : "Fork & run experiment"}
+                        : "Run comparison"}
                     <GitFork size={17} />
                   </button>
                 </div>
-                {frameworkA !== frameworkB && (
-                  <p className="comparison-note">
-                    Different integrations compare two complete setups. Choose
-                    the same integration to isolate strategy.
-                  </p>
-                )}
+                <details className="experiment-settings">
+                  <summary>Experiment settings</summary>
+                  <div className="config-fields">
+                    <label>
+                      Scenario
+                      <select
+                        disabled={busy || experimentActive}
+                        value={scenarioId}
+                        onChange={(e) => {
+                          setScenarioId(e.target.value);
+                          saveRunLink();
+                          setRunA(null);
+                          setRunB(null);
+                          setSingleRun(false);
+                          setEventsA([]);
+                          setEventsB([]);
+                          setSelected(null);
+                          setCursor(null);
+                          setPlaying(false);
+                        }}
+                      >
+                        {scenarios.map((s) => (
+                          <option value={s.id} key={s.id}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      World A integration
+                      <select
+                        value={frameworkA}
+                        disabled={busy || experimentActive}
+                        onChange={(e) => setFrameworkA(e.target.value)}
+                      >
+                        <option value="python">Plain Python</option>
+                        <option value="langgraph">LangGraph</option>
+                      </select>
+                    </label>
+                    <label>
+                      World B integration
+                      <select
+                        value={frameworkB}
+                        disabled={busy || experimentActive}
+                        onChange={(e) => setFrameworkB(e.target.value)}
+                      >
+                        <option value="python">Plain Python</option>
+                        <option value="langgraph">LangGraph</option>
+                      </select>
+                    </label>
+                    <label>
+                      Controlled fault
+                      <select
+                        value={fault}
+                        disabled={busy || experimentActive}
+                        onChange={(e) => setFault(e.target.value)}
+                      >
+                        <option value="none">None</option>
+                        <option value="model_unavailable">
+                          Model unavailable
+                        </option>
+                        <option value="tool_timeout">Tool timeout</option>
+                        <option value="misleading_observation">
+                          Misleading inventory
+                        </option>
+                      </select>
+                    </label>
+                  </div>
+                  <div className="config-bottom">
+                    <label className="passenger-mode">
+                      Shared model
+                      <select
+                        value={model}
+                        onChange={(e) => setModel(e.target.value)}
+                        disabled={busy || experimentActive || !models.length}
+                      >
+                        {!models.length && (
+                          <option value={model}>
+                            No local model available
+                          </option>
+                        )}
+                        {models.map((name) => (
+                          <option key={name} value={name}>
+                            {name.replace("ollama/", "")}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="passenger-mode">
+                      Population
+                      <select
+                        value={passengers}
+                        disabled={busy || experimentActive}
+                        onChange={(e) => setPassengers(e.target.value)}
+                      >
+                        <option value="scripted">
+                          Scripted · reproducible
+                        </option>
+                        <option value="llm">LLM · constrained consent</option>
+                      </select>
+                    </label>
+                  </div>
+                  {frameworkA !== frameworkB && (
+                    <p className="comparison-note">
+                      Different integrations compare two complete setups. Choose
+                      the same integration to isolate strategy.
+                    </p>
+                  )}
+                </details>
               </section>
             )}
             <div className="comparison-heading">
@@ -1066,9 +1143,24 @@ export default function App() {
                     }}
                   />
                   <span>
-                    Tick {cursor ?? maxTick} / {maxTick}
+                    Step {cursor ?? maxTick} / {maxTick}
                   </span>
                 </div>
+                {firstBooking &&
+                  bookedParty &&
+                  bookedRoute &&
+                  cursor === firstBooking.event.tick && (
+                    <p className="booking-example" aria-live="polite">
+                      <strong>
+                        World {firstBooking.side} booked {bookedParty.name} on
+                        the {bookedRoute.label.toLowerCase()}.
+                      </strong>{" "}
+                      {bookedRoute.available === 0
+                        ? "That connection is now full."
+                        : `${bookedRoute.available} ${bookedRoute.available === 1 ? "seat remains" : "seats remain"} on that connection.`}{" "}
+                      Move the slider to see what happens next.
+                    </p>
+                  )}
               </div>
             )}
             <div className={`world-grid ${singleRun ? "single-world" : ""}`}>
@@ -1106,11 +1198,19 @@ export default function App() {
               <div className="timeline-header">
                 <div>
                   <h2 id="ledger-title">Decision ledger</h2>
-                  <p>Every action has a receipt. Select one to inspect it.</p>
+                  <p>
+                    Select a decision to see what the agent knew, what it tried,
+                    and what changed.
+                  </p>
                 </div>
                 {maxTick > 0 && (
                   <a className="ledger-jump" href="#playback-controls">
                     Back to playback
+                  </a>
+                )}
+                {replay && (
+                  <a className="ledger-jump" href="#recorded-experiment">
+                    See the comparison
                   </a>
                 )}
               </div>
@@ -1190,10 +1290,10 @@ export default function App() {
             {visibleArchive.length ? (
               visibleArchive.map((r) => (
                 <button
-                  disabled={active(runA) || active(runB)}
+                  disabled={busy || experimentActive}
                   key={r.id}
                   className="archive-row"
-                  onClick={() => inspectRun(r)}
+                  onClick={() => inspectRun(r.id)}
                 >
                   <History size={19} />
                   <span>
@@ -1207,7 +1307,7 @@ export default function App() {
                     <strong>{r.status.replaceAll("_", " ")}</strong>
                     <small>
                       {r.result
-                        ? `${r.result.satisfied_people}/7 requirements met`
+                        ? `${r.result.satisfied_people}/${r.result.total_people} requirements met`
                         : "No scored result"}
                     </small>
                   </span>
@@ -1216,7 +1316,15 @@ export default function App() {
               ))
             ) : (
               <div className="empty-ledger">
-                No runs yet. Start in the experiment lab.
+                {archiveState === "error" ? (
+                  <button className="text-button" onClick={loadArchive}>
+                    Could not load runs. Try again
+                  </button>
+                ) : archiveState === "loading" ? (
+                  <span role="status">Loading runs…</span>
+                ) : (
+                  "No runs yet. Start in the experiment lab."
+                )}
               </div>
             )}
           </section>
@@ -1312,6 +1420,30 @@ export default function App() {
                 Private ground truth is excluded from this view and from
                 support-agent observations.
               </p>
+            </>
+          ) : selected.event?.type === "fault" ? (
+            <>
+              <h2>{selected.event.fault?.replaceAll("_", " ")}</h2>
+              <p>Injected fault · tick {selected.event.tick}</p>
+              {selected.event.message && <p>{selected.event.message}</p>}
+              {selected.event.visibility && (
+                <p>
+                  Recorded visibility:{" "}
+                  {selected.event.visibility.replaceAll("_", " ")}
+                </p>
+              )}
+              {selected.event.truth !== undefined && (
+                <>
+                  <h3>Actual inventory</h3>
+                  <pre>{JSON.stringify(selected.event.truth, null, 2)}</pre>
+                </>
+              )}
+              {selected.event.shown !== undefined && (
+                <>
+                  <h3>Inventory shown to the agent</h3>
+                  <pre>{JSON.stringify(selected.event.shown, null, 2)}</pre>
+                </>
+              )}
             </>
           ) : (
             <>

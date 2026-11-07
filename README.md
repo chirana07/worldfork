@@ -21,8 +21,8 @@ uv run python scripts/replay_server.py
 
 Open [recorded replay](http://127.0.0.1:8001). The repository includes the JSON exports, measured report and deterministic replay verifier. See [evidence guide](evidence/README.md) and [archived observation provenance](docs/trace-provenance.md).
 
-1. Compare the two worlds' passenger counts, route capacity and gaps from the oracle. The opening comparison uses the same model, scenario, seed and LangGraph integration with different strategies.
-2. Scrub the timeline and open a decision in the ledger. Check what the agent observed, which action it chose, and how the tool receipt changed the world.
+1. Click **See the first booking** to jump to a confirmed booking and see how many seats remain. The opening comparison uses the same model, scenario, seed and LangGraph integration with different strategies.
+2. Move the playback slider to see later changes. Open a decision in the ledger to check what the agent observed, what it tried, and what changed.
 3. Open **Run archive** to inspect all 30 pilot runs, including cases with injected faults. Use **Export trace** to download a run's configuration, decisions and snapshots.
 
 Run these in a second terminal to check the service and audit the evidence independently.
@@ -63,7 +63,7 @@ npm run dev --prefix frontend
 
 Open http://127.0.0.1:5173. The interface includes initial-world comparisons, a complete decision ledger, passenger/receipt inspection, cancellation, an archive and recorded playback. The shared-model selector lists installed supported local models; refresh after installing another model. An end-of-run summary is labeled separately from a historical replay snapshot. Saved run links restore an inspection or comparison after refreshing.
 
-Keep the model, integration and scenario fixed to compare the two default strategies. Choose a fault preset if you want both worlds to face the same configured intervention. Click **Fork & run experiment** and watch the ledger as the worlds execute in sequence. The smoke command checks an actual Bifrost-to-Ollama completion with usage metadata.
+Click **Run comparison** and watch the ledger as the worlds execute in sequence. Open **Experiment settings** to change the setup or choose a fault preset. Keep the model, integration and scenario fixed to compare the two strategies. The smoke command checks an actual Bifrost-to-Ollama completion with usage metadata.
 
 ## World rules
 
@@ -80,6 +80,8 @@ The local reference agents select from a schema-constrained action menu derived 
 ## API
 
 `POST /api/runs` accepts scenario, framework, strategy, passenger mode, model, fault, seed, temperature and budgets. Defaults are defined in `RunConfig`. `GET /api/runs/{id}/events?after_seq=N` retrieves an ordered persisted trace. Cancel, initial-state fork, paired comparison and JSON export endpoints are documented in the API explorer. Mid-run branching is not implemented.
+
+`GET /api/runs?summary=true` lists archive metadata and scores. The full list, run detail and export endpoints retain their existing payloads. An active cancellation stays pollable until its partial score and terminal receipt are saved.
 
 ```sh
 curl -X POST http://127.0.0.1:8000/api/comparisons \

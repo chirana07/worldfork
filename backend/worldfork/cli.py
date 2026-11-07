@@ -5,6 +5,7 @@ import asyncio
 import hashlib
 import json
 import subprocess
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -119,10 +120,24 @@ async def benchmark(full=False, model="ollama/qwen3.5:4b"):
                         path.write_text(json.dumps(manifest, indent=2))
                 if pending:
                     await asyncio.sleep(3)
-        except (KeyboardInterrupt, asyncio.CancelledError):
-            for entry in manifest["runs"]:
-                await client.post("/api/runs/" + entry["id"] + "/cancel")
-            print("Cancelled this matrix; retained completed results.", flush=True)
+        except (KeyboardInterrupt, asyncio.CancelledError, httpx.HTTPError):
+            outstanding = [
+                entry["id"] for entry in manifest["runs"] if "status" not in entry
+            ]
+            responses = await asyncio.gather(
+                *(client.post(f"/api/runs/{rid}/cancel") for rid in outstanding),
+                return_exceptions=True,
+            )
+            failed = [
+                rid
+                for rid, response in zip(outstanding, responses, strict=True)
+                if not isinstance(response, httpx.Response) or not response.is_success
+            ]
+            if failed:
+                print(
+                    f"Could not request cancellation for {', '.join(failed)}. Manifest: {path}",
+                    file=sys.stderr,
+                )
             raise
     from .report import markdown, summarize
 

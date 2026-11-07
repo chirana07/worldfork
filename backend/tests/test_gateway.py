@@ -60,3 +60,41 @@ async def test_missing_usage_not_fabricated_as_zero():
         assert g.attempts[0]["usage_source"] is None
     finally:
         await g.close()
+
+
+async def test_malformed_usage_is_unknown_and_following_call_still_works():
+    g = Gateway()
+    await g.client.aclose()
+    g.client = httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda _: httpx.Response(
+                200,
+                json={
+                    "choices": [{"message": {"content": "{}"}}],
+                    "usage": {"prompt_tokens": "42", "completion_tokens": 5},
+                },
+            )
+        )
+    )
+    try:
+        for _ in range(2):
+            assert await g.generate([]) == "{}"
+        assert all(a["input_tokens"] is None for a in g.attempts)
+        assert all(a["output_tokens"] == 5 for a in g.attempts)
+    finally:
+        await g.close()
+
+
+async def test_http_error_does_not_persist_configured_gateway_url():
+    g = Gateway()
+    g.base_url = "http://user:test-password@localhost/v1"
+    await g.client.aclose()
+    g.client = httpx.AsyncClient(
+        transport=httpx.MockTransport(lambda _: httpx.Response(503))
+    )
+    try:
+        with pytest.raises(RuntimeError, match="^Gateway returned HTTP 503$"):
+            await g.generate([])
+        assert g.attempts[0]["error"] == "Gateway returned HTTP 503"
+    finally:
+        await g.close()

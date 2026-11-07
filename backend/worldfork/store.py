@@ -71,7 +71,7 @@ class Store:
         self.db.commit()
 
     @serialized
-    def append(self, rid, event, snapshot):
+    def append(self, rid, event, snapshot, *, terminal=None):
         with self.db:
             seq = self.db.execute(
                 "SELECT COALESCE(MAX(seq),0)+1 FROM events WHERE run_id=?", (rid,)
@@ -86,9 +86,15 @@ class Store:
             self.db.execute(
                 "INSERT INTO events VALUES(?,?,?)", (rid, seq, json.dumps(event))
             )
-            self.db.execute(
-                "UPDATE runs SET snapshot=? WHERE id=?", (json.dumps(snapshot), rid)
-            )
+            if terminal is None:
+                self.db.execute(
+                    "UPDATE runs SET snapshot=? WHERE id=?", (json.dumps(snapshot), rid)
+                )
+            else:
+                self.db.execute(
+                    "UPDATE runs SET snapshot=?, status=?, result=? WHERE id=?",
+                    (json.dumps(snapshot), terminal, json.dumps(event["result"]), rid),
+                )
         return event
 
     @serialized
@@ -96,18 +102,30 @@ class Store:
         row = self.db.execute("SELECT * FROM runs WHERE id=?", (rid,)).fetchone()
         if not row:
             return None
+        return self.decode_run(row)
+
+    @staticmethod
+    def decode_run(row):
         d = dict(row)
         for k in ["config", "snapshot", "result"]:
-            d[k] = json.loads(d[k]) if d[k] else None
+            if k in d:
+                d[k] = json.loads(d[k]) if d[k] else None
         return d
 
     @serialized
-    def list(self):
+    def list(self, *, summary=False):
+        columns = "*"
+        if summary:
+            columns = """id, created_at, status, config,
+                CASE WHEN result IS NOT NULL THEN json_object(
+                    'satisfied_people', json_extract(result, '$.satisfied_people'),
+                    'total_people', json_extract(result, '$.total_people')
+                ) END AS result"""
         return [
-            self.get(row[0])
+            self.decode_run(row)
             for row in self.db.execute(
-                "SELECT id FROM runs ORDER BY created_at DESC LIMIT 100"
-            ).fetchall()
+                f"SELECT {columns} FROM runs ORDER BY created_at DESC LIMIT 100"
+            )
         ]
 
     @serialized

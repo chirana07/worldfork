@@ -25,11 +25,11 @@ Open [the local replay](http://127.0.0.1:8001). The check verifies readiness, ev
 
 Use the same image and commands on a container host. Route HTTPS to port 8001 through the host's ingress or reverse proxy. For a proxy running on the same machine, keep the loopback port mapping above. Use `/api/health` for readiness and container logs for startup errors and HTTP access logs. Re-run the deployment check against the HTTPS URL before sharing it. Keep the previous image tag to roll back by replacing the replay container. Restarting reconstructs the database from the immutable image contents.
 
-The live evaluation stack uses Ollama on the Mac and sends measured calls through Bifrost. Keep that stack on loopback or an authenticated private network with controlled access to the queue. The replay container has no route for launching live inference.
+The live evaluation stack uses Ollama on the Mac and sends measured calls through Bifrost. Run the live API on loopback with a single worker and a private SQLite database. Its host and origin checks are browser safeguards for local use. Public access to live inference would require authentication, authorization and resource limits. Use the read-only replay container for sharing recorded evidence.
 
 ```sh
 python3 scripts/check_replay_deployment.py http://127.0.0.1:8001 \
-  --samples-per-route 25 --concurrency 8
+  --samples-per-route 25 --concurrency 8 --archive-summary
 docker stats --no-stream worldfork-replay
 ```
 

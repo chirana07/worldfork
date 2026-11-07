@@ -99,3 +99,50 @@ async def test_step_budget_and_replay_do_not_generate_calls(monkeypatch, tmp_pat
     before = s.get(rid)["result"]["model_calls"]
     assert s.events(rid)
     assert s.get(rid)["result"]["model_calls"] == before
+
+
+async def test_cancel_keeps_active_run_pollable_until_final_result(
+    monkeypatch, tmp_path
+):
+    import asyncio
+
+    generating = asyncio.Event()
+    closing = asyncio.Event()
+    finish_close = asyncio.Event()
+
+    class PausedGateway(FakeGateway):
+        async def generate(self, *args, **kwargs):
+            generating.set()
+            await asyncio.Future()
+
+        async def close(self):
+            closing.set()
+            await finish_close.wait()
+
+    monkeypatch.setattr("worldfork.runner.Gateway", PausedGateway)
+    store = Store(tmp_path / "runs.sqlite")
+    runner = Runner(store)
+    active = runner.create(RunConfig())
+    active_task = runner.tasks[active]
+    try:
+        await asyncio.wait_for(generating.wait(), 2)
+        queued = runner.create(RunConfig())
+        queued_task = runner.tasks[queued]
+        runner.cancel(queued)
+        with pytest.raises(asyncio.CancelledError):
+            await queued_task
+        assert queued not in runner.tasks
+        assert store.get(queued)["status"] == "cancelled"
+        assert store.get(queued)["result"] is None
+
+        runner.cancel(active)
+        await asyncio.wait_for(closing.wait(), 2)
+        runner.cancel(active)
+        assert store.get(active)["status"] == "running"
+        assert not active_task.done()
+    finally:
+        finish_close.set()
+        await asyncio.wait_for(active_task, 2)
+    run = store.get(active)
+    assert run["status"] == "cancelled"
+    assert run["result"] == store.events(active)[-1]["result"]

@@ -218,14 +218,15 @@ main {
   align-items: center;
   gap: 24px;
 }
-.page-heading h1 span {
-  color: var(--teal);
+.page-heading h1 {
+  max-width: 20ch;
 }
 .page-heading p {
   font-size: 14px;
   line-height: 1.65;
   color: var(--muted);
   margin-top: 16px;
+  max-width: 62ch;
 }
 .scenario-note {
   border-left: 1px solid #b5c5bd;
@@ -294,6 +295,13 @@ main {
 .replay-actions > :is(a, button):hover {
   background: #d9ece2;
 }
+.replay-actions > .replay-start {
+  background: var(--teal);
+  color: #fff;
+}
+.replay-actions > .replay-start:hover {
+  background: #075343;
+}
 .replay-outcomes {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -332,6 +340,26 @@ main {
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 14px;
+}
+.config-launch {
+  padding: 14px 22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
+}
+.experiment-settings {
+  border-top: 1px solid var(--line);
+}
+.experiment-settings > summary {
+  cursor: pointer;
+  padding: 12px 22px;
+  color: var(--teal);
+  font-size: 13px;
+  font-weight: 600;
+}
+.experiment-settings[open] > summary {
+  border-bottom: 1px solid var(--line);
 }
 .config-fields {
   display: grid;
@@ -716,12 +744,22 @@ select:hover {
 }
 .playback-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px 16px;
   margin: 0 40px 12px;
   padding: 6px 12px;
   border-block: 1px solid var(--line);
   scroll-margin-top: 12px;
+}
+.booking-example {
+  flex-basis: 100%;
+  margin: 0 0 4px;
+  padding: 9px 12px;
+  background: #e7f1eb;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.55;
 }
 .playback-bar > span {
   color: var(--muted);
@@ -1208,9 +1246,6 @@ select:hover {
   }
   .page-heading p {
     font-size: 12px;
-  }
-  .desktop-break {
-    display: none;
   }
   .scenario-note {
     display: none;

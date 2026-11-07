@@ -27,7 +27,9 @@ def serve(manifest, port, host="127.0.0.1"):
         database = Path(directory) / "replay.sqlite"
         import_evidence(manifest, database)
         os.environ["WORLDFORK_DB"] = str(database)
-        from worldfork.api import app
+        from worldfork.api import create_app
+
+        app = create_app(replay=True)
 
         entries = json.loads(manifest.read_text())["runs"]
         # First clean LangGraph pair, fixed by the matrix order, not chosen by outcome.
