@@ -247,6 +247,86 @@ main {
   color: var(--muted);
   font-size: 11px;
 }
+.replay-heading {
+  padding-top: 30px;
+  padding-bottom: 24px;
+}
+.replay-overview {
+  margin: 0 40px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.replay-overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+}
+.replay-overview-header h2 {
+  font-size: 16px;
+}
+.replay-overview-header p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.replay-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.replay-actions > :is(a, button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--teal);
+  background: #e7f1eb;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.replay-actions > :is(a, button):hover {
+  background: #d9ece2;
+}
+.replay-outcomes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+}
+.replay-outcomes:has(> :only-child) {
+  grid-template-columns: 1fr;
+}
+.replay-outcome {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  font-size: 13px;
+}
+.replay-outcome + .replay-outcome {
+  border-left: 1px solid var(--line);
+}
+.replay-outcome small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.outcome-score {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.outcome-score strong {
+  font-size: 20px;
+  line-height: 1;
+}
 .configuration {
   margin: 0 40px;
   background: #fff;
@@ -320,6 +400,12 @@ select:hover {
 }
 .primary:hover:not(:disabled) {
   background: #075343;
+}
+.comparison-note {
+  border-top: 1px solid var(--line);
+  padding: 10px 22px;
+  font-size: 12px;
+  color: var(--muted);
 }
 .comparison-heading {
   margin: 32px 40px 15px;
@@ -624,7 +710,27 @@ select:hover {
   color: var(--muted);
   margin-top: 5px;
 }
+.ledger-jump {
+  color: var(--teal);
+  font-size: 12px;
+}
+.playback-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 0 40px 12px;
+  padding: 6px 12px;
+  border-block: 1px solid var(--line);
+  scroll-margin-top: 12px;
+}
+.playback-bar > span {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
 .playback {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 9px;
@@ -632,8 +738,9 @@ select:hover {
 .playback button {
   border: 1px solid var(--line);
   background: white;
-  width: 29px;
-  height: 29px;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
   border-radius: 6px;
   display: grid;
   place-items: center;
@@ -643,12 +750,14 @@ select:hover {
   background: #e9f1e9;
 }
 .playback input {
-  width: 105px;
+  flex: 1;
+  min-width: 0;
   accent-color: var(--teal);
 }
 .playback > span {
-  font-size: 10px;
-  min-width: 37px;
+  font-size: 11px;
+  min-width: 68px;
+  text-align: right;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -942,6 +1051,8 @@ select:hover {
     padding: 32px 26px 26px;
   }
   .configuration,
+  .replay-overview,
+  .playback-bar,
   .world-grid {
     margin-left: 26px;
     margin-right: 26px;
@@ -1082,6 +1193,7 @@ select:hover {
   }
   .topbar {
     padding: 0 18px;
+    height: 38px;
   }
   .fictional {
     font-size: 9px;
@@ -1106,9 +1218,45 @@ select:hover {
   .configuration {
     margin: 0 18px;
   }
+  .replay-heading {
+    padding-top: 22px;
+    padding-bottom: 17px;
+  }
+  .replay-overview {
+    margin: 0 18px;
+  }
+  .replay-overview-header {
+    padding: 12px 14px;
+  }
+  .replay-outcomes {
+    grid-template-columns: 1fr;
+  }
+  .replay-outcome {
+    padding: 9px 14px;
+  }
+  .replay-outcome + .replay-outcome {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+  .playback-bar {
+    flex-wrap: wrap;
+    margin: 0 18px 12px;
+    padding: 7px 0;
+  }
+  .playback-bar > span {
+    flex-basis: 100%;
+  }
+  .playback button {
+    width: 44px;
+    height: 44px;
+  }
   .config-fields {
     padding: 17px;
     gap: 14px;
+  }
+  .config-fields > label:first-child,
+  .config-fields > label:last-child {
+    grid-column: 1 / -1;
   }
   .configuration label {
     font-size: 10px;
@@ -1118,6 +1266,14 @@ select:hover {
   }
   .config-bottom {
     padding: 15px 17px;
+  }
+  .config-bottom label.passenger-mode {
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr);
+    width: 100%;
+  }
+  .passenger-mode select {
+    width: 100%;
   }
   .primary {
     width: 100%;

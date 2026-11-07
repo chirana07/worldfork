@@ -1,34 +1,46 @@
 # WorldFork
 
-## Product
-Local shared-world benchmarking laboratory for customer-support agents. Selected by the user for a solo hackathon build. Full implementation contracts live in WORLD_FORK_IMPLEMENTATION_PLAN.md.
-
-## Users
-Primary: agent developers and hackathon judges inspecting decisions and comparing complete systems. Initial use is a fictional airport disruption involving six passenger parties and shared seats.
-
-## Jobs and success
-Create comparable runs, watch actual state changes, inspect observations/actions/results, evaluate outcomes and operational metrics, replay/export recorded evidence. Success requires a runnable experiment and a clear recorded demo; no award or real-world prediction is promised.
-
-## Mechanism and positioning
-Agents have different goals and private constraints; their actions alter shared options. World forks allow controlled comparisons. Core value is inspectable consequences, not a free-form group chat.
-
-## Workflows
-Configure -> run paired worlds -> inspect actions/passengers/routes -> compare outcomes -> replay/export. Live/replay, fictional/private-goal labels, real errors and incomplete states must be visible.
-
-## Constraints and evidence
-Six parties/seven people, three travel options,80 fictional credits; local Ollama through Bifrost; plain Python and LangGraph adapters; deterministic transactions/scoring; bounded pilot evaluation. Currently backend is under construction, with tests and real gateway smoke evidence; no final benchmark results.
+<!-- impeccable:product-schema 1 -->
 
 ## Platform
-Web. Desktop-first comparison with responsive mobile stacking and keyboard access. Reduced-motion support and explicit text alongside status color.
 
-## Stack
-React/TypeScript/Vite, Python3.12/FastAPI/SQLite, Bifrost/Ollama. User explicitly delegated design details and direct React implementation on November5,2026. No external deployment selected.
+web
 
-## Voice and truth
-Clear, precise, experimental. All passengers and policy fictional. No fabricated quotes, real customers, forecast accuracy, or performance numbers. Optional LLM-passenger mode must be distinguished from scripted evaluation.
+## Users
 
-## Brand commitments
-WorldFork working name. User delegated visual decisions; no external logo/assets or reference site supplied.
+Agent developers and hackathon judges who need to compare agent behavior and inspect the evidence behind an outcome.
 
-## Undecided
-Final public repository identity, final submission form requirements, Tavily requirement, final video/deck format. These do not block local implementation.
+## Product Purpose
+
+WorldFork is a shared-world benchmark for customer support agents. The fictional Harbor Airport scenario tests how support decisions change what remains possible for other passengers during a disruption.
+
+## Positioning
+
+Both runs start from the same scenario. They use the same tools and constraints, so a reviewer can inspect how differences in decisions change the resulting world. Seats, compensation and commitments are shared within each run.
+
+## Operating Context
+
+Reviewers can start with the bundled replay, compare final outcomes, scrub through snapshots, inspect receipts and export traces. Developers can run live comparisons through local Ollama and Bifrost using the Python or LangGraph integration. React and TypeScript power the interface, with FastAPI and SQLite serving run state and evidence. The source is public at [WorldFork on GitHub](https://github.com/chirana07/worldfork).
+
+## Capabilities and Constraints
+
+The Harbor scenario has six passenger parties, seven people, three travel alternatives and 80 fictional compensation credits. The environment enforces capacity, whole-party bookings, consent and compensation. The pilot uses scripted passengers. Optional LLM passenger consent is a separate experiment. The recorded replay is read-only and works without the local model stack. The final submission details remain open.
+
+## Brand Commitments
+
+WorldFork uses plain operational language and explicitly labels synthetic scenarios and experimental limits. The user delegated design decisions and chose direct implementation in React.
+
+## Evidence on Hand
+
+The repository includes [30 scored pilot episodes](evidence/pilot-summary.md), the original trace exports, and a deterministic verifier. The project also has a recorded demo and an editable pitch deck. The pilot measures one configured local model on a development scenario.
+
+## Product Principles
+
+- Show what a decision changed in the shared world and let reviewers open its receipt.
+- Identify the scenario, integration, model and fault so comparisons remain interpretable.
+- Distinguish recorded final outcomes from the world state at the current playback tick.
+- Keep incomplete runs inspectable and explain where a score is unavailable.
+
+## Accessibility & Inclusion
+
+Keep the desktop comparison and stacked mobile layout usable with native keyboard controls, visible focus and reduced motion. Pair status colors with readable labels.

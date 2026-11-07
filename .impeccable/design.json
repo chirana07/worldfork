@@ -1,1 +1,211 @@
-{"version":1,"direction":"dispatch-ledger","tokens":{"color":{"paper":"#f5f4ef","surface":"#ffffff","ink":"#172c30","muted":"#526469","line":"#d9dfdc","teal":"#096958","amber":"#946015","rose":"#aa3c46"},"radius":{"control":"8px","panel":"14px"},"font":{"display":"Manrope Variable","body":"IBM Plex Sans Variable"}},"platform":"web"}
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-07T01:17:42+00:00",
+  "title": "Design System: WorldFork",
+  "extensions": {
+    "colorMeta": {
+      "teal": {
+        "role": "primary",
+        "displayName": "Dispatch teal",
+        "tonalRamp": [
+          "oklch(15% 0.041 165)",
+          "oklch(27% 0.063 165)",
+          "oklch(39% 0.081 165)",
+          "oklch(51% 0.090 165)",
+          "oklch(63% 0.090 165)",
+          "oklch(75% 0.076 165)",
+          "oklch(87% 0.050 165)",
+          "oklch(95% 0.022 165)"
+        ]
+      },
+      "amber": {
+        "role": "secondary",
+        "displayName": "Signal amber",
+        "tonalRamp": [
+          "oklch(15% 0.045 71)",
+          "oklch(27% 0.070 71)",
+          "oklch(39% 0.090 71)",
+          "oklch(51% 0.100 71)",
+          "oklch(63% 0.100 71)",
+          "oklch(75% 0.085 71)",
+          "oklch(87% 0.055 71)",
+          "oklch(95% 0.025 71)"
+        ]
+      },
+      "rose": {
+        "role": "tertiary",
+        "displayName": "Alert rose",
+        "tonalRamp": [
+          "oklch(15% 0.054 18)",
+          "oklch(27% 0.084 18)",
+          "oklch(39% 0.108 18)",
+          "oklch(51% 0.120 18)",
+          "oklch(63% 0.120 18)",
+          "oklch(75% 0.102 18)",
+          "oklch(87% 0.066 18)",
+          "oklch(95% 0.030 18)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Warm paper",
+        "tonalRamp": [
+          "oklch(15% 0.008 100)",
+          "oklch(27% 0.012 100)",
+          "oklch(39% 0.015 100)",
+          "oklch(51% 0.017 100)",
+          "oklch(63% 0.017 100)",
+          "oklch(75% 0.014 100)",
+          "oklch(87% 0.009 100)",
+          "oklch(95% 0.004 100)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "White surface",
+        "tonalRamp": [
+          "oklch(15% 0.000 0)",
+          "oklch(27% 0.000 0)",
+          "oklch(39% 0.000 0)",
+          "oklch(51% 0.000 0)",
+          "oklch(63% 0.000 0)",
+          "oklch(75% 0.000 0)",
+          "oklch(87% 0.000 0)",
+          "oklch(95% 0.000 0)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Board ink",
+        "tonalRamp": [
+          "oklch(15% 0.016 208)",
+          "oklch(27% 0.025 208)",
+          "oklch(39% 0.032 208)",
+          "oklch(51% 0.035 208)",
+          "oklch(63% 0.035 208)",
+          "oklch(75% 0.030 208)",
+          "oklch(87% 0.019 208)",
+          "oklch(95% 0.009 208)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Ledger text",
+        "tonalRamp": [
+          "oklch(15% 0.010 213)",
+          "oklch(27% 0.015 213)",
+          "oklch(39% 0.020 213)",
+          "oklch(51% 0.022 213)",
+          "oklch(63% 0.022 213)",
+          "oklch(75% 0.019 213)",
+          "oklch(87% 0.012 213)",
+          "oklch(95% 0.005 213)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Ledger rule",
+        "tonalRamp": [
+          "oklch(15% 0.005 164)",
+          "oklch(27% 0.008 164)",
+          "oklch(39% 0.011 164)",
+          "oklch(51% 0.012 164)",
+          "oklch(63% 0.012 164)",
+          "oklch(75% 0.010 164)",
+          "oklch(87% 0.007 164)",
+          "oklch(95% 0.003 164)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Headlines and section titles."
+      },
+      "body": {
+        "displayName": "Operational text",
+        "purpose": "Controls, data and explanatory copy."
+      }
+    },
+    "shadows": [
+      {
+        "name": "evidence-inspector",
+        "value": "-10px 0 40px #172c3020",
+        "purpose": "Separates the inspector from the workspace."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control-transition",
+        "value": "150ms ease-out",
+        "purpose": "Background and text color transitions on buttons and selects."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "navigation",
+        "value": "960px"
+      },
+      {
+        "name": "stacked-worlds",
+        "value": "700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "description": "Launches the live comparison.",
+      "html": "<button class=\"ds-primary\">Fork &amp; run experiment</button>",
+      "css": ".ds-primary{border:0;border-radius:8px;padding:12px 16px;background:var(--teal,#096958);color:#fff;font-size:12px;font-weight:600;transition:background 150ms ease-out}.ds-primary:hover{background:#075343}.ds-primary:focus-visible{outline:3px solid #2b8d7a;outline-offset:4px}",
+      "refersTo": "button-primary"
+    },
+    {
+      "name": "Integration select",
+      "kind": "input",
+      "description": "Native selection for a world’s integration.",
+      "html": "<label class=\"ds-field\">World A integration<select><option>Plain Python</option><option>LangGraph</option></select></label>",
+      "css": ".ds-field{display:grid;gap:8px;color:var(--muted,#526469);font-size:11px}.ds-field select{border:1px solid #ced8d2;color:var(--ink,#172c30);background:#fff;border-radius:7px;padding:9px 26px 9px 10px;font-size:12px}.ds-field select:hover{border-color:#7d9e8d}.ds-field select:focus-visible{outline:3px solid #2b8d7a;outline-offset:4px}"
+    },
+    {
+      "name": "Workspace navigation",
+      "kind": "nav",
+      "description": "Marks the current workspace view.",
+      "html": "<nav class=\"ds-nav\"><button aria-current=\"page\">Experiment lab</button><button>Run archive</button></nav>",
+      "css": ".ds-nav{display:grid;gap:6px}.ds-nav button{border:0;background:transparent;border-radius:8px;padding:12px 11px;text-align:left;color:var(--muted,#526469);font-size:14px}.ds-nav button:hover{background:#e7ebe6}.ds-nav button[aria-current]{background:var(--ink,#172c30);color:#fff}.ds-nav button:focus-visible{outline:3px solid #2b8d7a;outline-offset:4px}"
+    },
+    {
+      "name": "World label",
+      "kind": "chip",
+      "description": "Identifies a world consistently across the board and ledger.",
+      "html": "<span class=\"ds-world-label\" aria-label=\"World A\">A</span>",
+      "css": ".ds-world-label{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:#f3e7c9;color:#705114;font-size:13px;font-weight:600}"
+    },
+    {
+      "name": "Replay overview",
+      "kind": "card",
+      "description": "Groups the recorded final outcome with its context.",
+      "html": "<section class=\"ds-replay\"><strong>Recorded experiment</strong><small>Harbor · Scripted passengers</small><div>Case-by-case service <b>7 / 7</b></div></section>",
+      "css": ".ds-replay{padding:16px 20px;border:1px solid var(--line,#d9dfdc);border-radius:14px;background:#fff;color:var(--ink,#172c30)}.ds-replay small{display:block;margin-top:4px;color:var(--muted,#526469)}.ds-replay div{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line,#d9dfdc);margin-top:12px;padding-top:12px;font-size:13px}.ds-replay b{font-variant-numeric:tabular-nums}",
+      "refersTo": "replay-panel"
+    }
+  ],
+  "narrative": {
+    "northStar": "Dispatch ledger",
+    "overview": "The lab feels like an airport operations desk. An ink-dark departure board sits inside a daylight paper workspace. Ruled rows keep routes, bookings and tool receipts easy to follow across two worlds.",
+    "keyCharacteristics": [
+      "Paired world panels with consistent alignment.",
+      "Dark departure boards set into a light workspace.",
+      "Recorded outcomes, playback position and live status have separate labels."
+    ],
+    "rules": [],
+    "dos": [
+      "Do keep an explicit label beside every status color.",
+      "Do keep the final outcome visibly separate from a historical snapshot."
+    ],
+    "donts": [
+      "Don't animate inferred outcomes or decorate a board with fictional results."
+    ]
+  }
+}

@@ -10,6 +10,7 @@ import {
   Pause,
   RotateCcw,
   Download,
+  ListOrdered,
   Square,
   Check,
   Clock3,
@@ -98,6 +99,7 @@ const active = (r?: Run | null) =>
   !!r && ["running", "queued"].includes(r.status);
 function saveRunLink(a?: Run | null, b?: Run | null) {
   const url = new URL(window.location.href);
+  url.hash = "";
   for (const [key, run] of [
     ["a", a],
     ["b", b],
@@ -160,7 +162,7 @@ function WorldPanel({
   side: string;
   run: Run | null;
   snapshot: Snapshot;
-  onSelect: (p: Party) => void;
+  onSelect: (p: Party, trigger: HTMLButtonElement) => void;
   onCancel: () => void;
 }) {
   const booked = snapshot.cases
@@ -243,7 +245,7 @@ function WorldPanel({
           return (
             <button
               className="passenger"
-              onClick={() => onSelect(p)}
+              onClick={(e) => onSelect(p, e.currentTarget)}
               key={p.id}
             >
               <span className={`avatar ${p.booking ? "has-booking" : ""}`}>
@@ -329,6 +331,7 @@ function WorldPanel({
 export default function App() {
   const [singleRun, setSingleRun] = useState(false);
   const inspectorRef = useRef<HTMLElement>(null);
+  const inspectorTrigger = useRef<HTMLElement | null>(null);
   const [view, setView] = useState("lab"),
     [scenarios, setScenarios] = useState<Scenario[]>([]),
     [scenarioId, setScenarioId] = useState("harbor-v1");
@@ -355,6 +358,8 @@ export default function App() {
     [playing, setPlaying] = useState(false);
   const scenario = scenarios.find((s) => s.id === scenarioId) || scenarios[0];
   const maxTick = Math.max(runA?.snapshot.tick || 0, runB?.snapshot.tick || 0);
+  const replay = health.mode === "replay";
+  const experimentActive = active(runA) || active(runB);
   useEffect(() => {
     let mounted = true;
     Promise.all([
@@ -455,10 +460,10 @@ export default function App() {
         const load = async (r: Run | null, side: "a" | "b") => {
           if (!r) return null;
           const after = cached[side].at(-1)?.seq || 0;
-          const [latest, delta] = await Promise.all([
-            api<Run>("/runs/" + r.id),
-            api<Event[]>("/runs/" + r.id + "/events?after_seq=" + after),
-          ]);
+          const latest = await api<Run>("/runs/" + r.id);
+          const delta = await api<Event[]>(
+            "/runs/" + r.id + "/events?after_seq=" + after,
+          );
           cached[side] = [...cached[side], ...delta];
           return { run: latest, events: cached[side] };
         };
@@ -524,7 +529,7 @@ export default function App() {
   const inspectorOpen = !!selected;
   useEffect(() => {
     if (!inspectorOpen) return;
-    const previous = document.activeElement as HTMLElement | null;
+    const previous = inspectorTrigger.current;
     inspectorRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -674,6 +679,7 @@ export default function App() {
         <nav aria-label="Main">
           <button
             className={view === "lab" ? "active" : ""}
+            aria-current={view === "lab" ? "page" : undefined}
             onClick={() => setView("lab")}
           >
             <FlaskConical size={18} />
@@ -681,6 +687,7 @@ export default function App() {
           </button>
           <button
             className={view === "archive" ? "active" : ""}
+            aria-current={view === "archive" ? "page" : undefined}
             onClick={openArchive}
           >
             <History size={18} />
@@ -688,6 +695,7 @@ export default function App() {
           </button>
           <button
             className={view === "method" ? "active" : ""}
+            aria-current={view === "method" ? "page" : undefined}
             onClick={() => setView("method")}
           >
             <BookOpen size={18} />
@@ -763,7 +771,7 @@ export default function App() {
         )}
         {view === "lab" && (
           <>
-            <div className="page-heading">
+            <div className={`page-heading${replay ? " replay-heading" : ""}`}>
               <div>
                 <h1>
                   Same world.
@@ -771,9 +779,15 @@ export default function App() {
                   <span>Different decisions.</span>
                 </h1>
                 <p>
-                  Put two support agents in the same airport disruption.
-                  <br className="desktop-break" /> Watch their choices change
-                  everyone else’s options.
+                  {replay ? (
+                    "Replay an airport disruption and see how each agent’s choices changed the options for seven travelers."
+                  ) : (
+                    <>
+                      Put two support agents in the same airport disruption.
+                      <br className="desktop-break" /> Watch their choices
+                      change everyone else’s options.
+                    </>
+                  )}
                 </p>
               </div>
               <div className="scenario-note">
@@ -783,132 +797,210 @@ export default function App() {
                 <small>One early seat is already booked.</small>
               </div>
             </div>
-            <section
-              className="configuration"
-              aria-label="Experiment configuration"
-            >
-              <div className="config-fields">
-                <label>
-                  Scenario
-                  <select
-                    disabled={active(runA) || active(runB)}
-                    value={scenarioId}
-                    onChange={(e) => {
-                      setScenarioId(e.target.value);
-                      saveRunLink();
-                      setRunA(null);
-                      setRunB(null);
-                      setEventsA([]);
-                      setEventsB([]);
-                      setSelected(null);
-                      setCursor(null);
-                      setPlaying(false);
-                    }}
-                  >
-                    {scenarios.map((s) => (
-                      <option value={s.id} key={s.id}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label>
-                  World A integration
-                  <select
-                    value={frameworkA}
-                    onChange={(e) => setFrameworkA(e.target.value)}
-                  >
-                    <option value="python">Plain Python</option>
-                    <option value="langgraph">LangGraph</option>
-                  </select>
-                </label>
-                <label>
-                  World B integration
-                  <select
-                    value={frameworkB}
-                    onChange={(e) => setFrameworkB(e.target.value)}
-                  >
-                    <option value="python">Plain Python</option>
-                    <option value="langgraph">LangGraph</option>
-                  </select>
-                </label>
-                <label>
-                  Controlled fault
-                  <select
-                    value={fault}
-                    onChange={(e) => setFault(e.target.value)}
-                  >
-                    <option value="none">None · clean conditions</option>
-                    <option value="model_unavailable">
-                      Model unavailable once
-                    </option>
-                    <option value="tool_timeout">Tool timeout once</option>
-                    <option value="misleading_observation">
-                      Misleading inventory once
-                    </option>
-                  </select>
-                </label>
-              </div>
-              <div className="config-bottom">
-                <label className="passenger-mode">
-                  Shared model
-                  <select
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    disabled={active(runA) || active(runB) || !models.length}
-                  >
-                    {!models.length && (
-                      <option value={model}>
-                        {health.mode === "replay"
-                          ? "Replay only"
-                          : "No local model available"}
-                      </option>
+            {replay ? (
+              <section
+                className="replay-overview"
+                aria-labelledby="replay-overview-title"
+              >
+                <div className="replay-overview-header">
+                  <div>
+                    <h2 id="replay-overview-title">Recorded experiment</h2>
+                    <p>
+                      {runA
+                        ? `${scenario?.label ?? "Harbor Airport"} · ${runA.config.model.replace("ollama/", "")} · ${runA.config.passenger_mode === "llm" ? "LLM passengers" : "Scripted passengers"}`
+                        : "Open a run from the archive to inspect its results."}
+                    </p>
+                  </div>
+                  <div className="replay-actions">
+                    {runA && (
+                      <a href="#decision-ledger">
+                        <ListOrdered size={16} /> Decision ledger
+                      </a>
                     )}
-                    {models.map((name) => (
-                      <option key={name} value={name}>
-                        {name.replace("ollama/", "")}
+                    {singleRun && (
+                      <a href={window.location.pathname}>Opening comparison</a>
+                    )}
+                    <button onClick={openArchive}>
+                      <History size={16} /> Browse {archive.length} runs
+                    </button>
+                  </div>
+                </div>
+                {runA && (
+                  <div className="replay-outcomes" aria-label="Final scores">
+                    {[
+                      { side: "A", run: runA },
+                      { side: "B", run: runB },
+                    ].map(
+                      ({ side, run }) =>
+                        run && (
+                          <div className="replay-outcome" key={side}>
+                            <span
+                              className={`world-letter side-${side.toLowerCase()}`}
+                            >
+                              {side}
+                            </span>
+                            <div>
+                              <strong>
+                                {strategyLabel(run.config.strategy)}
+                              </strong>
+                              <small>
+                                {run.config.framework === "langgraph"
+                                  ? "LangGraph"
+                                  : "Plain Python"}{" "}
+                                · {run.status.replaceAll("_", " ")}
+                              </small>
+                            </div>
+                            <div className="outcome-score">
+                              <strong>
+                                {run.result
+                                  ? `${run.result.satisfied_people} / ${run.result.total_people}`
+                                  : "—"}
+                              </strong>
+                              <small>
+                                {run.result
+                                  ? "needs met at finish"
+                                  : "No scored result"}
+                              </small>
+                            </div>
+                          </div>
+                        ),
+                    )}
+                  </div>
+                )}
+              </section>
+            ) : (
+              <section
+                className="configuration"
+                aria-label="Experiment configuration"
+              >
+                <div className="config-fields">
+                  <label>
+                    Scenario
+                    <select
+                      disabled={busy || experimentActive}
+                      value={scenarioId}
+                      onChange={(e) => {
+                        setScenarioId(e.target.value);
+                        saveRunLink();
+                        setRunA(null);
+                        setRunB(null);
+                        setSingleRun(false);
+                        setEventsA([]);
+                        setEventsB([]);
+                        setSelected(null);
+                        setCursor(null);
+                        setPlaying(false);
+                      }}
+                    >
+                      {scenarios.map((s) => (
+                        <option value={s.id} key={s.id}>
+                          {s.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label>
+                    World A integration
+                    <select
+                      value={frameworkA}
+                      disabled={busy || experimentActive}
+                      onChange={(e) => setFrameworkA(e.target.value)}
+                    >
+                      <option value="python">Plain Python</option>
+                      <option value="langgraph">LangGraph</option>
+                    </select>
+                  </label>
+                  <label>
+                    World B integration
+                    <select
+                      value={frameworkB}
+                      disabled={busy || experimentActive}
+                      onChange={(e) => setFrameworkB(e.target.value)}
+                    >
+                      <option value="python">Plain Python</option>
+                      <option value="langgraph">LangGraph</option>
+                    </select>
+                  </label>
+                  <label>
+                    Controlled fault
+                    <select
+                      value={fault}
+                      disabled={busy || experimentActive}
+                      onChange={(e) => setFault(e.target.value)}
+                    >
+                      <option value="none">None</option>
+                      <option value="model_unavailable">
+                        Model unavailable
                       </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="passenger-mode">
-                  Population
-                  <select
-                    value={passengers}
-                    onChange={(e) => setPassengers(e.target.value)}
-                  >
-                    <option value="scripted">Scripted · reproducible</option>
-                    <option value="llm">LLM · constrained consent</option>
-                  </select>
-                </label>
-                <span className="budget-note">
-                  <Clock3 size={14} />
-                  {health.mode === "replay"
-                    ? "Replay only · use the live launcher for new runs"
-                    : models.length
+                      <option value="tool_timeout">Tool timeout</option>
+                      <option value="misleading_observation">
+                        Misleading inventory
+                      </option>
+                    </select>
+                  </label>
+                </div>
+                <div className="config-bottom">
+                  <label className="passenger-mode">
+                    Shared model
+                    <select
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      disabled={busy || experimentActive || !models.length}
+                    >
+                      {!models.length && (
+                        <option value={model}>No local model available</option>
+                      )}
+                      {models.map((name) => (
+                        <option key={name} value={name}>
+                          {name.replace("ollama/", "")}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="passenger-mode">
+                    Population
+                    <select
+                      value={passengers}
+                      disabled={busy || experimentActive}
+                      onChange={(e) => setPassengers(e.target.value)}
+                    >
+                      <option value="scripted">Scripted · reproducible</option>
+                      <option value="llm">LLM · constrained consent</option>
+                    </select>
+                  </label>
+                  <span className="budget-note">
+                    <Clock3 size={14} />
+                    {models.length
                       ? "48 decisions per world · runs execute sequentially"
                       : "Recorded runs are available · start Ollama for new runs"}
-                </span>
-                <button
-                  className="primary"
-                  disabled={
-                    busy ||
-                    active(runA) ||
-                    active(runB) ||
-                    !scenario ||
-                    !models.length
-                  }
-                  onClick={launch}
-                >
-                  {busy
-                    ? "Creating worlds…"
-                    : active(runA) || active(runB)
-                      ? "Experiment in progress"
-                      : "Fork & run experiment"}
-                  <GitFork size={17} />
-                </button>
-              </div>
-            </section>
+                  </span>
+                  <button
+                    className="primary"
+                    disabled={
+                      busy ||
+                      active(runA) ||
+                      active(runB) ||
+                      !scenario ||
+                      !models.length
+                    }
+                    onClick={launch}
+                  >
+                    {busy
+                      ? "Creating worlds…"
+                      : active(runA) || active(runB)
+                        ? "Experiment in progress"
+                        : "Fork & run experiment"}
+                    <GitFork size={17} />
+                  </button>
+                </div>
+                {frameworkA !== frameworkB && (
+                  <p className="comparison-note">
+                    Different integrations compare two complete setups. Choose
+                    the same integration to isolate strategy.
+                  </p>
+                )}
+              </section>
+            )}
             <div className="comparison-heading">
               <h2>{singleRun ? "Single-run inspection" : "The two worlds"}</h2>
               <span>
@@ -924,32 +1016,15 @@ export default function App() {
                 />
               </span>
             </div>
-            <div className={`world-grid ${singleRun ? "single-world" : ""}`}>
-              {currentA && (
-                <WorldPanel
-                  side="A"
-                  run={runA}
-                  snapshot={currentA}
-                  onSelect={(party) => setSelected({ side: "A", party })}
-                  onCancel={() => cancel(runA)}
-                />
-              )}{" "}
-              {!singleRun && currentB && (
-                <WorldPanel
-                  side="B"
-                  run={runB}
-                  snapshot={currentB}
-                  onSelect={(party) => setSelected({ side: "B", party })}
-                  onCancel={() => cancel(runB)}
-                />
-              )}
-            </div>
-            <section className="timeline-section">
-              <div className="timeline-header">
-                <div>
-                  <h2>Decision ledger</h2>
-                  <p>Every action has a receipt. Select one to inspect it.</p>
-                </div>
+            {maxTick > 0 && (
+              <div
+                className="playback-bar"
+                id="playback-controls"
+                tabIndex={-1}
+              >
+                <span>
+                  {singleRun ? "Replay this world" : "Replay both worlds"}
+                </span>
                 <div className="playback">
                   <button
                     disabled={!maxTick}
@@ -959,7 +1034,7 @@ export default function App() {
                         : "Play recorded playback"
                     }
                     onClick={() => {
-                      setCursor(cursor ?? 0);
+                      setCursor(cursor === maxTick ? 0 : (cursor ?? 0));
                       setPlaying(!playing);
                     }}
                   >
@@ -990,8 +1065,54 @@ export default function App() {
                       setCursor(Number(e.target.value));
                     }}
                   />
-                  <span>Tick {cursor ?? maxTick}</span>
+                  <span>
+                    Tick {cursor ?? maxTick} / {maxTick}
+                  </span>
                 </div>
+              </div>
+            )}
+            <div className={`world-grid ${singleRun ? "single-world" : ""}`}>
+              {currentA && (
+                <WorldPanel
+                  side="A"
+                  run={runA}
+                  snapshot={currentA}
+                  onSelect={(party, trigger) => {
+                    inspectorTrigger.current = trigger;
+                    setSelected({ side: "A", party });
+                  }}
+                  onCancel={() => cancel(runA)}
+                />
+              )}{" "}
+              {!singleRun && currentB && (
+                <WorldPanel
+                  side="B"
+                  run={runB}
+                  snapshot={currentB}
+                  onSelect={(party, trigger) => {
+                    inspectorTrigger.current = trigger;
+                    setSelected({ side: "B", party });
+                  }}
+                  onCancel={() => cancel(runB)}
+                />
+              )}
+            </div>
+            <section
+              className="timeline-section"
+              id="decision-ledger"
+              tabIndex={-1}
+              aria-labelledby="ledger-title"
+            >
+              <div className="timeline-header">
+                <div>
+                  <h2 id="ledger-title">Decision ledger</h2>
+                  <p>Every action has a receipt. Select one to inspect it.</p>
+                </div>
+                {maxTick > 0 && (
+                  <a className="ledger-jump" href="#playback-controls">
+                    Back to playback
+                  </a>
+                )}
               </div>
               {visibleTimeline.length ? (
                 <div className="ledger">
@@ -999,7 +1120,10 @@ export default function App() {
                     <button
                       key={`${side}-${event.seq}`}
                       className={`ledger-row ${event.type === "fault" ? "fault-row" : ""}`}
-                      onClick={() => setSelected({ side, event })}
+                      onClick={(e) => {
+                        inspectorTrigger.current = e.currentTarget;
+                        setSelected({ side, event });
+                      }}
                     >
                       <span className="ledger-tick">
                         {String(event.tick).padStart(2, "0")}
