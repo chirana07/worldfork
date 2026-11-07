@@ -141,3 +141,33 @@ def test_archive_summary_preserves_full_run_contract_and_validates_event_offset(
     assert summary["result"] == {"satisfied_people": 3, "total_people": 7}
     for offset in [-1, 9223372036854775808]:
         assert client.get(f"/api/runs/run/events?after_seq={offset}").status_code == 422
+
+
+def test_repeat_team_comparisons_share_seeds_and_faults(client, monkeypatch):
+    from worldfork.api import runner
+
+    configs = []
+
+    def record(config):
+        configs.append(config)
+        return str(len(configs))
+
+    monkeypatch.setattr(runner, "create", record)
+    common = {"seed": 11, "framework": "langgraph", "fault": "tool_timeout"}
+    response = client.post(
+        "/api/comparisons",
+        json={
+            "a": {**common, "strategy": "coordinated"},
+            "b": {**common, "strategy": "team"},
+            "repeats": 3,
+        },
+    )
+    assert response.status_code == 202
+    for seed, pair in enumerate(response.json()["run_ids"], start=11):
+        solo, team = (configs[int(pair[side]) - 1] for side in ("a", "b"))
+        assert solo.strategy == "coordinated" and team.strategy == "team"
+        assert solo.seed == team.seed == seed
+        assert solo.fault == team.fault == "tool_timeout"
+        assert solo.model_dump(exclude={"strategy"}) == team.model_dump(
+            exclude={"strategy"}
+        )

@@ -146,3 +146,54 @@ async def test_cancel_keeps_active_run_pollable_until_final_result(
     run = store.get(active)
     assert run["status"] == "cancelled"
     assert run["result"] == store.events(active)[-1]["result"]
+
+
+@pytest.mark.parametrize("framework", ["python", "langgraph"])
+async def test_team_advises_then_books_through_simulator(
+    monkeypatch, tmp_path, framework
+):
+    class TeamGateway(FakeGateway):
+        async def generate(self, messages, **kwargs):
+            role = kwargs["role"]
+            context = json.loads(messages[-1]["content"])
+            assert "terms" not in context["world"]
+            if role == "orchestrator":
+                if context["world"]["active_offers"]:
+                    assert context["specialist_proposals"] == []
+                else:
+                    assert [p["role"] for p in context["specialist_proposals"]] == [
+                        "inventory_specialist",
+                        "traveler_specialist",
+                    ]
+                    assert context["specialist_proposals"][1]["status"] == "invalid"
+                raw = await super().generate(messages, **kwargs)
+                return json.dumps(
+                    {**json.loads(raw), "plan": "Confirm a feasible move."}
+                )
+            self.attempts.append({"role": role, "input_tokens": 10, "output_tokens": 5})
+            return json.dumps(
+                {
+                    "action_id": 0 if role == "inventory_specialist" else -1,
+                    "plan": "Check a route.",
+                }
+            )
+
+    monkeypatch.setattr("worldfork.runner.Gateway", TeamGateway)
+    store = Store(tmp_path / "team.sqlite")
+    runner = Runner(store)
+    rid = runner.create(RunConfig(strategy="team", framework=framework, max_steps=2))
+    await runner.tasks[rid]
+    actions = [event for event in store.events(rid) if event["type"] == "action"]
+    assert [event["action"]["tool"] for event in actions] == [
+        "propose_offer",
+        "commit_offer",
+    ]
+    assert actions[1]["result"]["receipt"]["status"] == "committed"
+    assert actions[0]["coordination"]["plan"] == "Confirm a feasible move."
+    assert [a["role"] for event in actions for a in event["attempts"]] == [
+        "inventory_specialist",
+        "traveler_specialist",
+        "orchestrator",
+        "orchestrator",
+    ]
+    assert store.get(rid)["result"]["model_calls"] == 4

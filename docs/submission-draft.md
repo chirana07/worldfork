@@ -1,6 +1,6 @@
 # WorldFork — test agents where consequences are shared
 
-Submission copy for review. Add the public repository and video links when preparing the entry.
+Submission copy for review. The [public repository](https://github.com/chirana07/worldfork) includes the reproducible replay. Add the video link when preparing the entry.
 
 ## Short description
 
@@ -14,6 +14,7 @@ A support agent can produce convincing replies and valid individual transactions
 
 - Runs real local inference through Bifrost and Ollama using plain Python and compiled LangGraph integrations.
 - Separates strategy from framework so comparisons can hold one constant.
+- Includes an orchestrated team with two specialists and a coordinator. The decision ledger shows their suggestions, the chosen plan, and the simulator receipt. Compare it with a solo planner under matched conditions and measure the cost of coordination.
 - Gives agents public observations and tools while keeping synthetic private requirements and the scoring oracle outside the support-agent context.
 - Enforces party sizes, transport capacity, consent, expiring holds, compensation and atomic booking changes in deterministic code.
 - Persists actual decisions, model usage, tool results and snapshots for replay and export.
@@ -35,6 +36,8 @@ The reference agents use a public action menu and a common transaction-resolutio
 ## Measured pilot
 
 The frozen pilot scored 30 scripted episodes with Qwen3.5:4b through Bifrost. Across the clean Python and LangGraph cells, case-by-case met all seven passenger requirements in 6 of 6 episodes and coordinated did so in 1 of 6. All 18 configured synthetic faults were delivered. Across those fault episodes, case-by-case completed 6 of 9 and coordinated completed 2 of 9. Every scored episode passed the deterministic replay audit. The report contains the per-seed outcomes, resource measurements and terminal states. [Pilot report](../evidence/pilot-summary.md)
+
+The separate team demonstration uses the same model, framework, scenario and eight-step budget on both sides. The solo planner met 2 of 7 travelers' needs with 8 model calls. The team met 3 of 7 with 22 calls. A second pair injected a tool timeout, and both worlds recorded the fault. All four runs had zero committed policy violations. These are short demonstrations on one seed. See the [release audit](competition-audit.md) for metrics and limitations.
 
 The review bundle includes the full traces, source revision and model digest, an editable pitch deck, a narrated demonstration, and a read-only replay launcher. The walkthrough identifies its development comparison separately from the scored pilot.
 

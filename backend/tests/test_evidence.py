@@ -52,3 +52,15 @@ def test_replay_rejects_tampered_trace(trace, field, message):
         action["observation"]["queue_guidance"]["focus"] = "forged"
     with pytest.raises(ValueError, match=message):
         verify_export(trace)
+
+
+def test_bundled_team_demo_verifies_and_rejects_changed_plan():
+    solo = json.loads((ROOT / "evidence/team-demo/solo.json").read_text())
+    team = json.loads((ROOT / "evidence/team-demo/team.json").read_text())
+    assert verify_export(solo, strict_attempt_links=True)["actions"] == 8
+    assert verify_export(team, strict_attempt_links=True)["attempts"] == 22
+
+    event = next(event for event in team["events"] if event.get("coordination"))
+    event["coordination"]["plan"] = "Different plan"
+    with pytest.raises(ValueError, match="Recorded team plan differs"):
+        verify_export(team, strict_attempt_links=True)

@@ -43,7 +43,7 @@ def read_json(response):
     return json.loads(body)
 
 
-def check(base):
+def check(base, *, team_demo=False):
     health = read_json(request(base, "/api/health"))
     assert health == {
         "api": "ok",
@@ -55,8 +55,21 @@ def check(base):
     assert read_json(request(base, "/api/models")) == []
     archive = read_json(request(base, "/api/runs"))
     summaries = read_json(request(base, "/api/runs?summary=true"))
-    manifest = json.loads((ROOT / "evidence/pilot-manifest.json").read_text())
-    assert {r["id"] for r in archive} == {r["id"] for r in manifest["runs"]}
+    if team_demo:
+        payloads = [
+            json.loads((ROOT / "evidence/team-demo" / name).read_text())
+            for name in (
+                "solo.json",
+                "team.json",
+                "timeout-solo.json",
+                "timeout-team.json",
+            )
+        ]
+        traces = {p["run"]["id"]: p for p in payloads}
+    else:
+        manifest = json.loads((ROOT / "evidence/pilot-manifest.json").read_text())
+        traces = {r["id"]: ROOT / r["trace"] for r in manifest["runs"]}
+    assert {r["id"] for r in archive} == set(traces)
     assert [r["id"] for r in summaries] == [r["id"] for r in archive]
     for summary, full in zip(summaries, archive, strict=True):
         assert "snapshot" not in summary
@@ -68,9 +81,12 @@ def check(base):
     assert page[0] == 200 and b'id="root"' in page[2]
     query = parse_qs(urlsplit(page[4]).query)
     assert set(query) == {"a", "b"}
-    for run_id in (query["a"][0], query["b"][0]):
-        trace = next(r["trace"] for r in manifest["runs"] if r["id"] == run_id)
-        original = json.loads((ROOT / trace).read_text())
+    pair = (query["a"][0], query["b"][0])
+    if team_demo:
+        assert pair == tuple(traces)[:2]
+    for run_id in traces if team_demo else pair:
+        trace = traces[run_id]
+        original = json.loads(trace.read_text()) if isinstance(trace, Path) else trace
         assert read_json(request(base, f"/api/runs/{run_id}")) == original["run"]
         assert (
             read_json(request(base, f"/api/runs/{run_id}/events")) == original["events"]
@@ -143,15 +159,16 @@ if __name__ == "__main__":
     parser.add_argument("--samples-per-route", type=int, default=0)
     parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--archive-summary", action="store_true")
+    parser.add_argument("--team-demo", action="store_true")
     args = parser.parse_args()
     if args.samples_per_route < 0 or args.concurrency < 1:
         parser.error(
             "Sample count must be nonnegative and concurrency must be positive"
         )
     base_url = args.url.rstrip("/")
-    initial_run = check(base_url)
+    initial_run = check(base_url, team_demo=args.team_demo)
     print(
-        "Replay health, 30 run identities, default comparison, exports and read-only boundary passed"
+        "Replay health, run identities, default comparison, exports and read-only boundary passed"
     )
     if args.samples_per_route:
         benchmark(

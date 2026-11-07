@@ -75,6 +75,11 @@ type Run = {
   result: Record<string, any> | null;
 };
 type RunSummary = Omit<Run, "snapshot">;
+type TeamProposal = {
+  role: string;
+  action_id?: number;
+  plan?: string;
+};
 type Event = {
   seq: number;
   tick: number;
@@ -89,8 +94,9 @@ type Event = {
   shown?: unknown;
   snapshot: Snapshot;
   observation?: unknown;
-  candidate_actions?: unknown;
+  candidate_actions?: { id: number; tool: string }[] | null;
   attempts?: unknown[];
+  coordination?: { proposals: TeamProposal[]; action_id: number; plan: string };
 };
 type Scenario = {
   id: string;
@@ -98,8 +104,12 @@ type Scenario = {
   policy: string;
   initial: Snapshot;
 };
-const strategyLabel = (s: string) =>
-  s === "coordinated" ? "Shared-constraint planning" : "Case-by-case service";
+const strategies: Record<string, string> = {
+  case_by_case: "Case-by-case service",
+  coordinated: "Shared-constraint planning",
+  team: "Orchestrated team",
+};
+const strategyLabel = (strategy: string) => strategies[strategy] ?? strategy;
 const active = (r?: Run | null) =>
   !!r && ["running", "queued"].includes(r.status);
 function saveRunLink(a?: Run | null, b?: Run | null) {
@@ -160,12 +170,14 @@ const config = (
 function WorldPanel({
   side,
   run,
+  strategy,
   snapshot,
   onSelect,
   onCancel,
 }: {
   side: string;
   run: Run | null;
+  strategy: string;
   snapshot: Snapshot;
   onSelect: (p: Party, trigger: HTMLButtonElement) => void;
   onCancel: () => void;
@@ -180,13 +192,7 @@ function WorldPanel({
           {side}
         </span>
         <div>
-          <h2>
-            {run
-              ? strategyLabel(run.config.strategy)
-              : side === "A"
-                ? "Case-by-case service"
-                : "Shared-constraint planning"}
-          </h2>
+          <h2>{strategyLabel(run?.config.strategy ?? strategy)}</h2>
           <p>
             {run
               ? `${run.config.framework === "python" ? "Plain Python" : "LangGraph"} · ${run.config.passenger_mode === "llm" ? "LLM passengers" : "Scripted passengers"}`
@@ -314,6 +320,7 @@ function WorldPanel({
           </strong>
           <span>
             Allocation upper bound: {run.result.oracle_max} ·{" "}
+            {fmt(run.result.model_calls)} model calls ·{" "}
             {fmt(
               run.result.usage_coverage === 0 ||
                 run.result.input_tokens == null ||
@@ -322,6 +329,13 @@ function WorldPanel({
                 : run.result.input_tokens + run.result.output_tokens,
             )}{" "}
             tokens · {(run.result.elapsed_ms / 1000).toFixed(1)}s
+          </span>
+          <span>
+            {fmt(run.result.steps)} steps · {fmt(run.result.tool_calls)} tool
+            calls ·{" "}
+            {run.result.api_cost === 0
+              ? "Local API charge $0"
+              : "See trace for API cost"}
           </span>
           <a href={`/api/runs/${run.id}/export`} download>
             <Download size={13} />
@@ -342,6 +356,8 @@ export default function App() {
     [scenarioId, setScenarioId] = useState("harbor-v1");
   const [frameworkA, setFrameworkA] = useState("python"),
     [frameworkB, setFrameworkB] = useState("python"),
+    [strategyA, setStrategyA] = useState("case_by_case"),
+    [strategyB, setStrategyB] = useState("coordinated"),
     [fault, setFault] = useState("none"),
     [passengers, setPassengers] = useState("scripted");
   const [model, setModel] = useState("ollama/qwen3.5:4b"),
@@ -445,7 +461,11 @@ export default function App() {
               setPassengers(a.config.passenger_mode);
               setFault(a.config.fault);
               setFrameworkA(a.config.framework);
-              if (b) setFrameworkB(b.config.framework);
+              setStrategyA(a.config.strategy);
+              if (b) {
+                setFrameworkB(b.config.framework);
+                setStrategyB(b.config.strategy);
+              }
             } catch (e) {
               if (mounted)
                 setError(
@@ -587,7 +607,7 @@ export default function App() {
         "/comparisons",
         {
           a: config(
-            "case_by_case",
+            strategyA,
             frameworkA,
             scenarioId,
             fault,
@@ -595,7 +615,7 @@ export default function App() {
             model,
           ),
           b: config(
-            "coordinated",
+            strategyB,
             frameworkB,
             scenarioId,
             fault,
@@ -663,6 +683,7 @@ export default function App() {
     setScenarioId(r.config.scenario_id);
     if (models.includes(r.config.model)) setModel(r.config.model);
     setFrameworkA(r.config.framework);
+    setStrategyA(r.config.strategy);
     setFault(r.config.fault);
     setPassengers(r.config.passenger_mode);
     setRunA(r);
@@ -832,8 +853,8 @@ export default function App() {
                 </h1>
                 <p>
                   {singleRun
-                    ? "Follow one AI agent as it helps travelers find a new route after a flight cancellation."
-                    : "Two AI agents face the same flight cancellation in separate simulations. One helps parties in order. The other plans across all travelers. Every booking changes what’s available to the next party."}
+                    ? "Follow an AI support strategy as it helps travelers find a new route after a flight cancellation."
+                    : "Two support strategies face the same flight cancellation in separate simulations. Compare how they help travelers when each booking changes what’s available to the next party."}
                 </p>
               </div>
               <div className="scenario-note">
@@ -1036,6 +1057,33 @@ export default function App() {
                     </label>
                   </div>
                   <div className="config-bottom">
+                    {[
+                      {
+                        side: "A",
+                        strategy: strategyA,
+                        setStrategy: setStrategyA,
+                      },
+                      {
+                        side: "B",
+                        strategy: strategyB,
+                        setStrategy: setStrategyB,
+                      },
+                    ].map(({ side, strategy, setStrategy }) => (
+                      <label className="passenger-mode" key={side}>
+                        World {side} strategy
+                        <select
+                          value={strategy}
+                          disabled={busy || experimentActive}
+                          onChange={(e) => setStrategy(e.target.value)}
+                        >
+                          {Object.entries(strategies).map(([value, label]) => (
+                            <option value={value} key={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ))}
                     <label className="passenger-mode">
                       Shared model
                       <select
@@ -1168,6 +1216,7 @@ export default function App() {
                 <WorldPanel
                   side="A"
                   run={runA}
+                  strategy={strategyA}
                   snapshot={currentA}
                   onSelect={(party, trigger) => {
                     inspectorTrigger.current = trigger;
@@ -1180,6 +1229,7 @@ export default function App() {
                 <WorldPanel
                   side="B"
                   run={runB}
+                  strategy={strategyB}
                   snapshot={currentB}
                   onSelect={(party, trigger) => {
                     inspectorTrigger.current = trigger;
@@ -1343,6 +1393,12 @@ export default function App() {
               and framework compares packaged systems; it does not isolate a
               framework effect.
             </p>
+            <p>
+              An orchestrated team adds an inventory specialist and a traveler
+              specialist. Their advice helps an orchestrator choose the next
+              action. Compare model calls, tokens and elapsed time alongside the
+              traveler score to see what coordination costs.
+            </p>
             <h2>The fictional policy</h2>
             <p>{scenario?.policy}</p>
             <h2>What counts as success?</h2>
@@ -1455,6 +1511,44 @@ export default function App() {
                 Logical tick {selected.event?.tick} · event{" "}
                 {selected.event?.seq}
               </p>
+              {selected.event?.coordination && (
+                <>
+                  <h3>Orchestrator plan</h3>
+                  <p>{selected.event.coordination.plan}</p>
+                  {selected.event.coordination.proposals.length > 0 && (
+                    <>
+                      <h3>Specialist proposals</h3>
+                      <ul>
+                        {selected.event.coordination.proposals.map(
+                          (proposal) => {
+                            const action =
+                              selected.event?.candidate_actions?.find(
+                                (candidate) =>
+                                  candidate.id === proposal.action_id,
+                              );
+                            return (
+                              <li key={proposal.role}>
+                                <strong>
+                                  {proposal.role === "inventory_specialist"
+                                    ? "Inventory specialist"
+                                    : "Traveler specialist"}
+                                </strong>
+                                {action && (
+                                  <> · {action.tool.replaceAll("_", " ")}</>
+                                )}
+                                <p>
+                                  {proposal.plan ??
+                                    "No valid proposal returned."}
+                                </p>
+                              </li>
+                            );
+                          },
+                        )}
+                      </ul>
+                    </>
+                  )}
+                </>
+              )}
               <h3>Action</h3>
               <pre>
                 {JSON.stringify(

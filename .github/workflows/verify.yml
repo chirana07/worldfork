@@ -24,6 +24,19 @@ jobs:
             sleep 1
           done
           python3 scripts/check_replay_deployment.py http://127.0.0.1:8001
+      - name: Check the recorded team comparison
+        run: |
+          docker run -d --name worldfork-team-ci --read-only --tmpfs /tmp \
+            --cap-drop ALL --security-opt no-new-privileges \
+            -p 127.0.0.1:8002:8001 worldfork-replay:ci \
+            python scripts/replay_server.py --host 0.0.0.0 --team-demo
+          for attempt in {1..40}; do
+            if curl -fsS http://127.0.0.1:8002/api/health; then break; fi
+            sleep 1
+          done
+          python3 scripts/check_replay_deployment.py http://127.0.0.1:8002 --team-demo
       - name: Show deployment logs
         if: failure()
-        run: docker logs worldfork-ci
+        run: |
+          docker logs worldfork-ci || true
+          docker logs worldfork-team-ci || true

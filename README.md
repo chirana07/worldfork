@@ -25,6 +25,8 @@ Open [recorded replay](http://127.0.0.1:8001). The repository includes the JSON 
 2. Move the playback slider to see later changes. Open a decision in the ledger to check what the agent observed, what it tried, and what changed.
 3. Open **Run archive** to inspect all 30 pilot runs, including cases with injected faults. Use **Export trace** to download a run's configuration, decisions and snapshots.
 
+To see the recorded solo planner versus team comparison, run `uv run python scripts/replay_server.py --team-demo --port 8003` after building the frontend. Open [the clean team replay](http://127.0.0.1:8003) or [the tool-timeout replay](http://127.0.0.1:8003/?a=0b2ee502-2153-413f-be2e-20b2f914fda8&b=d436a8e4-6ce5-4784-9b68-71370bb23cbe). Select a World B decision in the ledger to see the specialists' advice and the orchestrator's plan. This replay imports four verified development traces. [Release audit and judging self-score](docs/competition-audit.md)
+
 Run these in a second terminal to check the service and audit the evidence independently.
 
 ```sh
@@ -65,6 +67,10 @@ Open http://127.0.0.1:5173. The interface includes initial-world comparisons, a 
 
 Click **Run comparison** and watch the ledger as the worlds execute in sequence. Open **Experiment settings** to change the setup or choose a fault preset. Keep the model, integration and scenario fixed to compare the two strategies. The smoke command checks an actual Bifrost-to-Ollama completion with usage metadata.
 
+To compare a solo planner with a team, set World A to **Shared-constraint planning** and World B to **Orchestrated team**. An inventory specialist and a traveler specialist suggest actions from the same public menu. The orchestrator considers their advice and recent receipts, gives a short plan, and chooses the next action. Booking still requires an accepted offer and a successful simulator commit. Open a World B decision to see the advice, plan and receipt together. The score panel also shows model calls, tool calls, tokens, elapsed time and local API charge.
+
+For a repeat comparison, send the same scenario, model, population, framework and budgets on both sides. Use the same initial seed and request three repeats. The API advances the seed together on both sides for each repeat. Try a clean comparison first, then repeat under a controlled fault. Team calls share the run budget, so compare their resource use alongside the traveler score. The 30-run pilot is the earlier solo baseline.
+
 ## World rules
 
 The scenario is fictional. Six parties represent seven people. Early flight capacity3 includes an existing booking; late flight capacity3; rail capacity2. There are80 fictional compensation credits. Private deadlines, transport constraints and compensation terms are revealed through questions. Accepted offers reserve seats and credits; a separate idempotent commit confirms consent. Existing bookings remain until a replacement commits. Models cannot directly mutate inventory or score their own success.
@@ -73,7 +79,7 @@ The environment enforces hard constraints, and scores outcomes from bookings and
 
 ## Reference-agent design
 
-Framework (`python` or `langgraph`) and strategy (`case_by_case` or `coordinated`) are independent settings. Both adapters use the same gateway client and decision component. A LangGraph run invokes a compiled StateGraph; it is not a label on the Python loop.
+Framework (`python` or `langgraph`) and strategy (`case_by_case`, `coordinated` or `team`) are independent settings. Both adapters use the same gateway client. A LangGraph run invokes a compiled StateGraph.
 
 The local reference agents select from a schema-constrained action menu derived only from public observations. It omits repeated answered questions and identical rejected offers. Proposal vouchers are discretized to0/40 credits for both designs. A common transaction policy requires resolving a live consented offer before other work. These are harness controls, not claimed model intelligence. The environment's typed tool API supports the full0–40 range. A generic message-based bridge and a real prebuilt ReAct integration smoke are included; see [adapter guide](docs/adapter-guide.md). Universal compatibility is not claimed.
 

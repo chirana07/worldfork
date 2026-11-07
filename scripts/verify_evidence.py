@@ -9,6 +9,7 @@ from pathlib import Path
 from worldfork.agents import PythonAgent
 from worldfork.engine import Action, World, digest, score
 from worldfork.gateway import unwrap_json_reply
+from worldfork.team import SPECIALISTS, parse_proposal
 
 ROOT = Path(__file__).resolve().parents[1]
 LEGACY_ENGINE = "7b9aed1bc23dc5a8d8f1fa31d60b80ce12c979cb1334996b40f733c2e8ec91ca"
@@ -19,6 +20,7 @@ VALIDATED_USAGE_GATEWAY = (
 )
 LEGACY_RUNNER = "2cdf596d46e787481d3305d1b3cd8045b3fa3175a21e69729b468c6f4923fc05"
 ATOMIC_RUNNER = "dddb4918c6c10e20e5277371f4067fa214ba86e1c0847ce3e10ba982bfb86237"
+TEAM_RUNNER = "99418c323e67a3da992c046957d4b200b6ad659554d1c56d8da9f1db5952ce0f"
 
 
 def require(condition, message):
@@ -58,13 +60,13 @@ def verify_export(payload, *, strict_attempt_links=False):
         ),
         "Event tick outside step budget",
     )
-    require(
-        set(run["config"]["source_hashes"])
-        == {"engine", "agents", "gateway", "runner"},
-        "Required source hashes differ",
-    )
-    world = World(payload["scenario"])
     strategy = run["config"]["strategy"]
+    hashes = run["config"]["source_hashes"]
+    required = {"engine", "agents", "gateway", "runner"}
+    if hashes.get("runner") == TEAM_RUNNER or strategy == "team":
+        required.add("team")
+    require(set(hashes) == required, "Required source hashes differ")
+    world = World(payload["scenario"])
     agent = PythonAgent(None, run["id"], world.fixture["policy"], strategy)
     require(
         digest(payload["scenario"]) == run["config"]["scenario_hash"],
@@ -105,7 +107,14 @@ def verify_export(payload, *, strict_attempt_links=False):
             old = (ROOT / "evidence/frozen-source/runner.py").read_text()
             require(digest(old) == expected, "Frozen runner snapshot differs")
             require(
-                digest(current) in {expected, ATOMIC_RUNNER}, "Unknown runner revision"
+                digest(current) in {expected, ATOMIC_RUNNER, TEAM_RUNNER},
+                "Unknown runner revision",
+            )
+        elif name == "runner" and expected == ATOMIC_RUNNER:
+            old = (ROOT / "evidence/frozen-source/runner-atomic.py").read_text()
+            require(digest(old) == expected, "Frozen runner snapshot differs")
+            require(
+                digest(current) in {expected, TEAM_RUNNER}, "Unknown runner revision"
             )
         else:
             require(digest(current) == expected, "Frozen source differs: " + name)
@@ -174,7 +183,34 @@ def verify_export(payload, *, strict_attempt_links=False):
             raw = event["attempts"][-1]["raw_response"]
             if run["config"]["source_hashes"]["gateway"] != LEGACY_GATEWAY:
                 raw = unwrap_json_reply(raw)
-            selected = json.loads(raw)["action_id"]
+            if strategy == "team":
+                roles = (
+                    [] if expected_observation["active_offers"] else list(SPECIALISTS)
+                )
+                attempts = event["attempts"]
+                expected_roles = roles + ["orchestrator"] * (len(attempts) - len(roles))
+                require(
+                    len(roles) + 1 <= len(attempts) <= len(roles) + 2
+                    and [attempt["role"] for attempt in attempts] == expected_roles,
+                    "Team attempt sequence differs",
+                )
+                proposals = []
+                for role, attempt in zip(roles, attempts, strict=False):
+                    try:
+                        proposal = parse_proposal(
+                            unwrap_json_reply(attempt["raw_response"]), len(menu)
+                        )
+                    except (ValueError, TypeError):
+                        proposal = {"status": "invalid"}
+                    proposals.append({"role": role, **proposal})
+                plan = parse_proposal(raw, len(menu))
+                require(
+                    event.get("coordination") == {"proposals": proposals, **plan},
+                    "Recorded team plan differs",
+                )
+                selected = plan["action_id"]
+            else:
+                selected = json.loads(raw)["action_id"]
             candidate = next(
                 (a for a in event["candidate_actions"] if a["id"] == selected), None
             )

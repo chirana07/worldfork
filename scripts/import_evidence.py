@@ -4,22 +4,58 @@ import argparse
 import json
 from pathlib import Path
 
-from verify_evidence import verify_manifest
+from verify_evidence import verify_export, verify_manifest
 from worldfork.store import Store
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def import_evidence(manifest_path, database_path):
-    if database_path.exists():
-        raise ValueError("Destination exists; choose a new database path")
+def load_recorded_runs(manifest_path, *, team_demo=False):
+    if team_demo:
+        payloads = []
+        for prefix, fault in (("", "none"), ("timeout-", "tool_timeout")):
+            pair = [
+                json.loads(
+                    (ROOT / "evidence/team-demo" / f"{prefix}{name}.json").read_text()
+                )
+                for name in ("solo", "team")
+            ]
+            configs = []
+            for payload in pair:
+                result = verify_export(payload, strict_attempt_links=True)
+                if result["fault"] != fault or result["fault_delivered"] != (
+                    fault != "none"
+                ):
+                    raise ValueError(
+                        "Recorded team demo fault differs from expected condition"
+                    )
+                configs.append(dict(payload["run"]["config"]))
+            if [config.pop("strategy") for config in configs] != [
+                "coordinated",
+                "team",
+            ] or configs[0] != configs[1]:
+                raise ValueError(
+                    "Team demo does not contain a matched solo and team comparison"
+                )
+            payloads.extend(pair)
+        if len({payload["run"]["id"] for payload in payloads}) != len(payloads):
+            raise ValueError("Team demo contains duplicate run IDs")
+        return payloads
     verify_manifest(manifest_path)
     manifest = json.loads(manifest_path.read_text())
+    return [
+        json.loads((ROOT / entry["trace"]).read_text()) for entry in manifest["runs"]
+    ]
+
+
+def import_evidence(manifest_path, database_path, *, team_demo=False):
+    if database_path.exists():
+        raise ValueError("Destination exists; choose a new database path")
+    payloads = load_recorded_runs(manifest_path, team_demo=team_demo)
     store = Store(database_path)
     try:
         with store.db:
-            for entry in manifest["runs"]:
-                payload = json.loads((ROOT / entry["trace"]).read_text())
+            for payload in payloads:
                 run = payload["run"]
                 # Preserve original timestamps, statuses, receipts and identities.
                 store.db.execute(
@@ -40,18 +76,18 @@ def import_evidence(manifest_path, database_path):
                         for event in payload["events"]
                     ],
                 )
-        for entry in manifest["runs"]:
-            original = json.loads((ROOT / entry["trace"]).read_text())
+        for original in payloads:
+            run_id = original["run"]["id"]
             if (
-                store.get(entry["id"]) != original["run"]
-                or store.events(entry["id"]) != original["events"]
+                store.get(run_id) != original["run"]
+                or store.events(run_id) != original["events"]
             ):
                 raise ValueError("Imported data differs from source export")
     finally:
         store.db.close()
     return {
         "database": str(database_path),
-        "imported_runs": len(manifest["runs"]),
+        "imported_runs": len(payloads),
         "model_calls_sent": 0,
     }
 

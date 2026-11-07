@@ -13,12 +13,13 @@ from pydantic import BaseModel, ConfigDict, Field
 from .agents import ADAPTERS
 from .engine import World, digest, scenario, score
 from .gateway import BudgetExhausted, Gateway
+from .team import TEAM_ADAPTERS, TeamAgent
 
 logger = logging.getLogger(__name__)
 
 SOURCE_HASHES = {
     name: digest(Path(__file__).with_name(name + ".py").read_text())
-    for name in ["engine", "agents", "gateway", "runner"]
+    for name in ["engine", "agents", "gateway", "runner", "team"]
 }
 
 
@@ -26,7 +27,7 @@ class RunConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
     scenario_id: Literal["harbor-v1", "harbor-scarce-v1"] = "harbor-v1"
     framework: Literal["python", "langgraph"] = "python"
-    strategy: Literal["case_by_case", "coordinated"] = "coordinated"
+    strategy: Literal["case_by_case", "coordinated", "team"] = "coordinated"
     passenger_mode: Literal["scripted", "llm"] = "scripted"
     model: Literal[
         "ollama/llama3.1:latest", "ollama/gemma2:2b", "ollama/qwen3.5:4b"
@@ -79,7 +80,8 @@ class Runner:
             world = World(scenario(config.scenario_id == "harbor-scarce-v1"))
             gateway = Gateway(config.model, config.temperature, config.seed)
             gateway.token_limit = config.max_tokens
-            agent = ADAPTERS[config.framework](
+            adapters = TEAM_ADAPTERS if config.strategy == "team" else ADAPTERS
+            agent = adapters[config.framework](
                 gateway, rid, world.fixture["policy"], config.strategy
             )
             started = time.monotonic()
@@ -257,6 +259,11 @@ class Runner:
                                 "action": action.model_dump(),
                                 "result": result,
                                 "passenger": passenger,
+                                **(
+                                    {"coordination": agent.last_coordination}
+                                    if isinstance(agent, TeamAgent)
+                                    else {}
+                                ),
                                 "attempts": gateway.attempts[before:],
                             },
                             world.snapshot(),

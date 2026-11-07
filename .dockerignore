@@ -25,3 +25,5 @@
 !evidence/frozen-source/*.py
 !evidence/traces/
 !evidence/traces/*.json
+!evidence/team-demo/
+!evidence/team-demo/*.json
