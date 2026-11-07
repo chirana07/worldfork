@@ -53,6 +53,7 @@ def measurements(payload):
     ]
     result = payload["run"]["result"]
     return {
+        "terminal": result["terminal"],
         "satisfied_people": result["satisfied_people"],
         "model_calls": result["model_calls"],
         "tool_calls": result["tool_calls"],
@@ -80,7 +81,7 @@ def measurements(payload):
     }
 
 
-def verify(path, *, complete=True):
+def verify(path, *, complete=True, write_report=False):
     manifest = json.loads(path.read_text())
     expected = planned_configs()
     if manifest["planned_configs"] != expected or len(manifest["runs"]) != len(
@@ -142,25 +143,35 @@ def verify(path, *, complete=True):
         "",
         "The transfer fixture changes arrival requirements, transport modes, party order, early and rail capacity, and compensation. It was reserved from agent tuning before these runs. This measures transfer within the same synthetic airport domain. It is now public evaluation data.",
         "",
-        "| Scenario | Fault | Strategy | Episodes | Mean people / 7 | Mean model calls | Calls / tool action | Mean tokens | Mean seconds | Violations |",
-        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Scenario | Configured fault | Strategy | Episodes | Mean people / 7 | Mean model calls | Calls / tool action | Mean tokens | Mean seconds | Violations | Early stops |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for (scenario, fault, strategy), values in sorted(totals.items()):
         rows.append(
-            f"| {scenario} | {fault} | {strategy} | {len(values)} | {mean(v['satisfied_people'] for v in values):.2f} | {mean(v['model_calls'] for v in values):.1f} | {sum(v['model_calls'] for v in values) / sum(v['tool_calls'] for v in values):.2f} | {mean(v['tokens'] for v in values):.0f} | {mean(v['elapsed_ms'] for v in values) / 1000:.1f} | {sum(v['violations'] for v in values)} |"
+            f"| {scenario} | {fault} | {strategy} | {len(values)} | {mean(v['satisfied_people'] for v in values):.2f} | {mean(v['model_calls'] for v in values):.1f} | {sum(v['model_calls'] for v in values) / sum(v['tool_calls'] for v in values):.2f} | {mean(v['tokens'] for v in values):.0f} | {mean(v['elapsed_ms'] for v in values) / 1000:.1f} | {sum(v['violations'] for v in values)} | {sum(v['terminal'] == 'stopped' for v in values)} |"
         )
+    team_values = [
+        value
+        for (_, _, strategy), values in totals.items()
+        if strategy == "team"
+        for value in values
+    ]
+    reused = sum(value["advice_reuse_steps"] for value in team_values)
+    team_actions = sum(value["tool_calls"] for value in team_values)
     rows += [
+        "",
+        f"Across the recorded team paths, {reused} of {team_actions} tool decisions reassessed earlier advice, skipping {reused * 2} specialist requests that the previous consultation rule would have dispatched on those paths. The orchestrator received fresh observations on every decision. The matched outcomes below show the resulting allocation and resource tradeoffs.",
         "",
         "## Matched outcomes",
         "",
-        "| Scenario | Fault | Seed | Solo people | Team people | Solo calls | Team calls |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
+        "| Scenario | Configured fault | Seed | Solo people | Team people | Solo calls | Team calls | Solo fault exposed | Team fault exposed |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- | --- |",
     ]
     for (scenario, fault, seed), pair in sorted(groups.items()):
         if len(pair) == 2:
             a, b = pair["coordinated"], pair["team"]
             rows.append(
-                f"| {scenario} | {fault} | {seed} | {a['satisfied_people']} | {b['satisfied_people']} | {a['model_calls']} | {b['model_calls']} |"
+                f"| {scenario} | {fault} | {seed} | {a['satisfied_people']} | {b['satisfied_people']} | {a['model_calls']} | {b['model_calls']} | {'yes' if a['fault_delivered'] else 'no'} | {'yes' if b['fault_delivered'] else 'no'} |"
             )
     rows += [
         "",
@@ -176,11 +187,12 @@ def verify(path, *, complete=True):
             )
     rows += [
         "",
-        "A later successful tool, a booking, and retrying the failed action are distinct observations. They do not establish that the clean outcome was restored. Runs stopping before tick 8 are unexposed. Three seeds, one model, the same simulator and short budgets limit generalization. Local API charge is zero; hardware and electricity were unmeasured. Timing includes local contention and inference warm-up.",
+        "Tool success means a receipt with `ok: true`. A booking requires a committed receipt. A later successful tool, a booking, and retrying the failed action are distinct observations. They do not establish that the clean outcome was restored. Runs stopping before tick 8 are unexposed. Three seeds, one model, the same simulator and short budgets limit generalization. Requested model seeds are recorded, but model completions can vary across repeated requests. Local API charge is zero. Hardware and electricity were unmeasured. Timing includes local contention and inference warm-up.",
         "",
         "Full exports and SHA-256 checksums are listed in [the manifest](manifest.json). Verify with `uv run python scripts/evaluate_team.py --verify`.",
     ]
-    path.with_name("report.md").write_text("\n".join(rows) + "\n")
+    if write_report:
+        path.with_name("report.md").write_text("\n".join(rows) + "\n")
     return len(identities)
 
 
@@ -219,7 +231,6 @@ async def evaluate(path, base_url):
             response = await client.get(f"/api/runs/{entry['id']}/export")
             response.raise_for_status()
             payload = response.json()
-            verify_export(payload, strict_attempt_links=True)
             trace = path.parent / "traces" / f"{entry['id']}.json"
             trace.parent.mkdir(exist_ok=True)
             trace.write_text(json.dumps(payload, indent=2) + "\n")
@@ -228,13 +239,13 @@ async def evaluate(path, base_url):
                 sha256=hashlib.sha256(trace.read_bytes()).hexdigest(),
             )
             save(path, manifest)
-            verify(path, complete=False)
+            verify(path, complete=False, write_report=True)
             result = payload["run"]["result"]
             print(
                 f"{index + 1}/24 {entry['config']['scenario_id']} {entry['config']['fault']} seed {entry['config']['seed']} {entry['config']['strategy']}: {result['satisfied_people']}/7, {result['model_calls']} calls, {payload['run']['status']}",
                 flush=True,
             )
-    count = verify(path)
+    count = verify(path, write_report=True)
     print(
         f"Verified {count} episodes. Report: {path.with_name('report.md')}", flush=True
     )

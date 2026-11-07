@@ -17,7 +17,7 @@ from import_evidence import import_evidence
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def serve(manifest, port, host="127.0.0.1", *, team_demo=False):
+def serve(manifest, port, host="127.0.0.1", *, team_demo=False, evaluation=False):
     dist = ROOT / "frontend/dist"
     if not (dist / "index.html").exists():
         raise SystemExit(
@@ -25,19 +25,26 @@ def serve(manifest, port, host="127.0.0.1", *, team_demo=False):
         )
     with tempfile.TemporaryDirectory(prefix="worldfork-replay-") as directory:
         database = Path(directory) / "replay.sqlite"
-        import_evidence(manifest, database, team_demo=team_demo)
+        import_evidence(manifest, database, team_demo=team_demo, evaluation=evaluation)
         os.environ["WORLDFORK_DB"] = str(database)
         from worldfork.api import create_app
 
         app = create_app(replay=True)
 
-        if team_demo:
+        if team_demo or evaluation:
             from worldfork.api import store
 
             runs = {
                 run["config"]["strategy"]: run["id"]
                 for run in store.list(summary=True)
                 if run["config"]["fault"] == "none"
+                and (
+                    not evaluation
+                    or (
+                        run["config"]["scenario_id"] == "harbor-transfer-v1"
+                        and run["config"]["seed"] == 17
+                    )
+                )
             }
             pair = [runs["coordinated"], runs["team"]]
         else:
@@ -86,6 +93,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     evidence = parser.add_mutually_exclusive_group()
     evidence.add_argument(
+        "--evaluation",
+        action="store_true",
+        help="Open the verified release evaluation and transfer comparison",
+    )
+    evidence.add_argument(
         "--manifest", type=Path, default=ROOT / "evidence/pilot-manifest.json"
     )
     evidence.add_argument(
@@ -96,4 +108,15 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8001)
     parser.add_argument("--host", default="127.0.0.1")
     args = parser.parse_args()
-    serve(args.manifest, args.port, args.host, team_demo=args.team_demo)
+    manifest = (
+        ROOT / "evidence/team-evaluation/manifest.json"
+        if args.evaluation
+        else args.manifest
+    )
+    serve(
+        manifest,
+        args.port,
+        args.host,
+        team_demo=args.team_demo,
+        evaluation=args.evaluation,
+    )

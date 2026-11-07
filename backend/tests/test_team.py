@@ -1,7 +1,7 @@
 import json
 
 import pytest
-from worldfork.engine import Action, World, digest, oracle, scenario
+from worldfork.engine import Action, World, digest, oracle, scenario, score
 from worldfork.scenarios import load_scenario
 from worldfork.team import TEAM_ADAPTERS
 
@@ -17,6 +17,29 @@ def test_transfer_fixture_changes_constraints_without_changing_earlier_scenarios
     assert all(not case["known"] for case in world.observation()["cases"])
     assert world.available("E") == 1
     assert fixture["parties"]["P1"]["modes"] == ["rail"]
+    assert "pool is 40 credits" in fixture["policy"]
+    for party, option in [
+        ("P1", "R"),
+        ("P2", "L"),
+        ("P3", "L"),
+        ("P4", "R"),
+        ("P6", "R"),
+    ]:
+        world.advance()
+        result = world.execute(
+            Action(
+                tool="propose_offer",
+                arguments={"party_id": party, "option_id": option, "voucher": 0},
+            )
+        )
+        assert result["offer"]["status"] == "accepted"
+        world.advance()
+        receipt = world.execute(
+            Action(tool="commit_offer", arguments={"offer_id": result["offer"]["id"]})
+        )
+        assert receipt["ok"]
+    assert score(world)["satisfied_people"] == 7
+    assert world.tick == 10
 
 
 @pytest.mark.parametrize("framework", ["python", "langgraph"])

@@ -33,3 +33,22 @@ Publish configured and delivered denominators separately. If a run ends before t
 ## Interpretation
 
 Three repeats support an initial pilot only. Use raw counts and ranges; do not claim statistical significance or real-airline behavioral accuracy. The fixture and current scarcity variant were used in development and are not held-out evidence. Generalization claims require new untouched scenarios. More model personas do not establish independent human perspectives.
+
+## Release team evaluation
+
+The release protocol compares shared-constraint solo planning and the revised team on three new seeds (17, 43, 71), the original Harbor fixture and a reserved transfer fixture, and clean and tool-timeout conditions. This gives 24 episodes. Each uses the Python adapter, scripted passengers, Qwen3.5:4b at temperature 0.2, 16 tool steps, 160,000 observed tokens and a 900-second wall budget. Strategy order alternates within pairs. The attempt ceiling remains 64 for both strategies. These short budgets measure progress under a resource constraint.
+
+The transfer fixture changes transport requirements, deadlines, early and rail capacity, compensation and queue order. The agent policy and protocol were committed before its first inference run. It measures transfer within the same synthetic airport environment. Once released, the fixture is public evaluation data. Further agent tuning should use a fresh evaluation fixture.
+
+The team consults both specialists initially, after a committed booking, or after an unsuccessful action. Between these events the orchestrator reassesses their earlier advice using fresh public observations. Stored advice identifies the original action and logical tick so a changed menu cannot reinterpret an old action number. An accepted offer is resolved before another specialist consultation. The ledger records each consultation reason, earlier advice, fresh proposals, the plan and the authoritative receipt.
+
+Tool timeouts remain scheduled at tick 8. A 16-step budget leaves up to eight later actions. Report exposure, subsequent actions, subsequent successful tools, subsequent bookings and a successful retry of the timed-out action separately. A later successful tool alone does not demonstrate restoration of the clean outcome.
+
+Run and verify the protocol through the normal API. The manifest records the source revision, model identity, planned configurations, trace identities and SHA-256 checksums. Restarting the evaluation command reattaches to recorded run IDs while the API process remains alive. If the API worker is lost, retain its interrupted evidence and declare any replacements in a separate continuation.
+
+```sh
+uv run python scripts/evaluate_team.py
+uv run python scripts/evaluate_team.py --verify
+```
+
+Inspect the [release report](../evidence/team-evaluation/report.md) and the [complete manifest](../evidence/team-evaluation/manifest.json).

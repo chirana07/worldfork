@@ -1,0 +1,755 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-11-07T15:25:04.305843+00:00",
+  "planned_configs": [
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 17,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 17,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 17,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 17,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 17,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 17,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 17,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 17,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 43,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 43,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 43,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 43,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 43,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 43,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 43,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 43,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 71,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 71,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 71,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 71,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 71,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 71,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 71,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    },
+    {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "coordinated",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "tool_timeout",
+      "seed": 71,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900
+    }
+  ],
+  "runs": [
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 17,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "3cf2f16a-b9e5-4d4d-a048-98777763d488",
+      "trace": "traces/3cf2f16a-b9e5-4d4d-a048-98777763d488.json",
+      "sha256": "ac0d0d9ab89948a7f317cffea9e7af069940ad6c1709e437b7bf137ea737481b"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 17,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "c501b455-98fa-429a-9fcc-336dbfb15121",
+      "trace": "traces/c501b455-98fa-429a-9fcc-336dbfb15121.json",
+      "sha256": "e57e691cd5faa6de4df3a19b374b955f1b7b3525e7e144fff8943ac8d6fcb1d6"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 17,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "2fe1cd5a-08e9-4b38-b012-bf1666c55605",
+      "trace": "traces/2fe1cd5a-08e9-4b38-b012-bf1666c55605.json",
+      "sha256": "f0b9181d66485a9bf60ca2e113b1c400d4b53b30621366b2d97f1fef5e48aae0"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 17,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "99d43ccb-13fd-4a90-a691-03ac3e740020",
+      "trace": "traces/99d43ccb-13fd-4a90-a691-03ac3e740020.json",
+      "sha256": "7f0008e3c8bb1b6bde364afb887f2f793178c511208f2c3d98b2235d3d26c8dd"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 17,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "f91448d4-0d92-4a1f-9cdb-a2dd52524c4c",
+      "trace": "traces/f91448d4-0d92-4a1f-9cdb-a2dd52524c4c.json",
+      "sha256": "9370029994017ed658405d6c32bb92cecbd5f3c367de355e63d0a6d983cdd39f"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 17,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "4887f0a6-25dd-493c-9988-4b264cac8f45",
+      "trace": "traces/4887f0a6-25dd-493c-9988-4b264cac8f45.json",
+      "sha256": "4e7388ec47283dfbfe85a69fcfdc5f003905fedbdfe11448b836dc688a769055"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 17,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "90569a68-addc-462e-9e95-42365ca19258",
+      "trace": "traces/90569a68-addc-462e-9e95-42365ca19258.json",
+      "sha256": "67f5849bda483413423b3446252fcc177565cd6091fa6bb4b598044fb2250cc5"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 17,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "861fafaa-b6b3-4eef-a04d-ad4c7e66ac5f",
+      "trace": "traces/861fafaa-b6b3-4eef-a04d-ad4c7e66ac5f.json",
+      "sha256": "20a8c48403e679fcb6443cd4919f769cc31ed8a06064038cfc1471c8d21aaddd"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 43,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "cc53a615-00a7-4479-b087-3efcb6934350",
+      "trace": "traces/cc53a615-00a7-4479-b087-3efcb6934350.json",
+      "sha256": "98197e9c48a91b299bf5a7fbbfd70eb5f43e4811ec0ad2c87177f7d7d849b289"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 43,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "c18c28a6-09a2-463b-8742-044175b4f255",
+      "trace": "traces/c18c28a6-09a2-463b-8742-044175b4f255.json",
+      "sha256": "25fdd63fd8240803c4b1907d7254fd6d31e1c57be7896a2b0c099b65373ccc4c"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 43,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "9ccf67db-45ce-404b-9481-761be8a86887",
+      "trace": "traces/9ccf67db-45ce-404b-9481-761be8a86887.json",
+      "sha256": "2fc514236da42ef636e23dacfdb2f8f36b7675b3e2d4e7115b773bb44428a442"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 43,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "2d1321a8-9705-4271-8f50-7a21acdd03f1",
+      "trace": "traces/2d1321a8-9705-4271-8f50-7a21acdd03f1.json",
+      "sha256": "6185c55fa200a22eaf3fa9baee543be019f6001f119c89e20a56584b159d9363"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 43,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "12e63901-3aff-4199-b38c-876e04e193ce",
+      "trace": "traces/12e63901-3aff-4199-b38c-876e04e193ce.json",
+      "sha256": "43ff1aee7ff942b1e9970afafcdd828526abf31165db4ceb61450e041118963f"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 43,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "957fb2ba-06c5-4ada-af7e-ff6dbb11cf09",
+      "trace": "traces/957fb2ba-06c5-4ada-af7e-ff6dbb11cf09.json",
+      "sha256": "99044de6438beaaf1edeb3d92b4e46333a146a84559606223fb89a8952d361e0"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 43,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "ca69c8d6-46b6-4be4-a8ad-026acaad9762",
+      "trace": "traces/ca69c8d6-46b6-4be4-a8ad-026acaad9762.json",
+      "sha256": "eb5c60b37989903f7e1567ec5b3042e944d563b4c81b8e4a399995ad1d219402"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 43,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "2c8b300e-3e42-47ad-bd4d-2294491971f6",
+      "trace": "traces/2c8b300e-3e42-47ad-bd4d-2294491971f6.json",
+      "sha256": "deedfbeefc638322682becbdeff35ed423845afa69399293a725829a10ef07fc"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 71,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "6958153e-2749-45e1-b2e6-4235a4c18e2e",
+      "trace": "traces/6958153e-2749-45e1-b2e6-4235a4c18e2e.json",
+      "sha256": "5bdd82fc87a03b17c7438d5eab1ca2cf320a9830dfb0e1623e8d0c979d8fec41"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 71,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "b9216a87-f224-43e9-b127-2daca72f81b4",
+      "trace": "traces/b9216a87-f224-43e9-b127-2daca72f81b4.json",
+      "sha256": "fe6a3f457d2e11f3d0c0b34ed96e89a3fccaa258c7fe5b4caa6a9829cfb988d6"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 71,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "cfde052f-9507-4a4a-bf91-48143710f5d0",
+      "trace": "traces/cfde052f-9507-4a4a-bf91-48143710f5d0.json",
+      "sha256": "b84fc166a6fad02c73860043fe23eb8146b779109c6caae7e1a835a0a1fc5403"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 71,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "7bd6a5a0-9bce-4b02-a826-20b2423d74df",
+      "trace": "traces/7bd6a5a0-9bce-4b02-a826-20b2423d74df.json",
+      "sha256": "28a92d7da4771bb7e30fca1db616aec2e63402299e426c32be4b03c593652a63"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 71,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "a5482544-8d26-46a6-8bf3-a4761ab1a7f2",
+      "trace": "traces/a5482544-8d26-46a6-8bf3-a4761ab1a7f2.json",
+      "sha256": "415cf65ce4e07e37b00d8fdec8bd8ed869444550b3fa631dbb1e147e8bf055d5"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "none",
+        "seed": 71,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "243d1b53-2b1a-4fb4-8ee1-e721b62946b9",
+      "trace": "traces/243d1b53-2b1a-4fb4-8ee1-e721b62946b9.json",
+      "sha256": "1825f90e06cf79d65d096f0417d814da623caa240444bf78409c4e8df2cde483"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "team",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 71,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "e72e7ccf-4fc2-409e-87f3-f6e3df1d6b85",
+      "trace": "traces/e72e7ccf-4fc2-409e-87f3-f6e3df1d6b85.json",
+      "sha256": "db4a6e67b7634d99a1a5adc1dc838264ce45edfe84c3eca7695e53c9f8874ed2"
+    },
+    {
+      "config": {
+        "scenario_id": "harbor-transfer-v1",
+        "framework": "python",
+        "strategy": "coordinated",
+        "passenger_mode": "scripted",
+        "model": "ollama/qwen3.5:4b",
+        "fault": "tool_timeout",
+        "seed": 71,
+        "temperature": 0.2,
+        "max_steps": 16,
+        "max_tokens": 160000,
+        "wall_seconds": 900
+      },
+      "id": "9649e794-0066-4e1d-973a-dac2c570d3df",
+      "trace": "traces/9649e794-0066-4e1d-973a-dac2c570d3df.json",
+      "sha256": "6e480780ad30bbd1c993fc0f063f97dc1967fdba70fa65c858c6f3cceb852884"
+    }
+  ],
+  "git_revision": "dfeb046cd72818e69c42c147df9494cd5b463d4a",
+  "tracked_changes_at_start": false,
+  "dependency_lock_sha256": "c603455e82954a2a715422c16b3cf1824206ed054798678651f2dc769081ab39"
+}

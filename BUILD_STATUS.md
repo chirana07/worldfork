@@ -12,14 +12,18 @@ Three runs interrupted by the laptop closure were repeated under the frozen harn
 2. The browser restored a live comparison on refresh, opened the decision inspector, scrubbed the timeline, downloaded a JSON trace, and reopened a run from the archive. Cancelling an active and a queued run preserved the active run's partial trace and kept the queued run unscored.
 3. A live initial-state fork recorded four model-generated passenger consent decisions. The API rejected a fork with a different scenario. Llama3.1 and Gemma2 each passed a two-step live compatibility check. Gemma2 exposed a JSON fence parsing bug that was fixed and retested with the original model reply preserved.
 4. The read-only replay server serves the production frontend and all 30 pilot episodes. The mobile browser check passed after fixing a bug that cleared the decision ledger when reopening the same archived run.
-5. The test suite passes 36 tests. The frontend production build, Python lint checks and deterministic pilot replay audit pass.
+5. The test suite passes 62 tests. The frontend production build, Python lint checks and deterministic pilot replay audit pass. The team advice regression is exercised through both adapters.
+
+## Release team evaluation
+
+The revised team consults specialists at plan boundaries and reassesses dated advice between consultations. The release matrix contains 24 verified episodes across three new seeds, two fixtures and clean/timeout conditions. The team won 7 matched pairs, lost 3 and tied 2, with 288 model calls versus 166 for solo planning. Nine of twelve configured timeouts were delivered. The replay exposes all outcomes and consultation decisions without inference services. [Release measurements](evidence/team-evaluation/report.md) · [Updated competition audit](docs/competition-audit.md)
 
 ## Lifecycle tracker
 
 | Phase | Status |
 | --- | --- |
 | Repository, environment and architecture | Complete for the local benchmark. [Architecture](docs/architecture.md) |
-| Data, agent orchestration and application | Complete for the two synthetic scenario variants, reference integrations and replay. [Evaluation protocol](docs/evaluation.md) |
+| Data, agent orchestration and application | Complete for three synthetic fixtures, reference integrations, selective specialist consultation and replay. [Evaluation protocol](docs/evaluation.md) |
 | Testing, pilot and operational performance | Complete for the recorded pilot and local container workload. [Performance report](docs/performance.md) |
 | Reproducible deployment and CI | Production replay image built and verified locally, including restart and browser tests. [GitHub Actions](https://github.com/chirana07/worldfork/actions/workflows/verify.yml) · [Deployment guide](docs/deployment.md) |
 | Public hosting | Deferred at the user's request. |

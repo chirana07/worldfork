@@ -22,7 +22,8 @@ COPY evidence/ evidence/
 RUN uv sync --locked --no-editable && \
     uv run --no-sync ruff check backend/worldfork backend/tests scripts && \
     uv run --no-sync pytest -q && \
-    uv run --no-sync python scripts/verify_evidence.py evidence/pilot-manifest.json
+    uv run --no-sync python scripts/verify_evidence.py evidence/pilot-manifest.json && \
+    uv run --no-sync python scripts/evaluate_team.py --verify
 
 FROM python:3.12.12-slim-bookworm@sha256:593bd06efe90efa80dc4eee3948be7c0fde4134606dd40d8dd8dbcade98e669c
 WORKDIR /app

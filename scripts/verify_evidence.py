@@ -9,6 +9,7 @@ from pathlib import Path
 from worldfork.agents import PythonAgent
 from worldfork.engine import Action, World, digest, score
 from worldfork.gateway import unwrap_json_reply
+from worldfork.scenarios import load_scenario
 from worldfork.team import SPECIALISTS, TeamAgent, parse_proposal
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -78,6 +79,11 @@ def verify_export(payload, *, strict_attempt_links=False):
         digest(payload["scenario"]) == run["config"]["scenario_hash"],
         "Scenario hash mismatch",
     )
+    if hashes.get("runner") == CURRENT_RUNNER:
+        require(
+            payload["scenario"] == load_scenario(run["config"]["scenario_id"]),
+            "Named scenario fixture differs",
+        )
     for name, expected in run["config"]["source_hashes"].items():
         current = (ROOT / "backend/worldfork" / (name + ".py")).read_text()
         if (

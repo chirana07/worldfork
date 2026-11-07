@@ -19,6 +19,7 @@
 !scripts/replay_server.py
 !scripts/import_evidence.py
 !scripts/verify_evidence.py
+!scripts/evaluate_team.py
 !evidence/
 !evidence/pilot-manifest.json
 !evidence/frozen-source/
@@ -27,3 +28,7 @@
 !evidence/traces/*.json
 !evidence/team-demo/
 !evidence/team-demo/*.json
+!evidence/team-evaluation/
+!evidence/team-evaluation/manifest.json
+!evidence/team-evaluation/traces/
+!evidence/team-evaluation/traces/*.json

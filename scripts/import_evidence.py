@@ -10,7 +10,16 @@ from worldfork.store import Store
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def load_recorded_runs(manifest_path, *, team_demo=False):
+def load_recorded_runs(manifest_path, *, team_demo=False, evaluation=False):
+    if evaluation:
+        from evaluate_team import verify
+
+        verify(manifest_path)
+        manifest = json.loads(manifest_path.read_text())
+        return [
+            json.loads((manifest_path.parent / entry["trace"]).read_text())
+            for entry in manifest["runs"]
+        ]
     if team_demo:
         payloads = []
         for prefix, fault in (("", "none"), ("timeout-", "tool_timeout")):
@@ -48,10 +57,12 @@ def load_recorded_runs(manifest_path, *, team_demo=False):
     ]
 
 
-def import_evidence(manifest_path, database_path, *, team_demo=False):
+def import_evidence(manifest_path, database_path, *, team_demo=False, evaluation=False):
     if database_path.exists():
         raise ValueError("Destination exists; choose a new database path")
-    payloads = load_recorded_runs(manifest_path, team_demo=team_demo)
+    payloads = load_recorded_runs(
+        manifest_path, team_demo=team_demo, evaluation=evaluation
+    )
     store = Store(database_path)
     try:
         with store.db:

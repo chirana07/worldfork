@@ -43,7 +43,7 @@ def read_json(response):
     return json.loads(body)
 
 
-def check(base, *, team_demo=False):
+def check(base, *, team_demo=False, evaluation=False):
     health = read_json(request(base, "/api/health"))
     assert health == {
         "api": "ok",
@@ -55,7 +55,11 @@ def check(base, *, team_demo=False):
     assert read_json(request(base, "/api/models")) == []
     archive = read_json(request(base, "/api/runs"))
     summaries = read_json(request(base, "/api/runs?summary=true"))
-    if team_demo:
+    if evaluation:
+        manifest_path = ROOT / "evidence/team-evaluation/manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        traces = {r["id"]: manifest_path.parent / r["trace"] for r in manifest["runs"]}
+    elif team_demo:
         payloads = [
             json.loads((ROOT / "evidence/team-demo" / name).read_text())
             for name in (
@@ -84,7 +88,18 @@ def check(base, *, team_demo=False):
     pair = (query["a"][0], query["b"][0])
     if team_demo:
         assert pair == tuple(traces)[:2]
-    for run_id in traces if team_demo else pair:
+    if evaluation:
+        strategies = {}
+        for entry in manifest["runs"]:
+            config = entry["config"]
+            if (
+                config["scenario_id"] == "harbor-transfer-v1"
+                and config["seed"] == 17
+                and config["fault"] == "none"
+            ):
+                strategies[config["strategy"]] = entry["id"]
+        assert pair == (strategies["coordinated"], strategies["team"])
+    for run_id in traces if team_demo or evaluation else pair:
         trace = traces[run_id]
         original = json.loads(trace.read_text()) if isinstance(trace, Path) else trace
         assert read_json(request(base, f"/api/runs/{run_id}")) == original["run"]
@@ -159,14 +174,16 @@ if __name__ == "__main__":
     parser.add_argument("--samples-per-route", type=int, default=0)
     parser.add_argument("--concurrency", type=int, default=1)
     parser.add_argument("--archive-summary", action="store_true")
-    parser.add_argument("--team-demo", action="store_true")
+    modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--team-demo", action="store_true")
+    modes.add_argument("--evaluation", action="store_true")
     args = parser.parse_args()
     if args.samples_per_route < 0 or args.concurrency < 1:
         parser.error(
             "Sample count must be nonnegative and concurrency must be positive"
         )
     base_url = args.url.rstrip("/")
-    initial_run = check(base_url, team_demo=args.team_demo)
+    initial_run = check(base_url, team_demo=args.team_demo, evaluation=args.evaluation)
     print(
         "Replay health, run identities, default comparison, exports and read-only boundary passed"
     )

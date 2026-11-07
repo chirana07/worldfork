@@ -27,6 +27,8 @@ Open [recorded replay](http://127.0.0.1:8001). The repository includes the JSON 
 
 To see the recorded solo planner versus team comparison, run `uv run python scripts/replay_server.py --team-demo --port 8003` after building the frontend. Open [the clean team replay](http://127.0.0.1:8003) or [the tool-timeout replay](http://127.0.0.1:8003/?a=0b2ee502-2153-413f-be2e-20b2f914fda8&b=d436a8e4-6ce5-4784-9b68-71370bb23cbe). Select a World B decision in the ledger to see the specialists' advice and the orchestrator's plan. This replay imports four verified development traces. [Release audit and judging self-score](docs/competition-audit.md)
 
+The revised team and the 24-run release evaluation have a separate replay. Start `uv run python scripts/replay_server.py --evaluation --port 8006`, then open [the transfer comparison](http://127.0.0.1:8006). The archive contains all three seeds on both fixtures under clean and timeout conditions. The decision inspector explains when specialists were consulted and when earlier advice was reassessed. [Release measurements](evidence/team-evaluation/report.md)
+
 Run these in a second terminal to check the service and audit the evidence independently.
 
 ```sh
@@ -68,6 +70,8 @@ Open http://127.0.0.1:5173. The interface includes initial-world comparisons, a 
 Click **Run comparison** and watch the ledger as the worlds execute in sequence. Open **Experiment settings** to change the setup or choose a fault preset. Keep the model, integration and scenario fixed to compare the two strategies. The smoke command checks an actual Bifrost-to-Ollama completion with usage metadata.
 
 To compare a solo planner with a team, set World A to **Shared-constraint planning** and World B to **Orchestrated team**. An inventory specialist and a traveler specialist suggest actions from the same public menu. The orchestrator considers their advice and recent receipts, gives a short plan, and chooses the next action. Booking still requires an accepted offer and a successful simulator commit. Open a World B decision to see the advice, plan and receipt together. The score panel also shows model calls, tool calls, tokens, elapsed time and local API charge.
+
+The specialists are consulted at the start, after a committed booking or after a failed action. Between consultations, the orchestrator reassesses dated advice against the current observation and action menu. Choose **Harbor · changed connections** to try the release evaluation fixture with different transport constraints, capacity and compensation. Run `uv run python scripts/evaluate_team.py` to reproduce the fixed release matrix, or add `--verify` to audit its recorded exports without inference.
 
 For a repeat comparison, send the same scenario, model, population, framework and budgets on both sides. Use the same initial seed and request three repeats. The API advances the seed together on both sides for each repeat. Try a clean comparison first, then repeat under a controlled fault. Team calls share the run budget, so compare their resource use alongside the traveler score. The 30-run pilot is the earlier solo baseline.
 
@@ -117,4 +121,4 @@ Report raw resolved people/parties, terminal statuses, oracle allocation upper b
 
 Ollama provides local inference; Bifrost is the actual gateway; LangGraph supplies one orchestration integration. Passenger speech/consent may use local inference when configured. World rules, transactions, scoring, limits and persistence are deterministic application code. Codex assists implementation. No real airline, passengers, transactions or personal records are used.
 
-The project targets the hackathon's agent-benchmarking statement. Tavily is not integrated. The live official FAQ checked November 5 permits Bifrost-only projects; see [submission requirements](docs/eligibility.md). The original core was created during the hackathon. See [related work](docs/related-work.md) and [third-party notices](THIRD_PARTY_NOTICES.md). Organizer PDFs and copied announcements are local reference materials and are excluded from the source archive.
+The project targets the hackathon's agent-benchmarking statement. Tavily is not integrated. The official prototype instructions checked November 7 permit Bifrost-only projects; see [submission requirements](docs/eligibility.md). The original core was created during the hackathon. See [related work](docs/related-work.md) and [third-party notices](THIRD_PARTY_NOTICES.md). Organizer PDFs and copied announcements are local reference materials and are excluded from the source archive.

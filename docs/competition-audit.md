@@ -1,37 +1,54 @@
 # WorldFork competition audit
 
-**Self-score: 82/100.** The six scores below carry equal weight and sum to 49/60. This is a release review estimate. No organizer score or weights are implied.
+**Self-score: 82/100.** The six scores below carry equal weight and sum to 49/60. This is a release review estimate. The score remains unchanged after the weakness work because evaluation breadth and agent consistency still limit the claims. No organizer score or weights are implied.
 
 | Area | Score | Evidence and remaining weakness |
 | --- | ---: | --- |
-| Innovation | 9/10 | Shared seats, compensation and consent make each decision consequential for other travelers. Side-by-side scores and traces show where outcomes diverge. The demo needs to show that consequence early. |
-| Technical execution | 9/10 | Working Python and LangGraph integrations, a generic adapter smoke, controlled faults, a deterministic scorer, 55 tests, and a Docker replay. Additional third-party integrations would strengthen the framework-independence claim. |
-| Problem and impact | 8/10 | The benchmark exposes allocation failures that isolated support tickets miss. Evidence comes from synthetic airport cases. Impact in other support settings is unmeasured. |
-| Use of AI | 8/10 | Real model calls through Bifrost, constrained actions, and an inspectable two-specialist team. The extra calls and latency are substantial for a one-traveler gain in the short demo. |
-| User experience | 8/10 | Reviewers can jump to a booking, scrub the timeline, inspect the receipt and start a verified replay offline. The recorded video covers the original pilot. Team mode is shown in the separate interactive replay. |
-| Scalability and potential | 7/10 | Repeated paired runs, exportable traces and two reference integrations provide a base. The live queue is local and serial. Generalization is still limited to development variants of one scenario. |
+| Innovation | 9/10 | Shared seats, compensation and consent make decisions consequential for other travelers. Side-by-side scores and traces expose allocation failures and the cost of adding agents. |
+| Technical execution | 9/10 | Python and LangGraph integrations, a generic adapter smoke, controlled faults, a deterministic scorer, 62 tests and verified Docker replays. New tests exercise advice reuse through both adapters and demonstrate a feasible ten-step allocation on the transfer fixture. |
+| Problem and impact | 8/10 | The benchmark exposes failures that isolated tickets miss. The release adds a fixture reserved from tuning, but its evidence remains within a synthetic airport domain. |
+| Use of AI | 8/10 | Real model calls through Bifrost, two advisory specialists and an inspectable orchestrator. Selective consultation skipped 150 specialist requests on the observed paths. The team still used more model calls than the solo planner and lost three comparisons. |
+| User experience | 8/10 | Reviewers can inspect bookings, receipts, dated advice and consultation reasons. The 24-run release replay works without inference services. The existing video introduces the original pilot. |
+| Scalability and potential | 7/10 | Repeatable paired runs, exportable traces and reference integrations provide a base. The live queue is local and serial. Other domains, models and production workloads remain untested. |
 
-## What the evidence supports
+## What changed
 
-The frozen pilot contains **30 verified solo episodes** and **18 delivered fault exposures**. It supports a benchmark demonstration across two frameworks, two strategies and controlled faults on the configured fixture. The original exports and 47 published checksums are intact. [Pilot report](../evidence/pilot-summary.md)
+The team consults both specialists initially, after a booking changes the allocation, or after an unsuccessful action. Between consultations the orchestrator reassesses earlier advice against fresh public observations. Advice retains its original logical tick and named action, so changing menu indices cannot reinterpret an old recommendation. The inspector explains each consultation decision.
 
-The later team demonstration holds the scenario, seed 11, Qwen3.5:4b, Python adapter, scripted passengers, decoding settings and budgets fixed within each pair. Each run took eight tool steps. All four finished at the step cap with zero committed policy violations. The timeout was delivered once per world in the second pair, at the final step.
+A fixed release protocol was committed before inference. It uses three new seeds, two fixtures, clean and tool-timeout conditions, and the solo and revised-team strategies. All 24 episodes use the Python adapter, scripted passengers and Qwen3.5:4b with identical settings and budgets within each pair. Each run allows 16 steps. A timeout at tick 8 leaves up to eight later decisions. The transfer fixture changes transport requirements, deadlines, capacity, compensation and queue order. It was reserved from agent tuning before these runs and is now public evaluation data. [Protocol](evaluation.md)
 
-| Condition | Strategy | Travelers whose needs were met | Model calls | Tokens | Elapsed | Trace |
-| --- | --- | ---: | ---: | ---: | ---: | --- |
-| Clean | Solo planner | 2/7 | 8 | 17,126 | 14.9 s | [Solo](../evidence/team-demo/solo.json) |
-| Clean | Orchestrated team | 3/7 | 22 | 45,132 | 131.0 s | [Team](../evidence/team-demo/team.json) |
-| Tool timeout | Solo planner | 2/7 | 8 | 17,123 | 10.1 s | [Solo with timeout](../evidence/team-demo/timeout-solo.json) |
-| Tool timeout | Orchestrated team | 3/7 | 22 | 45,023 | 127.5 s | [Team with timeout](../evidence/team-demo/timeout-team.json) |
+## Measured results
 
-Local API charge was $0 for these Ollama runs. Hardware and electricity were unmeasured. These short comparisons demonstrate the planning, booking, fault and replay paths. One seed limits performance conclusions, and injecting the timeout at the final step leaves no subsequent action to evaluate recovery. Use additional seeds, longer post-fault budgets and a held-out fixture to measure those effects.
+| Measure | Solo planner | Orchestrated team |
+| --- | ---: | ---: |
+| Episodes | 12 | 12 |
+| Mean travelers whose needs were met, including the initial booking | 2.33 / 7 | 3.25 / 7 |
+| Total tool actions | 166 | 166 |
+| Total model calls | 166 | 288 |
+| Total observed tokens | 337,860 | 600,469 |
+| Early stops | 2 | 2 |
+| Committed policy violations | 0 | 0 |
+| Configured timeout episodes | 6 | 6 |
+| Delivered timeout episodes | 4 | 5 |
+| Exposed episodes with a subsequent successful tool result | 4 | 5 |
+| Exposed episodes with a subsequent booking | 2 | 5 |
+| Exposed episodes successfully retrying the same timed-out action | 3 | 1 |
 
-## Weaknesses to prioritize
+The team won **7 of 12 configuration-matched pairs**, lost 3 and tied 2. It reused earlier advice on **75 of 166 decisions**, skipping 150 specialist requests that the earlier consultation rule would have dispatched on those recorded paths. That request count does not establish what outcomes the earlier policy would have produced. The revised team used **1.73 times** the solo planner's model calls across this matrix.
 
-1. **Evaluation breadth.** The biggest credibility gain would come from testing a held-out scenario and more seeds with the same budgets. Keep the existing pilot and team demonstrations separate so the entry can support each claim with the right evidence.
-2. **Coordination cost.** The team used 2.75 times as many model calls in both short pairs. To evaluate efficiency, test a version that asks specialists only when availability or disclosed requirements change, and compare scores, violations, tokens and elapsed time under matched conditions.
-3. **Judge access.** The repository now includes verified clean and timeout replays for the team, with advice, plan and receipt visible. Use the team replay to demonstrate orchestration and the original video to introduce the benchmark. [Replay instructions](../README.md#quick-start-with-recorded-evidence)
+Nine of twelve configured timeouts were delivered. Three episodes ended before the trigger and remain in the results. A subsequent successful tool, booking and exact retry are reported separately. Tool success means `ok: true`; booking requires a committed receipt. These observations do not establish restoration of a clean outcome. The per-seed table makes the exposure differences explicit. [Full release report and trace manifest](../evidence/team-evaluation/report.md)
+
+These are short budget tests. Twenty episodes reached the step cap and four stopped early. No release episode met all seven travelers' requirements. Three seeds, one model and the same synthetic domain limit performance conclusions. Local API charge was zero. Hardware and electricity were unmeasured, and timings include normal desktop contention.
+
+The original frozen pilot remains a separate 30-episode comparison across Python, LangGraph, two solo strategies and three controlled faults. All 47 published evidence checksums remain intact. The four earlier eight-step team demonstrations are also retained. [Original pilot](../evidence/pilot-summary.md) · [Earlier team exports](../evidence/team-demo)
+
+## Remaining weaknesses to prioritize
+
+1. **Plan quality and premature stopping.** The team lost two of the three clean transfer comparisons and stopped early in two release episodes. Improve the reference policy using development cases, then evaluate a new untouched fixture. Preserve these results as the baseline.
+2. **Coordination cost.** Selective consultation reduces repeated specialist requests, but the team still spends more calls and tokens. Its extra resolved travelers must be weighed against that cost under each workload.
+3. **Generalization and scale.** Add independent models, another support domain and broader third-party adapters before claiming general reliability. The current local serial queue bounds the deployment claim.
+4. **Submission presentation.** Use the release replay to demonstrate the revised team and its mixed outcomes. The narrated video covers the original pilot. The final organizer form remains pending.
 
 ## Submission checks
 
-The challenge asks for framework independence, consistent measurement, repeatability, failure testing and detailed inspection. The original pilot covers the repeated framework and strategy matrix. The new team traces cover measured orchestration and fault inspection. The official FAQ captured on November 5 permits Bifrost-only entries, while the challenge PDF footer lists both sponsors. The public page returned only its footer during this release check. The saved FAQ supports the Bifrost-only entry. Confirm final form requirements in the organizer portal before submitting. [Eligibility notes](eligibility.md) · [Organizer page](https://hackculture.io/hackathons/ai-global-hackathon)
+The rendered official prototype instructions were rechecked on November 7. They permit Bifrost-only entries and make hosting optional. The public repository, detailed README and editable pitch deck are prepared. [Eligibility notes](eligibility.md) · [Organizer page](https://hackculture.io/hackathons/ai-global-hackathon)

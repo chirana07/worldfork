@@ -16,3 +16,14 @@ Trace exports include the complete fictional scenario, including evaluator-only 
 The four-decision generic ReAct smoke and Qwen gateway smoke are separate integration evidence. The `development/` traces are illustrative development diagnostics and are excluded from pilot aggregates.
 
 Three repeats per cell support a small synthetic pilot. The ordinary desktop host was not isolated for latency measurements. Automatic unavailable-model retries are harness behavior. There is no significance, human-prediction or universal agent-compatibility claim.
+
+## Release team evaluation
+
+The 24 release episodes use a separate protocol and revised team policy. The transfer fixture was reserved from tuning before the release runs. The report includes every planned outcome, early stops, configured and delivered timeouts, post-fault behavior, calls and tokens. [Release report](team-evaluation/report.md) · [Manifest and checksums](team-evaluation/manifest.json)
+
+```sh
+uv run python scripts/evaluate_team.py --verify
+uv run python scripts/replay_server.py --evaluation --port 8006
+```
+
+The earlier eight-step team demonstrations are retained in `team-demo/`. Each phase has its own source hashes and model identity.

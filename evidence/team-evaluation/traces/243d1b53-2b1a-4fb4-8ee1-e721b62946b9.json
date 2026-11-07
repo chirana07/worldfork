@@ -1,0 +1,2978 @@
+{
+  "schema_version": 1,
+  "run": {
+    "id": "243d1b53-2b1a-4fb4-8ee1-e721b62946b9",
+    "created_at": "2026-11-07T16:07:49.471783+00:00",
+    "status": "stopped",
+    "config": {
+      "scenario_id": "harbor-transfer-v1",
+      "framework": "python",
+      "strategy": "team",
+      "passenger_mode": "scripted",
+      "model": "ollama/qwen3.5:4b",
+      "fault": "none",
+      "seed": 71,
+      "temperature": 0.2,
+      "max_steps": 16,
+      "max_tokens": 160000,
+      "wall_seconds": 900,
+      "scenario_hash": "7c16f7b7c3e2dcf42eea028a53ff1e44d8359e5ea02c0a03873cdcb50f7e043b",
+      "schema_version": 1,
+      "source_hashes": {
+        "engine": "0c7493d9d22b4ea890f69faf81fc4332dfe31315c22d69afb0c111bcced61b57",
+        "agents": "e59c42c8a131a82606587645f325568149f47e697ac739269b8fc52523f66b3a",
+        "gateway": "90659c040808e75ffc66493f526f2a007c27c1db288efd6f6b7a69885c0ead49",
+        "runner": "651626b6d79034247e7994909a729ec4acda969c01ac2839f0eeb831481efa08",
+        "team": "eb367bdfe66c47d2e8fbb1c64b9ab431f6cdd9b792b180c30251fa71a6f2895f",
+        "scenarios": "c156998296d3691ea09041ee6d8ee7888ba391bc8750eeec67d7566563841fbf"
+      },
+      "model_manifest": {
+        "name": "qwen3.5:4b",
+        "digest": "7f3251fa6878a78a606bcb3c074283306e5ad2ea411a7774a9dd98a4bc7f2d13",
+        "details": {
+          "parent_model": "",
+          "format": "safetensors",
+          "family": "",
+          "families": null,
+          "parameter_size": "",
+          "quantization_level": "nvfp4",
+          "runner": "mlx"
+        },
+        "source": "local_ollama_tags"
+      }
+    },
+    "snapshot": {
+      "tick": 3,
+      "cases": [
+        {
+          "id": "P6",
+          "name": "Dani",
+          "people": 1,
+          "request": "I haven't decided how to travel. Please help me compare options.",
+          "known": {
+            "deadline": "19:00"
+          },
+          "booking": null
+        },
+        {
+          "id": "P2",
+          "name": "Arun & Nila",
+          "people": 2,
+          "request": "We are a party of two and must travel on the same flight.",
+          "known": {
+            "deadline": "19:00"
+          },
+          "booking": null
+        },
+        {
+          "id": "P4",
+          "name": "Sam",
+          "people": 1,
+          "request": "I cannot pay anything extra. Please help me find an option.",
+          "known": {},
+          "booking": null
+        },
+        {
+          "id": "P3",
+          "name": "Leo",
+          "people": 1,
+          "request": "I'd prefer the early flight, but I can discuss an alternative.",
+          "known": {},
+          "booking": null
+        },
+        {
+          "id": "P1",
+          "name": "Mira",
+          "people": 1,
+          "request": "I need replacement travel. Please ask about my transport requirements.",
+          "known": {},
+          "booking": null
+        },
+        {
+          "id": "P5",
+          "name": "Jules",
+          "people": 1,
+          "request": "I already have an early-flight booking. I'm open to discussing a change.",
+          "known": {},
+          "booking": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          }
+        }
+      ],
+      "options": [
+        {
+          "id": "E",
+          "label": "Early flight",
+          "arrival": "12:00",
+          "mode": "flight",
+          "capacity": 2,
+          "available": 1
+        },
+        {
+          "id": "L",
+          "label": "Late flight",
+          "arrival": "18:00",
+          "mode": "flight",
+          "capacity": 3,
+          "available": 3
+        },
+        {
+          "id": "R",
+          "label": "Rail transfer",
+          "arrival": "16:00",
+          "mode": "rail",
+          "capacity": 3,
+          "available": 3
+        }
+      ],
+      "bookings": {
+        "P5": {
+          "option_id": "E",
+          "voucher": 0,
+          "version": 1,
+          "consent": "initial"
+        }
+      },
+      "offers": {},
+      "budget": {
+        "total": 40,
+        "spent": 0,
+        "reserved": 0,
+        "available": 40
+      },
+      "invalid_attempts": 0,
+      "finished": true
+    },
+    "result": {
+      "satisfied_people": 1,
+      "total_people": 7,
+      "satisfied_parties": 1,
+      "total_parties": 6,
+      "initially_satisfied_people": 1,
+      "newly_satisfied_people": 0,
+      "oracle_max": 7,
+      "oracle_gap": 6,
+      "compensation_spent": 0,
+      "invalid_attempts": 0,
+      "committed_policy_violations": 0,
+      "outcomes": [
+        {
+          "party_id": "P1",
+          "name": "Mira",
+          "people": 1,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        },
+        {
+          "party_id": "P2",
+          "name": "Arun & Nila",
+          "people": 2,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        },
+        {
+          "party_id": "P3",
+          "name": "Leo",
+          "people": 1,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        },
+        {
+          "party_id": "P4",
+          "name": "Sam",
+          "people": 1,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        },
+        {
+          "party_id": "P5",
+          "name": "Jules",
+          "people": 1,
+          "satisfied": true,
+          "booking": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          },
+          "initially_satisfied": true
+        },
+        {
+          "party_id": "P6",
+          "name": "Dani",
+          "people": 1,
+          "satisfied": false,
+          "booking": null,
+          "initially_satisfied": false
+        }
+      ],
+      "terminal": "stopped",
+      "steps": 3,
+      "tool_calls": 3,
+      "model_calls": 5,
+      "input_tokens": 10641,
+      "output_tokens": 237,
+      "usage_coverage": 1.0,
+      "elapsed_ms": 40968,
+      "api_cost": 0,
+      "cost_basis": "local_ollama; hardware/electricity unmeasured",
+      "fault_configured": "none",
+      "fault_delivered": false,
+      "attempts": [
+        {
+          "id": "fbbaf7cc-1541-4874-8b71-8f17d0af10dc",
+          "role": "inventory_specialist",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 1975,
+          "output_tokens": 49,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-958",
+          "raw_response": "{\n  \"action_id\": 12,\n  \"plan\": \"Propose free Late flight (L) to P2 (size 2) to secure their shared seat while preserving scarce Early flight capacity for others.\"\n}",
+          "elapsed_ms": 9281.52
+        },
+        {
+          "id": "3dee911b-ec9a-4772-bbda-43ff7bd17fbd",
+          "role": "traveler_specialist",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 1978,
+          "output_tokens": 33,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-586",
+          "raw_response": "{\n  \"action_id\": 34,\n  \"plan\": \"Ask P1 about hidden deadlines to understand urgency before proposing replacement options.\"\n}",
+          "elapsed_ms": 7131.89
+        },
+        {
+          "id": "091e663a-9b8b-473b-81c5-d2b2a46661df",
+          "role": "orchestrator",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 2162,
+          "output_tokens": 84,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-227",
+          "raw_response": "{\n  \"action_id\": 0,\n  \"plan\": \"Ask P6 deadline/modes/compensation; ask P2 deadline/modes/compensation; ask P4 deadline/modes/compensation; ask P3 deadline/modes/compensation; ask P1 deadline/modes/compensation; ask P5 deadline/modes/compensation. Then propose offers to P\"\n}",
+          "elapsed_ms": 9540.45
+        },
+        {
+          "id": "869854d2-6b27-4376-ac7c-c0858309c5ab",
+          "role": "orchestrator",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 2249,
+          "output_tokens": 46,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-624",
+          "raw_response": "{\n  \"action_id\": 8,\n  \"plan\": \"Ask P2 deadline; ask P4 deadline; ask P3 deadline; ask P5 deadline. Then propose free L to P2.\"\n}",
+          "elapsed_ms": 7832.72
+        },
+        {
+          "id": "83cd8e87-c6bc-46c9-a56e-dd285e1cd0f1",
+          "role": "orchestrator",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 2277,
+          "output_tokens": 25,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-426",
+          "raw_response": "{\n  \"action_id\": 48,\n  \"plan\": \"No further useful actions selected.\"\n}",
+          "elapsed_ms": 7154.8
+        }
+      ]
+    }
+  },
+  "scenario": {
+    "schema_version": 1,
+    "id": "harbor-transfer-v1",
+    "label": "Harbor \u00b7 changed connections",
+    "options": {
+      "E": {
+        "label": "Early flight",
+        "arrival": "12:00",
+        "minutes": 720,
+        "mode": "flight",
+        "capacity": 2
+      },
+      "L": {
+        "label": "Late flight",
+        "arrival": "18:00",
+        "minutes": 1080,
+        "mode": "flight",
+        "capacity": 3
+      },
+      "R": {
+        "label": "Rail transfer",
+        "arrival": "16:00",
+        "minutes": 960,
+        "mode": "rail",
+        "capacity": 3
+      }
+    },
+    "parties": {
+      "P1": {
+        "name": "Mira",
+        "people": 1,
+        "deadline": 1020,
+        "modes": [
+          "rail"
+        ],
+        "terms": {
+          "R": 0
+        },
+        "message": "I need replacement travel. Please ask about my transport requirements."
+      },
+      "P2": {
+        "name": "Arun & Nila",
+        "people": 2,
+        "deadline": 1140,
+        "modes": [
+          "flight"
+        ],
+        "terms": {
+          "E": 0,
+          "L": 0
+        },
+        "message": "We are a party of two and must travel on the same flight."
+      },
+      "P3": {
+        "name": "Leo",
+        "people": 1,
+        "deadline": 1200,
+        "modes": [
+          "flight"
+        ],
+        "terms": {
+          "E": 0,
+          "L": 0
+        },
+        "message": "I'd prefer the early flight, but I can discuss an alternative."
+      },
+      "P4": {
+        "name": "Sam",
+        "people": 1,
+        "deadline": 1020,
+        "modes": [
+          "flight",
+          "rail"
+        ],
+        "terms": {
+          "E": 0,
+          "R": 0
+        },
+        "message": "I cannot pay anything extra. Please help me find an option."
+      },
+      "P5": {
+        "name": "Jules",
+        "people": 1,
+        "deadline": 1200,
+        "modes": [
+          "flight"
+        ],
+        "terms": {
+          "E": 0,
+          "L": 40
+        },
+        "message": "I already have an early-flight booking. I'm open to discussing a change."
+      },
+      "P6": {
+        "name": "Dani",
+        "people": 1,
+        "deadline": 1140,
+        "modes": [
+          "flight",
+          "rail"
+        ],
+        "terms": {
+          "E": 0,
+          "L": 0,
+          "R": 0
+        },
+        "message": "I haven't decided how to travel. Please help me compare options."
+      }
+    },
+    "order": [
+      "P6",
+      "P2",
+      "P4",
+      "P3",
+      "P1",
+      "P5"
+    ],
+    "budget": 40,
+    "policy": "Fictional Harbor Airport. Six parties, seven people; all travel is free replacement travel. Respect party sizes and voluntary consent. Never split a party. Compensation pool is 40 credits, maximum 40 per offer. Credits are fictional, not money or legal entitlements. Ask about hidden deadlines, modes and compensation. Only commit_offer confirms a booking; accepted offers hold seats and credits for three logical ticks. Old bookings remain until a replacement is committed. Capacity and credits cannot be invented. Rejected operations have no effect. list_cases returns known facts only. Finish only when appropriate; an unresolved party may still have options. You may contact any party, including an already-booked party, to negotiate a voluntary change. Each decision advances one logical tick. Tools expose actual state except explicitly untrusted observations; booking receipts are authoritative."
+  },
+  "events": [
+    {
+      "type": "started",
+      "tick": 0,
+      "framework": "python",
+      "strategy": "team",
+      "seq": 1,
+      "run_id": "243d1b53-2b1a-4fb4-8ee1-e721b62946b9",
+      "timestamp_utc": "2026-11-07T16:07:49.478199+00:00",
+      "snapshot": {
+        "tick": 0,
+        "cases": [
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need replacement travel. Please ask about my transport requirements.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 2,
+            "available": 1
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 3,
+            "available": 3
+          }
+        ],
+        "bookings": {
+          "P5": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          }
+        },
+        "offers": {},
+        "budget": {
+          "total": 40,
+          "spent": 0,
+          "reserved": 0,
+          "available": 40
+        },
+        "invalid_attempts": 0,
+        "finished": false
+      }
+    },
+    {
+      "type": "action",
+      "tick": 1,
+      "observation": {
+        "tick": 1,
+        "cases": [
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need replacement travel. Please ask about my transport requirements.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 2,
+            "available": 1
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 3,
+            "available": 3
+          }
+        ],
+        "credits": {
+          "available": 40,
+          "spent": 0
+        },
+        "active_offers": [],
+        "last_result": {}
+      },
+      "candidate_actions": [
+        {
+          "id": 0,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P6",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 1,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P6",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 2,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P6",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 3,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 4,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 5,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 6,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 7,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 8,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 9,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P2",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 10,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P2",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 11,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P2",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 12,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 13,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 14,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 15,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 16,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P4",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 17,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P4",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 18,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P4",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 19,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 20,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 21,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 22,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 23,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 24,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 25,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P3",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 26,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P3",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 27,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P3",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 28,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 29,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 30,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 31,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 32,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 33,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 34,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P1",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 35,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P1",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 36,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P1",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 37,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 38,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 39,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 40,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 41,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 42,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 43,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P5",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 44,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P5",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 45,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P5",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 46,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 47,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 48,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 49,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 50,
+          "tool": "finish",
+          "arguments": {
+            "reason": "No further useful actions selected"
+          }
+        }
+      ],
+      "action": {
+        "tool": "ask_question",
+        "arguments": {
+          "party_id": "P6",
+          "topic": "deadline"
+        }
+      },
+      "result": {
+        "ok": true,
+        "party_id": "P6",
+        "topic": "deadline",
+        "answer": "19:00"
+      },
+      "passenger": null,
+      "coordination": {
+        "consultation_reason": "initial",
+        "prior_advice": [],
+        "proposals": [
+          {
+            "role": "inventory_specialist",
+            "action_id": 12,
+            "plan": "Propose free Late flight (L) to P2 (size 2) to secure their shared seat while preserving scarce Early flight capacity for others."
+          },
+          {
+            "role": "traveler_specialist",
+            "action_id": 34,
+            "plan": "Ask P1 about hidden deadlines to understand urgency before proposing replacement options."
+          }
+        ],
+        "action_id": 0,
+        "plan": "Ask P6 deadline/modes/compensation; ask P2 deadline/modes/compensation; ask P4 deadline/modes/compensation; ask P3 deadline/modes/compensation; ask P1 deadline/modes/compensation; ask P5 deadline/modes/compensation. Then propose offers to P"
+      },
+      "attempts": [
+        {
+          "id": "fbbaf7cc-1541-4874-8b71-8f17d0af10dc",
+          "role": "inventory_specialist",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 1975,
+          "output_tokens": 49,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-958",
+          "raw_response": "{\n  \"action_id\": 12,\n  \"plan\": \"Propose free Late flight (L) to P2 (size 2) to secure their shared seat while preserving scarce Early flight capacity for others.\"\n}",
+          "elapsed_ms": 9281.52
+        },
+        {
+          "id": "3dee911b-ec9a-4772-bbda-43ff7bd17fbd",
+          "role": "traveler_specialist",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 1978,
+          "output_tokens": 33,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-586",
+          "raw_response": "{\n  \"action_id\": 34,\n  \"plan\": \"Ask P1 about hidden deadlines to understand urgency before proposing replacement options.\"\n}",
+          "elapsed_ms": 7131.89
+        },
+        {
+          "id": "091e663a-9b8b-473b-81c5-d2b2a46661df",
+          "role": "orchestrator",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 2162,
+          "output_tokens": 84,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-227",
+          "raw_response": "{\n  \"action_id\": 0,\n  \"plan\": \"Ask P6 deadline/modes/compensation; ask P2 deadline/modes/compensation; ask P4 deadline/modes/compensation; ask P3 deadline/modes/compensation; ask P1 deadline/modes/compensation; ask P5 deadline/modes/compensation. Then propose offers to P\"\n}",
+          "elapsed_ms": 9540.45
+        }
+      ],
+      "seq": 2,
+      "run_id": "243d1b53-2b1a-4fb4-8ee1-e721b62946b9",
+      "timestamp_utc": "2026-11-07T16:08:15.449528+00:00",
+      "snapshot": {
+        "tick": 1,
+        "cases": [
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need replacement travel. Please ask about my transport requirements.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 2,
+            "available": 1
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 3,
+            "available": 3
+          }
+        ],
+        "bookings": {
+          "P5": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          }
+        },
+        "offers": {},
+        "budget": {
+          "total": 40,
+          "spent": 0,
+          "reserved": 0,
+          "available": 40
+        },
+        "invalid_attempts": 0,
+        "finished": false
+      }
+    },
+    {
+      "type": "action",
+      "tick": 2,
+      "observation": {
+        "tick": 2,
+        "cases": [
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need replacement travel. Please ask about my transport requirements.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 2,
+            "available": 1
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 3,
+            "available": 3
+          }
+        ],
+        "credits": {
+          "available": 40,
+          "spent": 0
+        },
+        "active_offers": [],
+        "last_result": {
+          "ok": true,
+          "party_id": "P6",
+          "topic": "deadline",
+          "answer": "19:00"
+        }
+      },
+      "candidate_actions": [
+        {
+          "id": 0,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P6",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 1,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P6",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 2,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 3,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 4,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 5,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 6,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 7,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 8,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P2",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 9,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P2",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 10,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P2",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 11,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 12,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 13,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 14,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 15,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P4",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 16,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P4",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 17,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P4",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 18,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 19,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 20,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 21,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 22,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 23,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 24,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P3",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 25,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P3",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 26,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P3",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 27,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 28,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 29,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 30,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 31,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 32,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 33,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P1",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 34,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P1",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 35,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P1",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 36,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 37,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 38,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 39,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 40,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 41,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 42,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P5",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 43,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P5",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 44,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P5",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 45,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 46,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 47,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 48,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 49,
+          "tool": "finish",
+          "arguments": {
+            "reason": "No further useful actions selected"
+          }
+        }
+      ],
+      "action": {
+        "tool": "ask_question",
+        "arguments": {
+          "party_id": "P2",
+          "topic": "deadline"
+        }
+      },
+      "result": {
+        "ok": true,
+        "party_id": "P2",
+        "topic": "deadline",
+        "answer": "19:00"
+      },
+      "passenger": null,
+      "coordination": {
+        "consultation_reason": "reuse_advice",
+        "prior_advice": [
+          {
+            "role": "inventory_specialist",
+            "tick": 1,
+            "plan": "Propose free Late flight (L) to P2 (size 2) to secure their shared seat while preserving scarce Early flight capacity for others.",
+            "action": {
+              "tool": "propose_offer",
+              "arguments": {
+                "party_id": "P2",
+                "option_id": "L",
+                "voucher": 0
+              }
+            }
+          },
+          {
+            "role": "traveler_specialist",
+            "tick": 1,
+            "plan": "Ask P1 about hidden deadlines to understand urgency before proposing replacement options.",
+            "action": {
+              "tool": "ask_question",
+              "arguments": {
+                "party_id": "P1",
+                "topic": "deadline"
+              }
+            }
+          }
+        ],
+        "proposals": [],
+        "action_id": 8,
+        "plan": "Ask P2 deadline; ask P4 deadline; ask P3 deadline; ask P5 deadline. Then propose free L to P2."
+      },
+      "attempts": [
+        {
+          "id": "869854d2-6b27-4376-ac7c-c0858309c5ab",
+          "role": "orchestrator",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 2249,
+          "output_tokens": 46,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-624",
+          "raw_response": "{\n  \"action_id\": 8,\n  \"plan\": \"Ask P2 deadline; ask P4 deadline; ask P3 deadline; ask P5 deadline. Then propose free L to P2.\"\n}",
+          "elapsed_ms": 7832.72
+        }
+      ],
+      "seq": 3,
+      "run_id": "243d1b53-2b1a-4fb4-8ee1-e721b62946b9",
+      "timestamp_utc": "2026-11-07T16:08:23.285604+00:00",
+      "snapshot": {
+        "tick": 2,
+        "cases": [
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need replacement travel. Please ask about my transport requirements.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 2,
+            "available": 1
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 3,
+            "available": 3
+          }
+        ],
+        "bookings": {
+          "P5": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          }
+        },
+        "offers": {},
+        "budget": {
+          "total": 40,
+          "spent": 0,
+          "reserved": 0,
+          "available": 40
+        },
+        "invalid_attempts": 0,
+        "finished": false
+      }
+    },
+    {
+      "type": "action",
+      "tick": 3,
+      "observation": {
+        "tick": 3,
+        "cases": [
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need replacement travel. Please ask about my transport requirements.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 2,
+            "available": 1
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 3,
+            "available": 3
+          }
+        ],
+        "credits": {
+          "available": 40,
+          "spent": 0
+        },
+        "active_offers": [],
+        "last_result": {
+          "ok": true,
+          "party_id": "P2",
+          "topic": "deadline",
+          "answer": "19:00"
+        }
+      },
+      "candidate_actions": [
+        {
+          "id": 0,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P6",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 1,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P6",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 2,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 3,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 4,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 5,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 6,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 7,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P6",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 8,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P2",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 9,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P2",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 10,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 11,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 12,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 13,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P2",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 14,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P4",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 15,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P4",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 16,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P4",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 17,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 18,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 19,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 20,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 21,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 22,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P4",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 23,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P3",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 24,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P3",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 25,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P3",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 26,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 27,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 28,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 29,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 30,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 31,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P3",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 32,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P1",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 33,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P1",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 34,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P1",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 35,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "E",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 36,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "E",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 37,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 38,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 39,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 40,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P1",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 41,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P5",
+            "topic": "deadline"
+          }
+        },
+        {
+          "id": 42,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P5",
+            "topic": "modes"
+          }
+        },
+        {
+          "id": 43,
+          "tool": "ask_question",
+          "arguments": {
+            "party_id": "P5",
+            "topic": "compensation"
+          }
+        },
+        {
+          "id": 44,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "L",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 45,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "L",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 46,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "R",
+            "voucher": 0
+          }
+        },
+        {
+          "id": 47,
+          "tool": "propose_offer",
+          "arguments": {
+            "party_id": "P5",
+            "option_id": "R",
+            "voucher": 40
+          }
+        },
+        {
+          "id": 48,
+          "tool": "finish",
+          "arguments": {
+            "reason": "No further useful actions selected"
+          }
+        }
+      ],
+      "action": {
+        "tool": "finish",
+        "arguments": {
+          "reason": "No further useful actions selected"
+        }
+      },
+      "result": {
+        "ok": true,
+        "finished": true,
+        "reason": "No further useful actions selected"
+      },
+      "passenger": null,
+      "coordination": {
+        "consultation_reason": "reuse_advice",
+        "prior_advice": [
+          {
+            "role": "inventory_specialist",
+            "tick": 1,
+            "plan": "Propose free Late flight (L) to P2 (size 2) to secure their shared seat while preserving scarce Early flight capacity for others.",
+            "action": {
+              "tool": "propose_offer",
+              "arguments": {
+                "party_id": "P2",
+                "option_id": "L",
+                "voucher": 0
+              }
+            }
+          },
+          {
+            "role": "traveler_specialist",
+            "tick": 1,
+            "plan": "Ask P1 about hidden deadlines to understand urgency before proposing replacement options.",
+            "action": {
+              "tool": "ask_question",
+              "arguments": {
+                "party_id": "P1",
+                "topic": "deadline"
+              }
+            }
+          }
+        ],
+        "proposals": [],
+        "action_id": 48,
+        "plan": "No further useful actions selected."
+      },
+      "attempts": [
+        {
+          "id": "83cd8e87-c6bc-46c9-a56e-dd285e1cd0f1",
+          "role": "orchestrator",
+          "configured_model": "ollama/qwen3.5:4b",
+          "status": "ok",
+          "input_tokens": 2277,
+          "output_tokens": 25,
+          "usage_source": "bifrost_response",
+          "injected": false,
+          "temperature": 0.2,
+          "seed": 71,
+          "max_output_tokens": 192,
+          "reasoning_effort": "none",
+          "actual_model": "qwen3.5:4b",
+          "response_id": "chatcmpl-426",
+          "raw_response": "{\n  \"action_id\": 48,\n  \"plan\": \"No further useful actions selected.\"\n}",
+          "elapsed_ms": 7154.8
+        }
+      ],
+      "seq": 4,
+      "run_id": "243d1b53-2b1a-4fb4-8ee1-e721b62946b9",
+      "timestamp_utc": "2026-11-07T16:08:30.442346+00:00",
+      "snapshot": {
+        "tick": 3,
+        "cases": [
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need replacement travel. Please ask about my transport requirements.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 2,
+            "available": 1
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 3,
+            "available": 3
+          }
+        ],
+        "bookings": {
+          "P5": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          }
+        },
+        "offers": {},
+        "budget": {
+          "total": 40,
+          "spent": 0,
+          "reserved": 0,
+          "available": 40
+        },
+        "invalid_attempts": 0,
+        "finished": true
+      }
+    },
+    {
+      "type": "finished",
+      "tick": 3,
+      "result": {
+        "satisfied_people": 1,
+        "total_people": 7,
+        "satisfied_parties": 1,
+        "total_parties": 6,
+        "initially_satisfied_people": 1,
+        "newly_satisfied_people": 0,
+        "oracle_max": 7,
+        "oracle_gap": 6,
+        "compensation_spent": 0,
+        "invalid_attempts": 0,
+        "committed_policy_violations": 0,
+        "outcomes": [
+          {
+            "party_id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          },
+          {
+            "party_id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          },
+          {
+            "party_id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          },
+          {
+            "party_id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          },
+          {
+            "party_id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "satisfied": true,
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            },
+            "initially_satisfied": true
+          },
+          {
+            "party_id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "satisfied": false,
+            "booking": null,
+            "initially_satisfied": false
+          }
+        ],
+        "terminal": "stopped",
+        "steps": 3,
+        "tool_calls": 3,
+        "model_calls": 5,
+        "input_tokens": 10641,
+        "output_tokens": 237,
+        "usage_coverage": 1.0,
+        "elapsed_ms": 40968,
+        "api_cost": 0,
+        "cost_basis": "local_ollama; hardware/electricity unmeasured",
+        "fault_configured": "none",
+        "fault_delivered": false,
+        "attempts": [
+          {
+            "id": "fbbaf7cc-1541-4874-8b71-8f17d0af10dc",
+            "role": "inventory_specialist",
+            "configured_model": "ollama/qwen3.5:4b",
+            "status": "ok",
+            "input_tokens": 1975,
+            "output_tokens": 49,
+            "usage_source": "bifrost_response",
+            "injected": false,
+            "temperature": 0.2,
+            "seed": 71,
+            "max_output_tokens": 192,
+            "reasoning_effort": "none",
+            "actual_model": "qwen3.5:4b",
+            "response_id": "chatcmpl-958",
+            "raw_response": "{\n  \"action_id\": 12,\n  \"plan\": \"Propose free Late flight (L) to P2 (size 2) to secure their shared seat while preserving scarce Early flight capacity for others.\"\n}",
+            "elapsed_ms": 9281.52
+          },
+          {
+            "id": "3dee911b-ec9a-4772-bbda-43ff7bd17fbd",
+            "role": "traveler_specialist",
+            "configured_model": "ollama/qwen3.5:4b",
+            "status": "ok",
+            "input_tokens": 1978,
+            "output_tokens": 33,
+            "usage_source": "bifrost_response",
+            "injected": false,
+            "temperature": 0.2,
+            "seed": 71,
+            "max_output_tokens": 192,
+            "reasoning_effort": "none",
+            "actual_model": "qwen3.5:4b",
+            "response_id": "chatcmpl-586",
+            "raw_response": "{\n  \"action_id\": 34,\n  \"plan\": \"Ask P1 about hidden deadlines to understand urgency before proposing replacement options.\"\n}",
+            "elapsed_ms": 7131.89
+          },
+          {
+            "id": "091e663a-9b8b-473b-81c5-d2b2a46661df",
+            "role": "orchestrator",
+            "configured_model": "ollama/qwen3.5:4b",
+            "status": "ok",
+            "input_tokens": 2162,
+            "output_tokens": 84,
+            "usage_source": "bifrost_response",
+            "injected": false,
+            "temperature": 0.2,
+            "seed": 71,
+            "max_output_tokens": 192,
+            "reasoning_effort": "none",
+            "actual_model": "qwen3.5:4b",
+            "response_id": "chatcmpl-227",
+            "raw_response": "{\n  \"action_id\": 0,\n  \"plan\": \"Ask P6 deadline/modes/compensation; ask P2 deadline/modes/compensation; ask P4 deadline/modes/compensation; ask P3 deadline/modes/compensation; ask P1 deadline/modes/compensation; ask P5 deadline/modes/compensation. Then propose offers to P\"\n}",
+            "elapsed_ms": 9540.45
+          },
+          {
+            "id": "869854d2-6b27-4376-ac7c-c0858309c5ab",
+            "role": "orchestrator",
+            "configured_model": "ollama/qwen3.5:4b",
+            "status": "ok",
+            "input_tokens": 2249,
+            "output_tokens": 46,
+            "usage_source": "bifrost_response",
+            "injected": false,
+            "temperature": 0.2,
+            "seed": 71,
+            "max_output_tokens": 192,
+            "reasoning_effort": "none",
+            "actual_model": "qwen3.5:4b",
+            "response_id": "chatcmpl-624",
+            "raw_response": "{\n  \"action_id\": 8,\n  \"plan\": \"Ask P2 deadline; ask P4 deadline; ask P3 deadline; ask P5 deadline. Then propose free L to P2.\"\n}",
+            "elapsed_ms": 7832.72
+          },
+          {
+            "id": "83cd8e87-c6bc-46c9-a56e-dd285e1cd0f1",
+            "role": "orchestrator",
+            "configured_model": "ollama/qwen3.5:4b",
+            "status": "ok",
+            "input_tokens": 2277,
+            "output_tokens": 25,
+            "usage_source": "bifrost_response",
+            "injected": false,
+            "temperature": 0.2,
+            "seed": 71,
+            "max_output_tokens": 192,
+            "reasoning_effort": "none",
+            "actual_model": "qwen3.5:4b",
+            "response_id": "chatcmpl-426",
+            "raw_response": "{\n  \"action_id\": 48,\n  \"plan\": \"No further useful actions selected.\"\n}",
+            "elapsed_ms": 7154.8
+          }
+        ]
+      },
+      "seq": 5,
+      "run_id": "243d1b53-2b1a-4fb4-8ee1-e721b62946b9",
+      "timestamp_utc": "2026-11-07T16:08:30.445374+00:00",
+      "snapshot": {
+        "tick": 3,
+        "cases": [
+          {
+            "id": "P6",
+            "name": "Dani",
+            "people": 1,
+            "request": "I haven't decided how to travel. Please help me compare options.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P2",
+            "name": "Arun & Nila",
+            "people": 2,
+            "request": "We are a party of two and must travel on the same flight.",
+            "known": {
+              "deadline": "19:00"
+            },
+            "booking": null
+          },
+          {
+            "id": "P4",
+            "name": "Sam",
+            "people": 1,
+            "request": "I cannot pay anything extra. Please help me find an option.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P3",
+            "name": "Leo",
+            "people": 1,
+            "request": "I'd prefer the early flight, but I can discuss an alternative.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P1",
+            "name": "Mira",
+            "people": 1,
+            "request": "I need replacement travel. Please ask about my transport requirements.",
+            "known": {},
+            "booking": null
+          },
+          {
+            "id": "P5",
+            "name": "Jules",
+            "people": 1,
+            "request": "I already have an early-flight booking. I'm open to discussing a change.",
+            "known": {},
+            "booking": {
+              "option_id": "E",
+              "voucher": 0,
+              "version": 1,
+              "consent": "initial"
+            }
+          }
+        ],
+        "options": [
+          {
+            "id": "E",
+            "label": "Early flight",
+            "arrival": "12:00",
+            "mode": "flight",
+            "capacity": 2,
+            "available": 1
+          },
+          {
+            "id": "L",
+            "label": "Late flight",
+            "arrival": "18:00",
+            "mode": "flight",
+            "capacity": 3,
+            "available": 3
+          },
+          {
+            "id": "R",
+            "label": "Rail transfer",
+            "arrival": "16:00",
+            "mode": "rail",
+            "capacity": 3,
+            "available": 3
+          }
+        ],
+        "bookings": {
+          "P5": {
+            "option_id": "E",
+            "voucher": 0,
+            "version": 1,
+            "consent": "initial"
+          }
+        },
+        "offers": {},
+        "budget": {
+          "total": 40,
+          "spent": 0,
+          "reserved": 0,
+          "available": 40
+        },
+        "invalid_attempts": 0,
+        "finished": true
+      }
+    }
+  ],
+  "notice": "Fictional data; includes evaluator-only private goals. Do not feed into a live agent."
+}
