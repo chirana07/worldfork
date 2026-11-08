@@ -87,8 +87,11 @@ def build(audio_directory, output):
         # to names and punctuation live in the reviewed transcript, not inference.
         for segment in transcript["segments"]:
             words = segment["words"]
-            for offset in range(0, len(words), 10):
-                group = words[offset : offset + 10]
+            chunk_size = max(
+                1, math.ceil(len(words) / max(1, math.ceil(len(words) / 10)))
+            )
+            for offset in range(0, len(words), chunk_size):
+                group = words[offset : offset + chunk_size]
                 if not group:
                     continue
                 start = elapsed + 0.2 + group[0]["start"]
