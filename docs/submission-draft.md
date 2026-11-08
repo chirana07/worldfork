@@ -6,6 +6,8 @@ Submission copy for review. The [public repository](https://github.com/chirana07
 
 WorldFork is a local experiment lab for AI support agents. It places an agent inside a fictional airport disruption where six parties compete for limited travel capacity and compensation. Every offer, consent, reservation and booking changes what remains possible for everyone else. Run two designs from identical starting conditions, inspect their decisions, and score the resulting world independently of what the agent says it accomplished.
 
+The [challenge alignment](challenge-alignment.md) maps the Bifrost organizer briefing to implemented features and verification.
+
 ## The problem
 
 A support agent can produce convincing replies and valid individual transactions while leaving a worse overall allocation. Isolated question-and-answer tests miss interactions between scarce resources, private requirements, existing commitments and voluntary changes. Teams need a way to inspect those consequences before connecting an agent to real systems.
@@ -19,7 +21,7 @@ A support agent can produce convincing replies and valid individual transactions
 - Enforces party sizes, transport capacity, consent, expiring holds, compensation and atomic booking changes in deterministic code.
 - Persists actual decisions, model usage, tool results and snapshots for replay and export.
 - Injects explicitly labeled model unavailability, pre-execution tool timeouts and misleading inventory observations, recording whether each intervention was actually delivered.
-- Shows two worlds, their resource allocations, passenger details and complete decision ledgers in a React interface.
+- Shows two worlds, their resource allocations, passenger details and complete decision ledgers in a React interface. The run archive also compares repeated-run success, outcome ranges, steps, calls, tokens, API charge, time and delivered faults under matching conditions.
 
 ## What makes it different
 

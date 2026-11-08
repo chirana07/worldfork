@@ -1002,6 +1002,102 @@ select:hover {
   background: transparent;
   color: var(--ink);
 }
+.benchmark-results {
+  margin-bottom: 40px;
+}
+.benchmark-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.benchmark-results p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 70ch;
+}
+.benchmark-heading > button {
+  min-height: 44px;
+}
+.benchmark-condition {
+  display: grid;
+  gap: 8px;
+  margin: 24px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.benchmark-condition select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  color: var(--ink);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+}
+.benchmark-comparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 28px;
+}
+.benchmark-agent {
+  min-width: 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.benchmark-agent h3 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.benchmark-agent > p {
+  font-size: 12px;
+}
+.benchmark-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 16px;
+  margin: 24px 0;
+}
+.benchmark-metrics dt,
+.benchmark-metrics small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.benchmark-metrics small {
+  display: block;
+  font-weight: 400;
+}
+.benchmark-metrics dd {
+  margin: 4px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.benchmark-status {
+  margin-bottom: 12px;
+}
+.benchmark-agent > button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.benchmark-method {
+  margin-top: 24px;
+  font-size: 13px;
+}
+.benchmark-method summary {
+  cursor: pointer;
+  padding: 12px 0;
+}
+.benchmark-method p + p {
+  margin-top: 10px;
+}
 .archive-row > span:first-of-type {
   flex: 1;
 }

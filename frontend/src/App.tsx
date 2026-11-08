@@ -75,6 +75,30 @@ type Run = {
   result: Record<string, any> | null;
 };
 type RunSummary = Omit<Run, "snapshot">;
+type BenchmarkRow = {
+  framework: string;
+  strategy: string;
+  configured: number;
+  scored: number;
+  completed: number;
+  resolved_mean: number | null;
+  resolved_range: number[] | null;
+  fault_exposed: number;
+  statuses: Record<string, number>;
+  metrics: Record<
+    string,
+    { mean: number | null; known: number; range: number[] | null }
+  >;
+  run_ids: string[];
+  seeds: number[];
+};
+type BenchmarkCohort = {
+  id: string;
+  config: Omit<Config, "framework" | "strategy" | "seed"> & {
+    model_digest: string;
+  };
+  rows: BenchmarkRow[];
+};
 type TeamProposal = {
   role: string;
   action_id?: number;
@@ -348,6 +372,230 @@ function WorldPanel({
             Export trace
           </a>
         </div>
+      )}
+    </section>
+  );
+}
+
+function BenchmarkResults({
+  scenarios,
+  preferredRun,
+  onInspect,
+  disabled,
+}: {
+  scenarios: Scenario[];
+  preferredRun?: string;
+  onInspect: (id: string) => void;
+  disabled: boolean;
+}) {
+  const [report, setReport] = useState<{
+    cohorts: BenchmarkCohort[];
+    unidentified_runs: number;
+  } | null>(null);
+  const [phase, setPhase] = useState("loading");
+  const [revision, setRevision] = useState(0);
+  const [choice, setChoice] = useState("");
+  useEffect(() => {
+    let mounted = true;
+    setPhase("loading");
+    api<{ cohorts: BenchmarkCohort[]; unidentified_runs: number }>(
+      "/benchmarks",
+    )
+      .then((data) => {
+        if (!mounted) return;
+        setReport(data);
+        setChoice((current) =>
+          data.cohorts.some((cohort) => cohort.id === current)
+            ? current
+            : (data.cohorts.find((cohort) =>
+                cohort.rows.some((row) =>
+                  row.run_ids.includes(preferredRun ?? ""),
+                ),
+              )?.id ??
+              data.cohorts[0]?.id ??
+              ""),
+        );
+        setPhase("ready");
+      })
+      .catch(() => {
+        if (mounted) setPhase("error");
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [revision, preferredRun]);
+  const cohort = report?.cohorts.find((group) => group.id === choice);
+  function metric(row: BenchmarkRow, field: string, divisor = 1) {
+    const value = row.metrics[field];
+    if (value.mean === null) return "Unknown";
+    const precision =
+      field === "api_cost"
+        ? { maximumSignificantDigits: 4 }
+        : { maximumFractionDigits: 1 };
+    const number = (value.mean / divisor).toLocaleString(undefined, precision);
+    return value.known === row.scored
+      ? number
+      : `${number} (${value.known}/${row.scored} measured)`;
+  }
+  return (
+    <section className="benchmark-results" aria-labelledby="benchmark-title">
+      <div className="benchmark-heading">
+        <h2 id="benchmark-title">Compare repeated runs</h2>
+        <button
+          className="text-button"
+          disabled={phase === "loading"}
+          onClick={() => setRevision((value) => value + 1)}
+        >
+          {phase === "error" ? "Retry results" : "Refresh results"}
+        </button>
+      </div>
+      <p>Compare outcomes and resources under the same test conditions.</p>
+      {phase === "loading" ? (
+        <p role="status">Loading measured results…</p>
+      ) : phase === "error" ? (
+        <p role="alert">
+          Results could not be loaded. Use Retry results to try again.
+        </p>
+      ) : cohort ? (
+        <>
+          <label className="benchmark-condition">
+            Test conditions
+            <select
+              value={choice}
+              onChange={(event) => setChoice(event.target.value)}
+            >
+              {report?.cohorts.map((group) => (
+                <option key={group.id} value={group.id}>
+                  {scenarios.find(
+                    (scenario) => scenario.id === group.config.scenario_id,
+                  )?.label ?? group.config.scenario_id}{" "}
+                  ·{" "}
+                  {group.config.fault === "none"
+                    ? "clean"
+                    : group.config.fault.replaceAll("_", " ")}{" "}
+                  · {group.config.model.replace("ollama/", "")} ·{" "}
+                  {group.config.max_steps} steps · {group.id.slice(0, 6)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="benchmark-comparison">
+            {cohort.rows.map((row) => (
+              <article
+                className="benchmark-agent"
+                key={`${row.framework}-${row.strategy}`}
+              >
+                <h3>{strategyLabel(row.strategy)}</h3>
+                <p>
+                  {row.framework} · {row.scored} scored of {row.configured}{" "}
+                  retained runs · {row.seeds.length} requested seeds
+                </p>
+                <dl className="benchmark-metrics">
+                  <div>
+                    <dt>Travelers met, mean</dt>
+                    <dd>
+                      {row.resolved_mean === null
+                        ? "Unknown"
+                        : `${row.resolved_mean.toFixed(2)} / ${row.metrics.total_people.mean ?? "?"}`}
+                      {row.resolved_range && (
+                        <small>Range {row.resolved_range.join("–")}</small>
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Full success</dt>
+                    <dd>
+                      {row.scored
+                        ? `${row.completed} / ${row.scored} runs`
+                        : "Awaiting scores"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Steps, mean</dt>
+                    <dd>{metric(row, "steps")}</dd>
+                  </div>
+                  <div>
+                    <dt>Tool calls, mean</dt>
+                    <dd>{metric(row, "tool_calls")}</dd>
+                  </div>
+                  <div>
+                    <dt>Model calls, mean</dt>
+                    <dd>{metric(row, "model_calls")}</dd>
+                  </div>
+                  <div>
+                    <dt>Tokens, mean</dt>
+                    <dd>{metric(row, "tokens")}</dd>
+                  </div>
+                  <div>
+                    <dt>API charge, mean</dt>
+                    <dd>
+                      {row.metrics.api_cost.mean === null
+                        ? "Unknown"
+                        : `$${metric(row, "api_cost")}`}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Time, mean (s)</dt>
+                    <dd>{metric(row, "elapsed_ms", 1000)}</dd>
+                  </div>
+                  <div>
+                    <dt>Fault delivered</dt>
+                    <dd>
+                      {row.fault_exposed} / {row.configured} runs
+                    </dd>
+                  </div>
+                </dl>
+                <p className="benchmark-status">
+                  {Object.entries(row.statuses)
+                    .map(
+                      ([status, count]) =>
+                        `${count} ${{ exhausted: "budget reached", stopped: "stopped early", completed: "fully resolved" }[status] ?? status.replaceAll("_", " ")}`,
+                    )
+                    .join(" · ")}
+                </p>
+                <button
+                  className="text-button"
+                  disabled={disabled}
+                  onClick={() => onInspect(row.run_ids[0])}
+                >
+                  Open latest run <ArrowRight size={15} />
+                </button>
+              </article>
+            ))}
+          </div>
+          <details className="benchmark-method">
+            <summary>How these results are grouped</summary>
+            <p>
+              Each group fixes the scenario, model digest, source version,
+              passenger mode, fault setting, decoding and budgets. Only the
+              framework, strategy and requested seed vary.
+            </p>
+            <p>
+              Passenger mode {cohort.config.passenger_mode} · temperature{" "}
+              {cohort.config.temperature} · token budget{" "}
+              {cohort.config.max_tokens?.toLocaleString()} · wall budget{" "}
+              {cohort.config.wall_seconds} s.
+            </p>
+            <p>
+              Means exclude cancelled, interrupted and simulator-error runs.
+              Missing measurements stay unknown. Traveler totals include the
+              initial booking. Local API charge excludes hardware and
+              electricity. Timing includes desktop contention. Model seeds are
+              recorded requests.
+            </p>
+          </details>
+        </>
+      ) : (
+        <p>
+          Finish a run with recorded model and source information to start
+          comparing results.
+        </p>
+      )}
+      {!!report?.unidentified_runs && (
+        <p>
+          {report.unidentified_runs} retained runs lack the model or source
+          information needed for grouping.
+        </p>
       )}
     </section>
   );
@@ -1343,6 +1591,19 @@ export default function App() {
             <p>
               Retained evidence, including incomplete and unsuccessful runs.
             </p>
+            <BenchmarkResults
+              preferredRun={runA?.id}
+              scenarios={scenarios}
+              onInspect={inspectRun}
+              disabled={busy || experimentActive}
+            />
+            <h2>Individual runs</h2>
+            {archive.length >= 100 && (
+              <p>
+                The list shows the latest 100 runs. Repeated-run results include
+                all runs with recorded comparison conditions.
+              </p>
+            )}
             {visibleArchive.length ? (
               visibleArchive.map((r) => (
                 <button
@@ -1523,26 +1784,38 @@ export default function App() {
                   <p>{selected.event.coordination.plan}</p>
                   {selected.event.coordination.consultation_reason && (
                     <p>
-                      {{
-                        initial: "Both specialists were consulted to begin the plan.",
-                        booking_changed: "Both specialists were consulted after a booking changed availability.",
-                        action_failed: "Both specialists were consulted after an unsuccessful action.",
-                        resolve_offer: "The orchestrator is resolving an accepted offer using its latest receipt.",
-                        reuse_advice: "The orchestrator is reassessing earlier advice against the current world.",
-                      }[selected.event.coordination.consultation_reason]}
+                      {
+                        {
+                          initial:
+                            "Both specialists were consulted to begin the plan.",
+                          booking_changed:
+                            "Both specialists were consulted after a booking changed availability.",
+                          action_failed:
+                            "Both specialists were consulted after an unsuccessful action.",
+                          resolve_offer:
+                            "The orchestrator is resolving an accepted offer using its latest receipt.",
+                          reuse_advice:
+                            "The orchestrator is reassessing earlier advice against the current world.",
+                        }[selected.event.coordination.consultation_reason]
+                      }
                     </p>
                   )}
                   {selected.event.coordination.prior_advice?.length ? (
                     <>
                       <h3>Earlier specialist advice</h3>
                       <ul>
-                        {selected.event.coordination.prior_advice.map((advice) => (
-                          <li key={advice.role}>
-                            {advice.role === "inventory_specialist" ? "Inventory specialist" : "Traveler specialist"}
-                            {" · tick "}{advice.tick}
-                            <p>{advice.plan}</p>
-                          </li>
-                        ))}
+                        {selected.event.coordination.prior_advice.map(
+                          (advice) => (
+                            <li key={advice.role}>
+                              {advice.role === "inventory_specialist"
+                                ? "Inventory specialist"
+                                : "Traveler specialist"}
+                              {" · tick "}
+                              {advice.tick}
+                              <p>{advice.plan}</p>
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </>
                   ) : null}

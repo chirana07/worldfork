@@ -129,6 +129,15 @@ class Store:
         ]
 
     @serialized
+    def benchmark_runs(self):
+        return [
+            self.decode_run(row)
+            for row in self.db.execute(
+                "SELECT id, created_at, status, config, json_remove(result, '$.attempts') AS result FROM runs ORDER BY created_at DESC, id"
+            )
+        ]
+
+    @serialized
     def events(self, rid, after=0):
         return [
             json.loads(r[0])

@@ -4,7 +4,7 @@
 
 A shared-world laboratory for customer-support agents. Six fictional passenger parties need alternatives after a cancellation; their decisions compete for actual capacity in a local simulator. Compare support strategies through plain Python and LangGraph adapters using the same model, tools, goals and budgets.
 
-WorldFork runs live comparisons through Bifrost and includes a read-only replay of the recorded pilot. See [build status](BUILD_STATUS.md) and the [implementation specification](WORLD_FORK_IMPLEMENTATION_PLAN.md).
+WorldFork runs live comparisons through Bifrost and includes a read-only replay of the recorded pilot. The [Bifrost challenge alignment](docs/challenge-alignment.md) maps the organizer briefing to working features. See [build status](BUILD_STATUS.md) and the [implementation specification](WORLD_FORK_IMPLEMENTATION_PLAN.md).
 
 ## Quick start with recorded evidence
 
@@ -23,7 +23,7 @@ Open [recorded replay](http://127.0.0.1:8001). The repository includes the JSON 
 
 1. Click **See the first booking** to jump to a confirmed booking and see how many seats remain. The opening comparison uses the same model, scenario, seed and LangGraph integration with different strategies.
 2. Move the playback slider to see later changes. Open a decision in the ledger to check what the agent observed, what it tried, and what changed.
-3. Open **Run archive** to inspect all 30 pilot runs, including cases with injected faults. Use **Export trace** to download a run's configuration, decisions and snapshots.
+3. Open **Run archive** to compare repeated-run results for matching test conditions. Each design shows success, outcome ranges, steps, model/tool calls, tokens, API charge, time and fault exposure. Use **Open latest run** to inspect its decisions. The individual list contains all 30 pilot runs, including cases with injected faults. Use **Export trace** to download a run's configuration, decisions and snapshots.
 
 To see the recorded solo planner versus team comparison, run `uv run python scripts/replay_server.py --team-demo --port 8003` after building the frontend. Open [the clean team replay](http://127.0.0.1:8003) or [the tool-timeout replay](http://127.0.0.1:8003/?a=0b2ee502-2153-413f-be2e-20b2f914fda8&b=d436a8e4-6ce5-4784-9b68-71370bb23cbe). Select a World B decision in the ledger to see the specialists' advice and the orchestrator's plan. This replay imports four verified development traces. [Release audit and judging self-score](docs/competition-audit.md)
 
@@ -91,7 +91,7 @@ The local reference agents select from a schema-constrained action menu derived 
 
 `POST /api/runs` accepts scenario, framework, strategy, passenger mode, model, fault, seed, temperature and budgets. Defaults are defined in `RunConfig`. `GET /api/runs/{id}/events?after_seq=N` retrieves an ordered persisted trace. Cancel, initial-state fork, paired comparison and JSON export endpoints are documented in the API explorer. Mid-run branching is not implemented.
 
-`GET /api/runs?summary=true` lists archive metadata and scores. The full list, run detail and export endpoints retain their existing payloads. An active cancellation stays pollable until its partial score and terminal receipt are saved.
+`GET /api/benchmarks` summarizes all stored runs under matching task, model, decoding, budget and source conditions. It retains status counts, measured-value denominators and inspection links. `GET /api/runs?summary=true` lists archive metadata and scores. The full list, run detail and export endpoints retain their existing payloads. An active cancellation stays pollable until its partial score and terminal receipt are saved.
 
 ```sh
 curl -X POST http://127.0.0.1:8000/api/comparisons \

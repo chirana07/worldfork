@@ -81,6 +81,16 @@ def check(base, *, team_demo=False, evaluation=False):
             field: full["result"][field]
             for field in ("satisfied_people", "total_people")
         }
+    benchmarks = read_json(request(base, "/api/benchmarks"))
+    assert benchmarks["unidentified_runs"] == 0
+    benchmark_ids = [
+        run_id
+        for cohort in benchmarks["cohorts"]
+        for row in cohort["rows"]
+        for run_id in row["run_ids"]
+    ]
+    assert len(benchmark_ids) == len(set(benchmark_ids))
+    assert set(benchmark_ids) == set(traces)
     page = request(base, "/")
     assert page[0] == 200 and b'id="root"' in page[2]
     query = parse_qs(urlsplit(page[4]).query)

@@ -5,10 +5,10 @@
 | Area | Score | Evidence and remaining weakness |
 | --- | ---: | --- |
 | Innovation | 9/10 | Shared seats, compensation and consent make decisions consequential for other travelers. Side-by-side scores and traces expose allocation failures and the cost of adding agents. |
-| Technical execution | 9/10 | Python and LangGraph integrations, a generic adapter smoke, controlled faults, a deterministic scorer, 62 tests and verified Docker replays. New tests exercise advice reuse through both adapters and demonstrate a feasible ten-step allocation on the transfer fixture. |
+| Technical execution | 9/10 | Python and LangGraph integrations, a generic adapter smoke, controlled faults, a deterministic scorer, 66 tests and verified Docker replays. New tests exercise advice reuse through both adapters and demonstrate a feasible ten-step allocation on the transfer fixture. |
 | Problem and impact | 8/10 | The benchmark exposes failures that isolated tickets miss. The release adds a fixture reserved from tuning, but its evidence remains within a synthetic airport domain. |
 | Use of AI | 8/10 | Real model calls through Bifrost, two advisory specialists and an inspectable orchestrator. Selective consultation skipped 150 specialist requests on the observed paths. The team still used more model calls than the solo planner and lost three comparisons. |
-| User experience | 8/10 | Reviewers can inspect bookings, receipts, dated advice and consultation reasons. The 24-run release replay works without inference services. The existing video introduces the original pilot. |
+| User experience | 8/10 | Reviewers can inspect bookings, receipts, dated advice and consultation reasons. The archive now compares repeated-run success and resource means under matching conditions, with ranges, missing-value coverage and links to receipts. The 24-run release replay works without inference services. The existing video introduces the original pilot. |
 | Scalability and potential | 7/10 | Repeatable paired runs, exportable traces and reference integrations provide a base. The live queue is local and serial. Other domains, models and production workloads remain untested. |
 
 ## What changed

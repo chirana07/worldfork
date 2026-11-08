@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from .engine import World
+from .report import benchmark_summary
 from .runner import RunConfig, Runner
 from .scenarios import ScenarioId, load_scenario
 from .store import Store
@@ -114,6 +115,11 @@ async def create_run(config: RunConfig):
 @router.get("/api/runs")
 async def runs(summary: bool = False):
     return store.list(summary=summary)
+
+
+@router.get("/api/benchmarks")
+async def benchmarks():
+    return benchmark_summary(store.benchmark_runs())
 
 
 def require(rid):

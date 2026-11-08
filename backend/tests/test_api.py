@@ -171,3 +171,26 @@ def test_repeat_team_comparisons_share_seeds_and_faults(client, monkeypatch):
         assert solo.model_dump(exclude={"strategy"}) == team.model_dump(
             exclude={"strategy"}
         )
+
+
+def test_benchmark_endpoint_covers_runs_beyond_the_archive_window(client):
+    import json
+    from pathlib import Path
+
+    from worldfork.api import store
+
+    path = Path(__file__).resolve().parents[2] / "evidence/team-demo/solo.json"
+    original = json.loads(path.read_text())["run"]
+    for index in range(101):
+        rid = f"run-{index:03d}"
+        store.create(rid, original["config"], original["snapshot"])
+        store.update(rid, status=original["status"], result=original["result"])
+    assert len(client.get("/api/runs?summary=true").json()) == 100
+    response = client.get("/api/benchmarks")
+    assert response.status_code == 200
+    report = response.json()
+    row = report["cohorts"][0]["rows"][0]
+    assert row["scored"] == 101 and len(row["run_ids"]) == 101
+    assert row["metrics"]["model_calls"]["mean"] == 8
+    assert '"attempts":' not in json.dumps(report)
+    assert "snapshot" not in json.dumps(report)

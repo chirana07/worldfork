@@ -3,6 +3,63 @@
 from collections import Counter, defaultdict
 from statistics import mean
 
+from .engine import digest
+
+
+def benchmark_summary(runs):
+    """Keep repeated-run means within a single measured task and harness."""
+    groups = {}
+    unidentified = 0
+    fields = [
+        "scenario_id",
+        "scenario_hash",
+        "model",
+        "passenger_mode",
+        "fault",
+        "temperature",
+        "max_steps",
+        "max_tokens",
+        "wall_seconds",
+        "source_hashes",
+    ]
+    for run in runs:
+        config = {field: run["config"].get(field) for field in fields}
+        config["model_digest"] = (run["config"].get("model_manifest") or {}).get(
+            "digest"
+        )
+        if (
+            any(value is None for value in config.values())
+            or not config["source_hashes"]
+        ):
+            unidentified += 1
+            continue
+        key = digest(config)
+        cohort = groups.setdefault(key, {"id": key, "config": config, "runs": []})
+        entry = dict(run)
+        if run.get("result"):
+            result = run["result"]
+            tokens = [result.get("input_tokens"), result.get("output_tokens")]
+            entry["result"] = {
+                **result,
+                "tokens": sum(tokens) if all(t is not None for t in tokens) else None,
+            }
+        cohort["runs"].append(entry)
+    cohorts = []
+    for cohort in groups.values():
+        entries = cohort.pop("runs")
+        rows = summarize({"runs": entries})["rows"]
+        for row in rows:
+            members = [
+                entry
+                for entry in entries
+                if entry["config"]["framework"] == row["framework"]
+                and entry["config"]["strategy"] == row["strategy"]
+            ]
+            row["run_ids"] = [entry["id"] for entry in members]
+            row["seeds"] = sorted({entry["config"]["seed"] for entry in members})
+        cohorts.append({**cohort, "rows": rows})
+    return {"cohorts": cohorts, "unidentified_runs": unidentified}
+
 
 def summarize(manifest):
     groups = defaultdict(list)
@@ -31,6 +88,9 @@ def summarize(manifest):
         resolved = [r["satisfied_people"] for r in scored]
         metrics = {}
         for field in [
+            "model_calls",
+            "tokens",
+            "total_people",
             "steps",
             "tool_calls",
             "input_tokens",
