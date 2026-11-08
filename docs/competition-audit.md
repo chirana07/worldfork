@@ -47,7 +47,7 @@ The original frozen pilot remains a separate 30-episode comparison across Python
 1. **Plan quality and premature stopping.** The team lost two of the three clean transfer comparisons and stopped early in two release episodes. Improve the reference policy using development cases, then evaluate a new untouched fixture. Preserve these results as the baseline.
 2. **Coordination cost.** Selective consultation reduces repeated specialist requests, but the team still spends more calls and tokens. Its extra resolved travelers must be weighed against that cost under each workload.
 3. **Generalization and scale.** Add independent models, another support domain and broader third-party adapters before claiming general reliability. The current local serial queue bounds the deployment claim.
-4. **Submission presentation.** Use the release replay to demonstrate the revised team and its mixed outcomes. The silent demo now covers the pilot and release evidence, with an eight-slide deck and narration handoff for Chirana. Participant audio and the final organizer form remain pending.
+4. **Submission presentation.** Use the release replay to demonstrate the revised team and its mixed outcomes. The silent demo now covers the pilot and release evidence, with an eight-slide deck and narration handoff for Chirana. The narrated cut now uses Chirana’s supplied audio. The final organizer form remains pending.
 
 ## Submission checks
 

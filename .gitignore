@@ -13,3 +13,6 @@ deliverables/
 
 *.tsbuildinfo
 .ruff_cache/
+
+# Participant narration stays local.
+Audio clips/

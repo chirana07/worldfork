@@ -125,4 +125,4 @@ The project targets the hackathon's agent-benchmarking statement. Tavily is not 
 
 ## Submission media
 
-The review package includes a three-minute silent demonstration, an editable eight-slide pitch deck and PDF, and a timed narration script for Chirana. The demo shows actual retained traces, repeated-run comparisons and measured tradeoffs. Audio integration follows the participant’s recording. [Media sources and reproduction](docs/demo-production.md).
+The review package includes a three-minute silent demonstration, an editable eight-slide pitch deck and PDF, and a timed narration script for Chirana. The demo shows actual retained traces, repeated-run comparisons and measured tradeoffs. A separate narrated cut fits each scene to Chirana’s supplied audio, with updated captions. [Media sources and reproduction](docs/demo-production.md).

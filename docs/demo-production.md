@@ -1,6 +1,6 @@
 # Submission media
 
-The current demo uses guided playback from retained real traces. On-screen context identifies the recorded pilot, release study and synthetic scope. The video has no audio stream. `deliverables/WorldFork-demo.txt` contains the clean narration, and `WorldFork-demo-script.md` contains scene timings. Final audio and captions will follow the participant's recording.
+The current demo uses guided playback from retained real traces. On-screen context identifies the recorded pilot, release study and synthetic scope. The silent cut has no audio stream. The narrated cut uses the ten numbered audio files supplied by Chirana, with each scene retimed to its recording. `deliverables/WorldFork-demo.txt` contains the clean narration, and `WorldFork-demo-script.md` contains scene timings. The narrated cut includes captions timed from a locally transcribed and reviewed recording.
 
 ## Source scenes
 
@@ -33,3 +33,15 @@ uv run python scripts/build_demo.py
 The public project itself does not require the media-authoring dependencies. Build intermediates, scene clips and verification receipts remain in the ignored `artifacts/submission-build/` directory so the video can be retimed when the participant supplies audio.
 
 Caption bands can be regenerated with `node scripts/record_demo.mjs --captions-only`. The recorder enlarges Chrome’s native window to preserve the full viewport in screencast frames. Final media must be visually inspected as well as decoded; the automated stream checks alone do not establish visual quality.
+
+## Participant narration
+
+`scripts/add_demo_audio.py` assembles `WorldFork-demo.mp4` from the prepared scene videos and `clip 1` through `clip 10` MP3, WAV or M4A recordings. It keeps voice speed unchanged, normalizes loudness, adds a short lead and tail, and retimes each scene to fit. It verifies a complete decode, a 1080p video stream and an AAC audio stream before replacing the output. Supplied audio files are local submission assets and are not included in Git.
+
+The assembly expects reviewed `artifacts/submission-build/audio-transcripts.json`: an ordered list of objects with `file` and `segments`; each segment has `words` entries containing `start`, `end` in seconds and `word` text including its leading space. Transcription was performed locally with Faster Whisper; recognition text was checked against the supplied script and corrected for names and numbers. The transcript is used for caption timing. Media dependencies remain separate from the application environment.
+
+```sh
+uv run python scripts/add_demo_audio.py --audio-dir "Audio clips"
+```
+
+Narrated and silent cuts have different durations. Their caption files and timing guides must not be interchanged. Original recordings remain unchanged.
