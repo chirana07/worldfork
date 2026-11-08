@@ -1,6 +1,6 @@
 # WorldFork build status
 
-WorldFork is ready for local review. The review bundle contains the source archive, an editable seven-slide deck, a narrated 1080p demo, a silent copy, captions and narration text.
+WorldFork is ready for local review. The review bundle contains the source archive, an editable eight-slide deck and PDF, a three-minute silent 1080p demo, provisional captions and a narration script for Chirana. Participant audio and final organizer upload remain pending.
 
 The frozen pilot scored 30 episodes with Qwen3.5:4b through Bifrost. Fifteen reached full completion, ten exhausted their budget, and five stopped early. All 18 configured synthetic fault exposures were delivered. The audit replayed 1,302 recorded actions and checked 1,308 model attempts. [Pilot report](evidence/pilot-summary.md)
 

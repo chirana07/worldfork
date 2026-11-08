@@ -8,7 +8,7 @@
 | Technical execution | 9/10 | Python and LangGraph integrations, a generic adapter smoke, controlled faults, a deterministic scorer, 66 tests and verified Docker replays. New tests exercise advice reuse through both adapters and demonstrate a feasible ten-step allocation on the transfer fixture. |
 | Problem and impact | 8/10 | The benchmark exposes failures that isolated tickets miss. The release adds a fixture reserved from tuning, but its evidence remains within a synthetic airport domain. |
 | Use of AI | 8/10 | Real model calls through Bifrost, two advisory specialists and an inspectable orchestrator. Selective consultation skipped 150 specialist requests on the observed paths. The team still used more model calls than the solo planner and lost three comparisons. |
-| User experience | 8/10 | Reviewers can inspect bookings, receipts, dated advice and consultation reasons. The archive now compares repeated-run success and resource means under matching conditions, with ranges, missing-value coverage and links to receipts. The 24-run release replay works without inference services. The existing video introduces the original pilot. |
+| User experience | 8/10 | Reviewers can inspect bookings, receipts, dated advice and consultation reasons. The archive now compares repeated-run success and resource means under matching conditions, with ranges, missing-value coverage and links to receipts. The 24-run release replay works without inference services. The three-minute silent demo covers the original pilot, revised team, repeated-run summaries and measured tradeoffs. |
 | Scalability and potential | 7/10 | Repeatable paired runs, exportable traces and reference integrations provide a base. The live queue is local and serial. Other domains, models and production workloads remain untested. |
 
 ## What changed
@@ -47,7 +47,7 @@ The original frozen pilot remains a separate 30-episode comparison across Python
 1. **Plan quality and premature stopping.** The team lost two of the three clean transfer comparisons and stopped early in two release episodes. Improve the reference policy using development cases, then evaluate a new untouched fixture. Preserve these results as the baseline.
 2. **Coordination cost.** Selective consultation reduces repeated specialist requests, but the team still spends more calls and tokens. Its extra resolved travelers must be weighed against that cost under each workload.
 3. **Generalization and scale.** Add independent models, another support domain and broader third-party adapters before claiming general reliability. The current local serial queue bounds the deployment claim.
-4. **Submission presentation.** Use the release replay to demonstrate the revised team and its mixed outcomes. The narrated video covers the original pilot. The final organizer form remains pending.
+4. **Submission presentation.** Use the release replay to demonstrate the revised team and its mixed outcomes. The silent demo now covers the pilot and release evidence, with an eight-slide deck and narration handoff for Chirana. Participant audio and the final organizer form remain pending.
 
 ## Submission checks
 

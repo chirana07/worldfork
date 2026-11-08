@@ -122,3 +122,7 @@ Report raw resolved people/parties, terminal statuses, oracle allocation upper b
 Ollama provides local inference; Bifrost is the actual gateway; LangGraph supplies one orchestration integration. Passenger speech/consent may use local inference when configured. World rules, transactions, scoring, limits and persistence are deterministic application code. Codex assists implementation. No real airline, passengers, transactions or personal records are used.
 
 The project targets the hackathon's agent-benchmarking statement. Tavily is not integrated. The official prototype instructions checked November 7 permit Bifrost-only projects; see [submission requirements](docs/eligibility.md). The original core was created during the hackathon. See [related work](docs/related-work.md) and [third-party notices](THIRD_PARTY_NOTICES.md). Organizer PDFs and copied announcements are local reference materials and are excluded from the source archive.
+
+## Submission media
+
+The review package includes a three-minute silent demonstration, an editable eight-slide pitch deck and PDF, and a timed narration script for Chirana. The demo shows actual retained traces, repeated-run comparisons and measured tradeoffs. Audio integration follows the participant’s recording. [Media sources and reproduction](docs/demo-production.md).

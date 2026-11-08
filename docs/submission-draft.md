@@ -45,7 +45,7 @@ Nine of twelve configured timeouts were delivered. Every exposed episode had lat
 
 The four earlier eight-step team demonstrations remain available as development evidence. The revised team consults specialists at plan boundaries and reassesses their dated advice between consultations. Its ledger shows earlier advice, fresh proposals, the plan and the booking receipt.
 
-The review bundle includes the full traces, source revision and model digest, an editable pitch deck, a narrated demonstration, and a read-only replay launcher. The walkthrough identifies its development comparison separately from the scored pilot.
+The review bundle includes the full traces, source revision and model digest, an editable pitch deck, a three-minute silent demonstration with a separate narration script for Chirana, and a read-only replay launcher. The walkthrough identifies its illustrative pair separately from cohort results and includes the revised team, repeated-run summaries and resource tradeoffs.
 
 ## Limits and next steps
 

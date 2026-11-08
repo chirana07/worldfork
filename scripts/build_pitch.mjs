@@ -1,13 +1,15 @@
+/** Author the current submission deck from retained evidence and real UI captures. */
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
 const root = fileURLToPath(new URL("../", import.meta.url));
-const ink = "#203236",
-  teal = "#176D5E",
-  muted = "#526562",
-  paper = "#F6F5EF";
-
+const colors = {
+  ink: "#172C30",
+  teal: "#096958",
+  muted: "#526469",
+  paper: "#F5F4EF",
+  line: "#D9DFDC",
+};
 function text(
   slide,
   value,
@@ -16,394 +18,494 @@ function text(
   width,
   height,
   size = 28,
-  color = ink,
+  color = colors.ink,
   bold = false,
 ) {
-  const box = slide.shapes.add({
+  const shape = slide.shapes.add({
     geometry: "textbox",
     position: { left: x, top: y, width, height },
     fill: "none",
     line: { fill: "none", width: 0 },
   });
-  box.text = value;
-  box.text.style = { fontFamily: "Arial", fontSize: size, color, bold };
-  return box;
+  shape.text = value;
+  shape.text.style = { fontFamily: "Arial", fontSize: size, color, bold };
+  shape.text.insets = 0;
+  return shape;
 }
 function title(slide, value) {
-  text(slide, value, 72, 56, 1136, 100, 48, ink, true);
+  text(slide, value, 72, 48, 1136, 100, 46, colors.ink, true);
 }
-function table(slide, values, top, widths, frame = {}) {
-  const t = slide.tables.add({
+function note(slide, value) {
+  slide.speakerNotes.text = value;
+}
+function table(
+  slide,
+  values,
+  y,
+  widths,
+  fontSize = 26,
+  frame = { left: 72, width: 1136 },
+) {
+  const result = slide.tables.add({
     rows: values.length,
     columns: values[0].length,
-    left: frame.left ?? 72,
-    top,
-    width: frame.width ?? 1136,
-    height: values.length * 54,
+    left: frame.left,
+    top: y,
+    width: frame.width,
+    height: values.length * 66,
     columnWidths: widths,
     values,
   });
-  t.borders.assign({ fill: "#D7DFD8", width: 0.6, style: "solid" });
+  result.borders.assign({ fill: colors.line, width: 0.6, style: "solid" });
   for (let r = 0; r < values.length; r++)
     for (let c = 0; c < values[0].length; c++) {
-      const cell = t.getCell(r, c);
-      cell.fill = r === 0 ? ink : paper;
+      const cell = result.getCell(r, c);
+      cell.fill = r === 0 ? colors.ink : colors.paper;
       cell.text.style = {
         fontFamily: "Arial",
-        fontSize: 25,
-        color: r === 0 ? "#FFFFFF" : ink,
+        fontSize,
+        color: r === 0 ? "#FFFFFF" : colors.ink,
         bold: r === 0,
       };
     }
-  return t;
+  return result;
 }
-function notes(slide, value) {
-  slide.speakerNotes.text = value;
-}
-function group(m, framework, strategy, fault = "none") {
-  return m.runs.filter(
-    (e) =>
-      e.config.framework === framework &&
-      e.config.strategy === strategy &&
-      (e.config.fault || "none") === fault,
+async function image(slide, filename, frame, alt) {
+  const bytes = await fs.readFile(
+    path.join(root, "artifacts/submission-build", filename),
   );
+  slide.images.add({
+    dataUrl: "data:image/png;base64," + bytes.toString("base64"),
+    position: frame,
+    fit: "contain",
+    alt,
+  });
 }
-function values(entries) {
-  return entries.map((e) => e.result?.satisfied_people ?? "—").join(", ");
+function node(slide, label, x, y, width) {
+  const shape = slide.shapes.add({
+    geometry: "rect",
+    position: { left: x, top: y, width, height: 100 },
+    fill: "#FFFFFF",
+    line: { fill: colors.line, width: 1 },
+  });
+  text(slide, label, x + 14, y + 18, width - 28, 72, 25, colors.ink, true);
+  return shape;
 }
-function complete(entries) {
-  return `${entries.filter((e) => e.status === "completed").length}/${entries.length}`;
+function arrow(slide, x, y, width) {
+  slide.shapes.add({
+    geometry: "rightArrow",
+    position: { left: x, top: y, width, height: 17 },
+    fill: colors.teal,
+    line: { fill: "none", width: 0 },
+  });
 }
-
 export async function author(
   presentation,
   {
-    manifestPath = "artifacts/benchmark-20261105T170022Z.json",
-    final = false,
+    manifestPath = "evidence/pilot-manifest.json",
+    releaseManifestPath = "evidence/team-evaluation/manifest.json",
+    presenter = "Chirana",
   } = {},
 ) {
-  const m = JSON.parse(
-    await fs.readFile(path.join(root, manifestPath), "utf8"),
+  const read = async (filename) =>
+    JSON.parse(await fs.readFile(path.join(root, filename), "utf8"));
+  const pilotManifest = await read(manifestPath);
+  const releaseManifest = await read(releaseManifestPath);
+  const pilot = await Promise.all(
+    pilotManifest.runs.map(async (e) => (await read(e.trace)).run),
   );
-  const finished = m.runs.filter(
-    (e) => e.result && ["completed", "exhausted", "stopped"].includes(e.status),
-  ).length;
-  if (final && (m.runs.length !== 30 || finished !== 30))
-    throw new Error(`Pilot incomplete: ${finished}/30`);
+  const release = await Promise.all(
+    releaseManifest.runs.map(
+      async (e) => (await read("evidence/team-evaluation/" + e.trace)).run,
+    ),
+  );
+  if (
+    pilot.length !== 30 ||
+    release.length !== 24 ||
+    [...pilot, ...release].some(
+      (r) => !["completed", "stopped", "exhausted"].includes(r.status),
+    )
+  )
+    throw Error("Evidence is incomplete");
+  const totals = (strategy) => {
+    const runs = release.filter((r) => r.config.strategy === strategy);
+    return {
+      n: runs.length,
+      mean:
+        runs.reduce((sum, r) => sum + r.result.satisfied_people, 0) /
+        runs.length,
+      calls: runs.reduce((sum, r) => sum + r.result.model_calls, 0),
+      tokens: runs.reduce(
+        (sum, r) => sum + r.result.input_tokens + r.result.output_tokens,
+        0,
+      ),
+    };
+  };
+  const solo = totals("coordinated"),
+    team = totals("team");
+  if (solo.calls !== 166 || team.calls !== 288)
+    throw Error("Release figures differ from the reviewed evidence");
   presentation.slides.keep([]);
   const add = () => {
-    const s = presentation.slides.add({ width: 1280, height: 720 });
-    s.background.fill = paper;
-    return s;
+    const slide = presentation.slides.add({ width: 1280, height: 720 });
+    slide.background.fill = colors.paper;
+    return slide;
   };
   let s = add();
-  text(s, "worldfork.", 72, 150, 1136, 125, 104, ink, true);
+  text(s, "worldfork.", 72, 138, 1136, 126, 100, colors.ink, true);
   text(
     s,
-    "Test agents where consequences\nare shared",
+    "Benchmark support agents\nwhere resources are shared",
     76,
-    315,
-    1050,
+    310,
+    1120,
     150,
-    48,
-    teal,
+    46,
+    colors.teal,
   );
   text(
     s,
-    "A local experiment lab for AI support agents",
+    `${presenter}\nGlobal AI Hackathon. Bifrost agent benchmarking challenge.`,
     78,
-    590,
-    1100,
-    50,
-    26,
-    muted,
+    586,
+    1120,
+    84,
+    25,
+    colors.muted,
   );
-  notes(
+  note(
     s,
-    "WorldFork. Original local hackathon prototype. Bifrost benchmarking challenge. All passengers, resources and policies are fictional. AI-assisted implementation using Codex.",
+    "WorldFork is an original local hackathon prototype. Its fictional passengers and resources create shared allocation consequences. Repository: https://github.com/chirana07/worldfork. Codex assisted implementation.",
   );
 
   s = add();
-  title(s, "Seven people, three early seats");
-  text(s, "5/7", 72, 194, 400, 150, 110, teal, true);
-  text(s, "people’s requirements met", 78, 355, 450, 70, 30);
-  text(
-    s,
-    "11 commits · 7 replacements\n80 credits spent · 0 committed violations",
-    78,
-    470,
-    470,
-    110,
-    26,
-    muted,
+  title(s, "Valid bookings can leave a family waiting");
+  text(s, "7 / 7", 72, 153, 240, 80, 60, colors.teal, true);
+  text(s, "Case-by-case service", 315, 173, 310, 60, 28);
+  text(s, "5 / 7", 710, 153, 240, 80, 60, colors.ink, true);
+  text(s, "Shared planning", 940, 173, 285, 60, 28);
+  const waitingRun = pilot.find(
+    (run) => run.id === "68bbf46f-fe10-4342-96d3-acdbdbac47eb",
   );
+  const early = waitingRun.snapshot.cases.filter(
+    (party) => party.booking?.option_id === "E",
+  );
+  text(s, "World B's early flight", 72, 247, 530, 45, 25, colors.muted);
   table(
     s,
     [
-      ["Early-flight seats", "People"],
-      ["Leo", "1"],
-      ["Mira", "1"],
-      ["Jules", "1"],
+      ["Committed booking", "People"],
+      ...early.map((party) => [party.name, String(party.people)]),
     ],
-    185,
-    [430, 150],
-    { left: 625, width: 580 },
+    300,
+    [370, 160],
+    25,
+    { left: 72, width: 530 },
   );
-  text(s, "Arun & Nila: two people waiting", 625, 440, 580, 80, 32, ink, true);
+  text(s, "Arun & Nila", 680, 280, 525, 60, 36, colors.ink, true);
   text(
     s,
-    "Valid transactions can still produce\na poor shared allocation.",
-    625,
-    550,
-    580,
-    100,
+    "Two people need the same flight.\nNo early seats remain.",
+    680,
+    360,
+    525,
+    95,
     28,
-    muted,
   );
-  notes(
+  await image(
     s,
-    "Development diagnostic, not frozen pilot. Llama3.1 case_by_case run 6fe13b2d-145d-4db8-a394-21f98a586017: 48 decisions, 5/7 people, 80 compensation spent, 11 commits including 7 replacements, zero committed policy violations. Retained full trace: artifacts/calibration-case_by_case.json. The displayed allocation is actual terminal state. The all-seven allocation is feasible under full synthetic information.",
+    "family.png",
+    { left: 680, top: 490, width: 525, height: 83 },
+    "Actual waiting-party row from World B",
+  );
+  text(
+    s,
+    "Both runs recorded zero committed policy violations. The party of two waits in World B.",
+    72,
+    621,
+    1136,
+    62,
+    22,
+    colors.muted,
+  );
+  note(
+    s,
+    "Illustrative frozen-pilot pair, not an aggregate. LangGraph, seed 29, Qwen3.5:4b, scripted passengers, same initial fixture and budgets. Case-by-case fe3b30ed-4b91-49c2-918c-383b8e2e936a reached 7/7. Coordinated 68bbf46f-fe10-4342-96d3-acdbdbac47eb ended at 5/7 with Arun and Nila unbooked. Source exports are linked in evidence/pilot-manifest.json.",
   );
 
   s = add();
-  title(s, "Replay the consequences");
-  text(s, "7/7", 72, 160, 230, 90, 66, teal, true);
-  text(s, "case-by-case", 292, 184, 290, 50, 27);
-  text(s, "5/7", 680, 160, 230, 90, 66, ink, true);
-  text(s, "coordinated design", 900, 184, 320, 50, 27);
-  const image = await fs.readFile(path.join(root, "artifacts/pitch-ui.jpg"));
-  s.images.add({
-    dataUrl: "data:image/jpeg;base64," + image.toString("base64"),
-    alt: "Actual WorldFork recorded comparison showing limited connections in two independent worlds",
-    fit: "contain",
-    position: { left: 72, top: 275, width: 1136, height: 382 },
-  });
+  title(s, "Architecture and the experiment boundary");
+  text(s, "Model decisions", 72, 160, 600, 45, 27, colors.muted);
+  node(s, "Python or\nLangGraph agent", 72, 225, 245);
+  arrow(s, 332, 266, 40);
+  node(s, "Measured\nmodel client", 387, 225, 225);
+  arrow(s, 627, 266, 40);
+  node(s, "Bifrost\ngateway", 682, 225, 225);
+  arrow(s, 922, 266, 40);
+  node(s, "Local\nOllama model", 977, 225, 230);
+  text(s, "Tool execution and scoring", 72, 378, 900, 45, 27, colors.muted);
+  node(s, "Selected action", 72, 440, 285);
+  arrow(s, 375, 481, 55);
+  node(s, "World rules\nand transactions", 448, 440, 325);
+  arrow(s, 792, 481, 55);
+  node(s, "Receipts and\nindependent score", 865, 440, 342);
   text(
     s,
-    "Development pair · same Qwen3.5:4b, seed, tools and budgets",
-    74,
-    662,
-    1130,
-    32,
-    19,
-    muted,
-  );
-  notes(
-    s,
-    "Actual Qwen development comparison, separate from frozen pilot. A a39a0063-698d-48e7-85a2-b3362aba36fd completed 7/7 in 41 decisions; B d4a6ab5c-3168-488e-9282-4e73ed69dcc5 exhausted 48 decisions at 5/7. Both Python, scripted passengers, seed11, temperature0.2. The screenshot is actual rendered app data. These two runs do not establish a strategy advantage.",
-  );
-
-  s = add();
-  title(s, "The experiment boundary");
-  text(s, "Model calls", 72, 184, 300, 40, 25, muted, true);
-  text(
-    s,
-    "Agent  →  Bifrost  →  local Ollama",
+    "React, FastAPI and SQLite expose the recorded state and decisions.\nPrivate requirements and the scoring oracle stay outside the support-agent context.",
     72,
-    246,
-    1136,
-    70,
-    42,
-    ink,
-    true,
-  );
-  text(s, "Tool execution", 72, 372, 300, 40, 25, muted, true);
-  text(
-    s,
-    "Agent  →  shared world  →  independent scorer",
-    72,
-    430,
-    1136,
-    80,
-    38,
-    teal,
-    true,
-  );
-  text(
-    s,
-    "Private passenger constraints stay outside the support-agent context.\nConsent, capacity, holds and compensation are enforced in code.\nReact + FastAPI + SQLite expose the recorded decisions and receipts.",
-    72,
-    558,
-    1136,
-    120,
-    26,
-    muted,
-  );
-  notes(
-    s,
-    "Implemented architecture: React/Vite/TypeScript -> FastAPI -> single local inference queue -> Python or LangGraph reference adapter -> measured Bifrost -> Ollama; typed tool execution returns to deterministic world and SQLite traces. Scripted acceptance baseline; optional LLM passenger consent mode exists but is outside this pilot. Full-private-information oracle stays evaluator-only. Native text/arrows are editable.",
-  );
-
-  s = add();
-  title(
-    s,
-    final
-      ? "Clean pilot: three seeds per design"
-      : "Clean pilot in progress",
-  );
-  const designs = [
-    ["Python", "python", "case_by_case"],
-    ["Python", "python", "coordinated"],
-    ["LangGraph", "langgraph", "case_by_case"],
-    ["LangGraph", "langgraph", "coordinated"],
-  ];
-  table(
-    s,
-    [
-      ["Integration", "Strategy", "Resolved people / 7", "Completed"],
-      ...designs.map(([label, f, st]) => {
-        const e = group(m, f, st);
-        return [
-          label,
-          st === "case_by_case" ? "Case-by-case" : "Coordinated",
-          values(e),
-          complete(e),
-        ];
-      }),
-    ],
-    190,
-    [240, 300, 366, 230],
-  );
-  text(
-    s,
-    "Seeds 11, 29, 47 · identical public-menu harness and budgets\nQwen3.5:4b · scripted passengers · Harbor development fixture",
-    72,
-    520,
+    594,
     1136,
     95,
-    27,
-    muted,
+    24,
+    colors.muted,
   );
-  text(
+  note(
     s,
-    "Three repeats per cell are a pilot; no statistical significance claim.",
-    72,
-    638,
-    1136,
-    40,
-    22,
-    muted,
-  );
-  notes(
-    s,
-    `Source: ${manifestPath}; frozen harness ${m.git_revision}; lock ${m.dependency_lock_sha256}. Clean matrix 2 frameworks x2 strategies x3 seeds. Outcome order follows queue seed order. Framework and strategy are independent axes. Reversed/rotated order is incompletely counterbalanced with three repeats. Every failure is retained. Pilot completion at authoring: ${finished}/30.`,
+    "Implemented architecture in docs/architecture.md. All scored reference-agent inference uses Gateway through Bifrost. Native Ollama inspection endpoints provide model metadata. The world enforces capacity, whole parties, consent, expiring holds, compensation and atomic replacement. Optional LLM passenger consent is outside the scored studies. The diagram is editable.",
   );
 
   s = add();
-  title(
+  title(s, "Specialists advise an orchestrator");
+  text(
     s,
-    final
-      ? "Controlled faults: exposure and completion"
-      : "Fault pilot in progress",
+    "Inventory specialist\nRecommends uses of scarce capacity.\n\nTraveler specialist\nChecks disclosed requirements.\n\nOrchestrator\nReassesses advice and chooses an action.",
+    72,
+    180,
+    570,
+    350,
+    29,
   );
-  const faultNames = {
-    model_unavailable: "Model unavailable",
-    tool_timeout: "Tool timeout",
-    misleading_observation: "Misleading inventory",
-  };
-  const rows = [];
-  for (const fault of Object.keys(faultNames))
-    for (const st of ["case_by_case", "coordinated"]) {
-      const e = group(m, "python", st, fault);
-      rows.push([
-        faultNames[fault],
-        st === "case_by_case" ? "Case-by-case" : "Coordinated",
-        `${e.filter((x) => x.result?.fault_delivered).length}/${e.length}`,
-        complete(e),
-        values(e),
+  await image(
+    s,
+    "team-detail.png",
+    { left: 700, top: 155, width: 505, height: 450 },
+    "Actual decision inspector with specialist proposals and the orchestrator plan",
+  );
+  text(
+    s,
+    "Specialists refresh after bookings or failed actions. Earlier advice keeps its original tick and action.",
+    72,
+    603,
+    1136,
+    75,
+    25,
+    colors.muted,
+  );
+  note(
+    s,
+    "Actual release trace e.g. first clean transfer seed 17. source in evidence/team-evaluation/manifest.json. TeamAgent consults specialists initially, after committed bookings or failed actions. It resolves accepted offers before reconsulting. Advice is advisory data, and receipts determine actual changes. A model plan may be mistaken.",
+  );
+
+  s = add();
+  title(s, "Repeated runs reveal outcome variation");
+  await image(
+    s,
+    "summary-detail.png",
+    { left: 72, top: 150, width: 1136, height: 430 },
+    "Actual repeated-run comparison panel showing means, outcome ranges and measured resources",
+  );
+  text(
+    s,
+    "The first pair scored 2 versus 5.\nThree clean seed means: solo 2.00, team 2.33.",
+    72,
+    592,
+    1136,
+    65,
+    25,
+    colors.teal,
+    true,
+  );
+  text(
+    s,
+    "Groups match the task, model digest, source, decoding and budgets. Missing usage stays unknown.",
+    72,
+    666,
+    1136,
+    38,
+    20,
+    colors.muted,
+  );
+  note(
+    s,
+    "Source: evidence/team-evaluation/report.md, clean harbor-transfer-v1 rows and matched outcomes. The team scores were 5,1,1, the solo scores 2,2,2. Screenshot comes from the actual /api/benchmarks panel. It also reports full success, steps, tool/model calls, tokens, local API charge, elapsed time and fault exposure. Runtime API aggregates every retained record, independent of the individual archive window.",
+  );
+
+  s = add();
+  title(s, "Thirty verified pilot episodes");
+  const cleanRows = [];
+  for (const framework of ["python", "langgraph"])
+    for (const strategy of ["case_by_case", "coordinated"]) {
+      const runs = pilot
+        .filter(
+          (r) =>
+            r.config.framework === framework &&
+            r.config.strategy === strategy &&
+            r.config.fault === "none",
+        )
+        .sort((a, b) => a.config.seed - b.config.seed);
+      cleanRows.push([
+        framework === "python" ? "Python" : "LangGraph",
+        strategy === "case_by_case" ? "Case-by-case" : "Shared planning",
+        runs.map((r) => r.result.satisfied_people).join(", "),
+        `${runs.filter((r) => r.status === "completed").length} / ${runs.length}`,
       ]);
     }
   table(
     s,
     [
-      ["Synthetic fault", "Strategy", "Exposed", "Completed", "People / 7"],
-      ...rows,
+      ["Integration", "Strategy", "People met / 7", "Full success"],
+      ...cleanRows,
     ],
-    180,
-    [320, 240, 166, 190, 220],
+    178,
+    [230, 300, 330, 276],
+    25,
   );
   text(
     s,
-    "Python reference integration · three seeds per fault and strategy\nUnavailable-model retry is automatic harness behavior.",
+    "12 clean runs. Three requested seeds per design.\n18 additional controlled fault trials, with all 18 exposures delivered.",
     72,
-    588,
+    542,
     1136,
-    85,
-    25,
-    muted,
+    90,
+    28,
+    colors.teal,
   );
-  notes(
+  text(
     s,
-    `Source: ${manifestPath}. Faults are controlled interventions, not natural incidents. Model unavailable injects one no-provider-request failure, then the harness retries. Timeout fails before mutation at/after tick8. Misleading observation adds one displayed early-flight seat at/after tick8; ground-truth capacity remains enforced. Exposures and terminal counts are separate. Reported completion describes the whole system under that intervention, not model-generated retry reasoning.`,
+    "Qwen3.5:4b. Harbor development fixture. Source and continuation provenance accompany the exports.",
+    72,
+    650,
+    1136,
+    42,
+    20,
+    colors.muted,
+  );
+  note(
+    s,
+    "Source: evidence/pilot-summary.md and pilot-manifest.json. Seeds 11,29,47. Clean matrix two frameworks by two strategies by three seeds. Fault matrix Python, two strategies, three fault types, three seeds. Three original interrupted misleading-input trials have retained originals and declared replacements. Historical observation alias affects 439 logged disclosure observations, documented in docs/trace-provenance.md. Recorded actions, receipts, scores and token sums all passed deterministic replay.",
   );
 
   s = add();
-  title(s, "A small, inspectable testbed");
-  text(s, "Implemented", 72, 180, 400, 45, 28, teal, true);
-  text(
+  title(s, "Coordination improves some outcomes at a cost");
+  table(
     s,
-    "Two reference integrations\nGeneric ReAct bridge example\nConsent and transaction receipts\nPortable traces and model usage",
-    72,
-    252,
-    535,
-    200,
-    30,
+    [
+      ["Design", "Mean people / 7", "Model calls", "Observed tokens"],
+      [
+        "Solo planner",
+        solo.mean.toFixed(2),
+        solo.calls.toLocaleString("en-US"),
+        solo.tokens.toLocaleString("en-US"),
+      ],
+      [
+        "Specialist team",
+        team.mean.toFixed(2),
+        team.calls.toLocaleString("en-US"),
+        team.tokens.toLocaleString("en-US"),
+      ],
+    ],
+    180,
+    [300, 280, 260, 296],
+    27,
   );
-  text(s, "Scope", 680, 180, 470, 45, 28, ink, true);
   text(
     s,
-    "Synthetic passenger contracts\nTwo development fixtures\nOne small local model in this pilot\nNo real-world reliability claim",
-    680,
-    252,
-    535,
-    200,
-    30,
-    muted,
-  );
-  text(
-    s,
-    "Next: untouched scenarios and independently tested agent integrations",
+    "7 team wins, 3 losses and 2 ties across 12 matched pairs",
     72,
-    520,
+    424,
     1136,
-    85,
-    30,
-    ink,
+    64,
+    34,
+    colors.teal,
     true,
   );
   text(
     s,
-    "Run locally:  uv run python scripts/backend.py",
+    "9 of 12 configured timeouts were delivered. Later bookings followed in\n5 of 5 exposed team runs and 2 of 4 exposed solo runs.",
     72,
-    641,
+    512,
     1136,
-    40,
-    25,
-    teal,
+    90,
+    27,
   );
-  notes(
+  text(
     s,
-    "AI use: local Ollama decisions, Bifrost inference gateway, LangGraph integration, Codex-assisted implementation. Main pilot uses scripted passenger acceptance contracts, not a swarm of independently validated human models. LLM passenger mode is implemented separately and is not represented as evaluated here. Third-party prebuilt ReAct smoke: four actual disclosure actions through measured Bifrost, with no changes to the library agent loop. Its factory is deprecated in the installed release; no universal integration claim. Future features are explicitly labeled Next.",
+    "Separate 24-run study. Python. Three seeds. Two fixtures. Sixteen steps per run. No release run met all seven.",
+    72,
+    638,
+    1136,
+    58,
+    20,
+    colors.muted,
   );
-  return { slides: presentation.slides.items.length, finished, manifestPath };
-}
+  note(
+    s,
+    "Source: evidence/team-evaluation/report.md and manifest.json. Seeds 17,43,71, two fixtures, clean/timeout conditions, solo/team strategies. Each strategy has 12 episodes and 166 actual tool actions. Team used 288 calls vs166 solo, 1.73 times. Team reused advice on75 decisions, skipping150 specialist requests on those observed paths. This does not predict what the earlier policy would have achieved. Twenty runs reached the step cap, four stopped early. Every exposed timeout episode had subsequent successful tools. Success means ok true; a booking requires a committed receipt. These observations do not establish restoration of the clean outcome.",
+  );
 
-export async function render(
-  presentation,
-  directory = "artifacts/pitch-previews",
-) {
-  const target = path.join(root, directory);
-  await fs.mkdir(target, { recursive: true });
-  for (const [i, s] of presentation.slides.items.entries()) {
-    const image = await presentation.export({
-      slide: s,
-      format: "png",
-      scale: 1,
-    });
-    await fs.writeFile(
-      path.join(target, `slide-${i + 1}.png`),
-      new Uint8Array(await image.arrayBuffer()),
-    );
-  }
-  return target;
+  s = add();
+  title(s, "A reproducible benchmark for review");
+  const repo = text(
+    s,
+    "github.com/chirana07/worldfork",
+    72,
+    175,
+    1136,
+    65,
+    40,
+    colors.teal,
+    true,
+  );
+  repo.hyperlink = {
+    uri: "https://github.com/chirana07/worldfork",
+    isExternal: true,
+  };
+  text(
+    s,
+    "Public source and verified traces\n66 tests and Docker verification\nRecorded replay without model credentials",
+    72,
+    285,
+    590,
+    190,
+    31,
+  );
+  text(
+    s,
+    "AI decisions use Ollama through Bifrost.\nLangGraph provides one integration.\nCodex assisted implementation.",
+    720,
+    285,
+    490,
+    170,
+    28,
+    colors.muted,
+  );
+  text(
+    s,
+    "Current evidence covers one small model and a synthetic airport domain.\nAdditional models, support domains and agent integrations need validation.",
+    72,
+    505,
+    1136,
+    100,
+    28,
+  );
+  text(
+    s,
+    `${presenter}. Local replay and installation instructions are in the README.`,
+    72,
+    640,
+    1136,
+    45,
+    23,
+    colors.muted,
+  );
+  note(
+    s,
+    "Public repository https://github.com/chirana07/worldfork. README includes source-faithful setup and no-inference replay commands. docs/challenge-alignment.md maps the Bifrost briefing to features. docs/adapter-guide.md describes reference adapter and generic message-tool bridge limits. No real airline, travelers, transactions or money. Local API charge is zero, with hardware and electricity unmeasured. 66 tests and full Docker CI passed before this media refresh. Source tests will run again with the final package.",
+  );
+  return {
+    slides: presentation.slides.items.length,
+    pilot_runs: pilot.length,
+    release_runs: release.length,
+    presenter,
+  };
 }

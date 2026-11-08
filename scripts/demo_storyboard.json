@@ -1,0 +1,72 @@
+[
+  {
+    "kind": "opening",
+    "seconds": 12,
+    "title": "Valid bookings can leave a family waiting",
+    "source": "Recorded pilot. LangGraph. Seed 29. One illustrative pair.",
+    "speech": "Every committed booking here obeys the rules. Yet one design leaves a two-person party waiting. WorldFork measures the shared world that an agent's decisions leave behind."
+  },
+  {
+    "kind": "initial",
+    "seconds": 18,
+    "title": "Seven people share scarce seats and compensation",
+    "source": "Recorded initial state. Fictional passengers and resources.",
+    "speech": "Six passenger parties represent seven people after a cancellation. They share limited seats and eighty fictional compensation credits. Hidden deadlines and transport requirements mean that a booking for one party changes what remains possible for everyone else."
+  },
+  {
+    "kind": "receipt",
+    "seconds": 20,
+    "title": "An offer holds capacity. A commit confirms the booking.",
+    "source": "Actual pilot receipt. World A books the party of two at logical tick 2.",
+    "speech": "Both agents start from the same world, model and budget. An accepted offer holds seats. A separate commit confirms the booking, and its receipt records the change. Deterministic application code checks consent, whole-party capacity and compensation. The agent cannot award itself a successful outcome."
+  },
+  {
+    "kind": "method",
+    "seconds": 19,
+    "title": "Bifrost carries model calls. The world owns the outcome.",
+    "source": "Implemented Python and LangGraph integrations. Local Ollama inference through Bifrost.",
+    "speech": "Plain Python and LangGraph integrations use the same environment and scorer. Model requests pass through Bifrost to local Ollama. The agent selects an action, while the environment executes it. The ledger keeps each decision, the tool result and the measured model usage."
+  },
+  {
+    "kind": "team",
+    "seconds": 21,
+    "title": "Two specialists advise an orchestrator",
+    "source": "Recorded release study. Same model and 16-step budgets. First transfer seed.",
+    "speech": "The team adds an inventory specialist and a traveler specialist. An orchestrator weighs their suggestions and chooses the next action. Specialists are consulted when important conditions change. Between consultations, the orchestrator reassesses dated advice against fresh observations. The inspector shows that advice, its plan and the actual receipt."
+  },
+  {
+    "kind": "summary",
+    "seconds": 21,
+    "title": "Repeated runs expose both outcomes and resource use",
+    "source": "Measured means and ranges. Different tasks, models, source versions and budgets form separate groups.",
+    "speech": "The archive compares repeated runs under matching conditions. It shows full success, average travelers helped, steps, model and tool calls, tokens, API charge and time. Early stops remain visible. Changing the scenario, model, source version or budget creates a different comparison group."
+  },
+  {
+    "kind": "pilot",
+    "seconds": 19,
+    "title": "The original pilot contains 30 verified episodes",
+    "source": "Clean pilot. Two frameworks, two strategies, three seeds. Fault trials remain separate.",
+    "speech": "The original pilot includes thirty verified episodes across two frameworks, two strategies and controlled faults. In clean runs, case-by-case support fully resolved six of six episodes. Shared-constraint planning did so once in six. These results show why a more elaborate strategy needs measurement."
+  },
+  {
+    "kind": "tradeoff",
+    "seconds": 20,
+    "title": "The team won 7 pairs, lost 3 and tied 2",
+    "source": "Separate 24-run study. Mean travelers met 3.25 versus 2.33. Model calls 288 versus 166.",
+    "speech": "A separate twenty-four-run study compares solo planning with the specialist team. The team won seven matched pairs, lost three and tied two. It helped more travelers on average, but needed one point seven three times as many model calls. Reusing advice skipped one hundred fifty specialist requests on the recorded paths."
+  },
+  {
+    "kind": "fault",
+    "seconds": 18,
+    "title": "Fault exposure and later actions are measured separately",
+    "source": "Release study. Nine of twelve configured timeouts delivered. Five of five exposed team runs made a later booking.",
+    "speech": "Nine of twelve configured timeouts were delivered. Some agents stopped before the trigger. Every exposed run made later successful tool calls. The team made a later booking in all five exposed episodes. The trace lets us inspect the failure and what followed."
+  },
+  {
+    "kind": "closing",
+    "seconds": 12,
+    "title": "Source, tests and verified traces are ready to review",
+    "source": "github.com/chirana07/worldfork. One small model and a synthetic airport domain.",
+    "speech": "WorldFork replays the evidence without model credentials. The public repository includes source, tests and verified traces. Current results cover one small model in a synthetic airport. Broader validation is the next step."
+  }
+]
